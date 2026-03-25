@@ -1,0 +1,6 @@
+__pycache__/
+db/
+*.pyc
+.env
+courses.json
+course_codes_full.json
