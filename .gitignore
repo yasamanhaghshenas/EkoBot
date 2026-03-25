@@ -3,4 +3,4 @@ db/
 *.pyc
 .env
 courses.json
-course_codes_full.json
+course_codes_full.json".history/" 
