@@ -1,0 +1,59 @@
+{
+  "grading": {
+    "source": "https://oim.ieu.edu.tr/en/notlar-not-ortalamalari",
+    "scale": [
+      {"grade": "AA", "coefficient": 4.00, "points": "90-100", "status": "Successful"},
+      {"grade": "BA", "coefficient": 3.50, "points": "85-89", "status": "Successful"},
+      {"grade": "BB", "coefficient": 3.00, "points": "80-84", "status": "Successful"},
+      {"grade": "CB", "coefficient": 2.50, "points": "75-79", "status": "Successful"},
+      {"grade": "CC", "coefficient": 2.00, "points": "70-74", "status": "Successful"},
+      {"grade": "DC", "coefficient": 1.50, "points": "65-69", "status": "Successful"},
+      {"grade": "DD", "coefficient": 1.00, "points": "60-64", "status": "Successful"},
+      {"grade": "FD", "coefficient": 0.50, "points": "50-59", "status": "Unsuccessful"},
+      {"grade": "FF", "coefficient": 0.00, "points": "49 and below", "status": "Unsuccessful"}
+    ],
+    "special_grades": {
+      "NA": "Non-attendance. Counts as 0.00 in GPA calculation.",
+      "S": "Satisfactory. Given for successful completion of non-credited courses.",
+      "U": "Unsatisfactory. Given for unsuccessful non-credited courses.",
+      "EX": "Exempt. Given to students exempt from certain courses.",
+      "I": "Incomplete. Must be completed within one week of grade submission, otherwise becomes FF.",
+      "W": "Withdrawal. Student can withdraw on dates specified in academic calendar.",
+      "NI": "Not Included. Course not counted in GPA."
+    }
+  },
+  "credit_load": {
+    "source": "https://oim.ieu.edu.tr/en/basari-kosullari",
+    "explanation": "IEU applies GPA-based limits for extra course load. Normal semester load is typically around 32 ECTS, and extra load depends on GPA as follows:",
+    "rules_by_gpa": {
+      "2.50_and_above": "You may take normal load + 12 extra ECTS (up to 44 ECTS).",
+      "2.00_to_2.49": "You may take normal load + 6 extra ECTS (up to 38 ECTS).",
+      "1.80_to_1.99": "Academic probation (if at least 150 ECTS completed by end of year 3). You may take less than normal load with advisor approval.",
+      "1.70_to_1.99": "Academic probation (if at least 100 ECTS completed by end of year 2). You may take less than normal load with advisor approval.",
+      "1.50_to_1.99": "Academic probation (if at least 50 ECTS completed by end of year 1). You may take less than normal load with advisor approval.",
+      "below_threshold": "Students with GPA below 2.00 take normal course load with a maximum of 32 ECTS per semester."
+    },
+    "extra_courses": "Maximum extra load is +6 ECTS for GPA 2.00-2.49 and +12 ECTS for GPA 2.50 and above, with advisor approval."
+  },
+  "academic_standing": {
+    "source": "https://oim.ieu.edu.tr/en/basari-kosullari",
+    "probation_thresholds": {
+      "end_of_year_1": "GPA between 1.50-1.99 (with at least 50 ECTS taken)",
+      "end_of_year_2": "GPA between 1.70-1.99 (with at least 100 ECTS taken)",
+      "end_of_year_3": "GPA between 1.80-1.99 (with at least 150 ECTS taken)"
+    },
+    "graduation_min_gpa": 2.00,
+    "graduation_ects": {
+      "associate": 120,
+      "undergraduate_4year": 240,
+      "undergraduate_6year": 360
+    }
+  },
+  "withdrawal": {
+    "source": "https://oim.ieu.edu.tr/en/notlar-not-ortalamalari",
+    "max_per_semester": 1,
+    "max_during_associate": 2,
+    "max_during_undergraduate": 6,
+    "restrictions": "Cannot withdraw from compulsory courses, repeated courses, or courses with prior W grade during first two semesters."
+  }
+}

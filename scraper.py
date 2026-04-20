@@ -1,17 +1,17 @@
-import requests
-from bs4 import BeautifulSoup
+import argparse
 import json
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-with open("course_codes_full.json", "r", encoding="utf-8") as f:
-    course_list = json.load(f)
+import requests
+import urllib3
+from bs4 import BeautifulSoup
 
-print(f"Loaded {len(course_list)} courses. Starting scraper...\n")
 
-def scrape_course(course):
+def scrape_course(course, verify_ssl=True):
     try:
         url = course["syllabus_url"]
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, timeout=15, verify=verify_ssl)
         response.encoding = "utf-8"
         soup = BeautifulSoup(response.text, "html.parser")
 
@@ -96,24 +96,72 @@ def scrape_course(course):
     except Exception as e:
         return None
 
-all_courses = []
-failed = 0
 
-for i, course in enumerate(course_list):
-    if (i + 1) % 50 == 0:
-        print(f"Progress: {i+1}/{len(course_list)} — scraped {len(all_courses)} successfully")
+def main():
+    parser = argparse.ArgumentParser(description="Scrape course syllabus pages into courses.json")
+    parser.add_argument("--input", default="course_codes_full.json")
+    parser.add_argument("--output", default="courses.json")
+    parser.add_argument("--workers", type=int, default=16)
+    parser.add_argument("--sleep", type=float, default=0.0)
+    parser.add_argument("--insecure", action="store_true", help="Disable SSL certificate verification")
+    args = parser.parse_args()
 
-    result = scrape_course(course)
-    if result:
-        all_courses.append(result)
-    else:
-        failed += 1
+    verify_ssl = not args.insecure
+    if not verify_ssl:
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        print("WARNING: SSL verification is disabled (--insecure).")
 
-    time.sleep(0.5)  # slightly faster now since we have more courses
+    with open(args.input, "r", encoding="utf-8") as f:
+        course_list = json.load(f)
 
-with open("courses.json", "w", encoding="utf-8") as f:
-    json.dump(all_courses, f, ensure_ascii=False, indent=2)
+    print(f"Loaded {len(course_list)} courses. Starting scraper...\n")
 
-print(f"\n✅ Done!")
-print(f"Successfully scraped: {len(all_courses)} courses")
-print(f"Failed/not found: {failed} courses")
+    unique_courses = {}
+    for course in course_list:
+        url = course.get("syllabus_url")
+        if url and url not in unique_courses:
+            unique_courses[url] = course
+
+    print(f"Unique syllabus URLs: {len(unique_courses)}")
+
+    cache = {}
+    completed = 0
+
+    with ThreadPoolExecutor(max_workers=max(args.workers, 1)) as executor:
+        future_map = {
+            executor.submit(scrape_course, course, verify_ssl=verify_ssl): url
+            for url, course in unique_courses.items()
+        }
+        for future in as_completed(future_map):
+            url = future_map[future]
+            cache[url] = future.result()
+            completed += 1
+            if completed % 50 == 0 or completed == len(unique_courses):
+                print(f"Progress: {completed}/{len(unique_courses)} unique URLs scraped")
+            if args.sleep > 0:
+                time.sleep(args.sleep)
+
+    all_courses = []
+    failed = 0
+    for course in course_list:
+        url = course.get("syllabus_url")
+        result = cache.get(url)
+        if result:
+            scraped = dict(result)
+            scraped["code"] = course["code"]
+            scraped["department"] = course["department"]
+            scraped["url"] = url
+            all_courses.append(scraped)
+        else:
+            failed += 1
+
+    with open(args.output, "w", encoding="utf-8") as f:
+        json.dump(all_courses, f, ensure_ascii=False, indent=2)
+
+    print(f"\n✅ Done!")
+    print(f"Successfully scraped: {len(all_courses)} courses")
+    print(f"Failed/not found: {failed} courses")
+
+
+if __name__ == "__main__":
+    main()

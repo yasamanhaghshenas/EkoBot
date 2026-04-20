@@ -1,0 +1,425 @@
+[
+  {
+    "id": "PREREQ_CE342",
+    "category": "course_lookup",
+    "question": "What are the prerequisites for CE 342?",
+    "history": [],
+    "checks": [
+      {"type": "contains_any", "value": ["EEE 242", "Prerequisites", "prerequisite"]},
+      {"type": "not_contains", "value": "I don't have that information in the IEU database."}
+    ]
+  },
+  {
+    "id": "PREREQ_VARIANT",
+    "category": "course_lookup",
+    "question": "Prereq for CE 342?",
+    "history": [],
+    "checks": [
+      {"type": "contains_any", "value": ["EEE 242", "prerequisite"]}
+    ]
+  },
+  {
+    "id": "NO_DEPT_ASSUMPTION",
+    "category": "planning",
+    "question": "im a third year student with gpa of 2.5 which courses should i take for spring",
+    "history": [
+      {"role": "user", "content": "What are the prerequisites for CE 342?"},
+      {"role": "assistant", "content": "The prerequisite for CE 342 is EEE 242."}
+    ],
+    "checks": [
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which department are you in"}
+    ]
+  },
+  {
+    "id": "FOLLOWUP_DEPT_THEN_PLAN_CE",
+    "category": "planning",
+    "question": "CE",
+    "history": [
+      {"role": "user", "content": "im a third year student with gpa of 2.5 which courses should i take for spring"},
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which department are you in? (e.g. CE, SE, EEE, IE, BME, ME)"}
+    ],
+    "checks": [
+      {"type": "contains", "value": "Year 3 Spring Semester"},
+      {"type": "contains_any", "value": ["CE 326", "CE 316"]}
+    ]
+  },
+  {
+    "id": "FOLLOWUP_DEPT_THEN_PLAN_SE",
+    "category": "planning",
+    "question": "SE",
+    "history": [
+      {"role": "user", "content": "I am third year spring, which courses should I take?"},
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which department are you in? (e.g. CE, SE, EEE, IE, BME, ME)"}
+    ],
+    "checks": [
+      {"type": "contains", "value": "SE"},
+      {"type": "contains", "value": "Year 3 Spring Semester"}
+    ]
+  },
+  {
+    "id": "NEED_YEAR_TERM",
+    "category": "planning",
+    "question": "I am in SE department. Which courses should I take?",
+    "history": [],
+    "checks": [
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year and semester"}
+    ]
+  },
+  {
+    "id": "NEED_DEPT",
+    "category": "planning",
+    "question": "I am 2nd year spring, which courses should I take?",
+    "history": [],
+    "checks": [
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which department are you in"}
+    ]
+  },
+  {
+    "id": "PLAN_SE_2_SPRING",
+    "category": "planning",
+    "question": "I am a software engineering student in 2nd year spring. Which courses should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "SE"},
+      {"type": "contains", "value": "Year 2 Spring Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_CE_1_FALL",
+    "category": "planning",
+    "question": "I am in CE department, 1st year fall. What should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "CE"},
+      {"type": "contains", "value": "Year 1 Fall Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_CE_2_SPRING",
+    "category": "planning",
+    "question": "I am in CE department, 2nd year spring. What should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "CE"},
+      {"type": "contains", "value": "Year 2 Spring Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_EEE_1_FALL",
+    "category": "planning",
+    "question": "I am in EEE department, first year fall, what should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "EEE"},
+      {"type": "contains", "value": "Year 1 Fall Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_EEE_2_SPRING",
+    "category": "planning",
+    "question": "I am in EEE department, second year spring, what should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "EEE"},
+      {"type": "contains", "value": "Year 2 Spring Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_IE_1_FALL",
+    "category": "planning",
+    "question": "I am in IE department, 1st year fall semester. Which courses?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "IE"},
+      {"type": "contains", "value": "Year 1 Fall Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_IE_2_SPRING",
+    "category": "planning",
+    "question": "I am in IE department, 2nd year spring semester. Which courses?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "IE"},
+      {"type": "contains", "value": "Year 2 Spring Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_BME_1_FALL",
+    "category": "planning",
+    "question": "I am in BME department, 1st year fall, what should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "BME"},
+      {"type": "contains", "value": "Year 1 Fall Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_BME_2_SPRING",
+    "category": "planning",
+    "question": "I am in BME department, 2nd year spring, what should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "BME"},
+      {"type": "contains", "value": "Year 2 Spring Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_MCE_1_FALL",
+    "category": "planning",
+    "question": "I am in MCE department, 1st year fall, what should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "MCE"},
+      {"type": "contains", "value": "Year 1 Fall Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_MCE_2_SPRING",
+    "category": "planning",
+    "question": "I am in MCE department, 2nd year spring, what should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "MCE"},
+      {"type": "contains", "value": "Year 2 Spring Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_AE_1_FALL",
+    "category": "planning",
+    "question": "I am in AE department, 1st year fall, what should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "AE"},
+      {"type": "contains", "value": "Year 1 Fall Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_AE_2_SPRING",
+    "category": "planning",
+    "question": "I am in AE department, 2nd year spring, what should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "AE"},
+      {"type": "contains", "value": "Year 2 Spring Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_CIVE_1_FALL",
+    "category": "planning",
+    "question": "I am in CIVE department, 1st year fall, what should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "CIVE"},
+      {"type": "contains", "value": "Year 1 Fall Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_CIVE_2_SPRING",
+    "category": "planning",
+    "question": "I am in CIVE department, 2nd year spring, what should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "CIVE"},
+      {"type": "contains", "value": "Year 2 Spring Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_GBE_1_FALL",
+    "category": "planning",
+    "question": "I am in GBE department, 1st year fall, what should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "GBE"},
+      {"type": "contains", "value": "Year 1 Fall Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_GBE_2_SPRING",
+    "category": "planning",
+    "question": "I am in GBE department, 2nd year spring, what should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "GBE"},
+      {"type": "contains", "value": "Year 2 Spring Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_FE_1_FALL",
+    "category": "planning",
+    "question": "I am in FE department, first year fall, what should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "FE"},
+      {"type": "contains", "value": "Year 1 Fall Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_FE_2_SPRING",
+    "category": "planning",
+    "question": "I am in FE department, second year spring, what should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "FE"},
+      {"type": "contains", "value": "Year 2 Spring Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_ME_1_FALL",
+    "category": "planning",
+    "question": "I am in ME department, first year fall, what should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "ME"},
+      {"type": "contains", "value": "Year 1 Fall Semester"}
+    ]
+  },
+  {
+    "id": "PLAN_ME_2_SPRING",
+    "category": "planning",
+    "question": "I am in ME department, second year spring, what should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "ME"},
+      {"type": "contains", "value": "Year 2 Spring Semester"}
+    ]
+  },
+  {
+    "id": "GRAD_REQ_CE",
+    "category": "graduation",
+    "question": "What are the graduation requirements for CE?",
+    "history": [],
+    "checks": [
+      {"type": "contains_any", "value": ["240 ECTS", "CGPA", "2.00"]}
+    ]
+  },
+  {
+    "id": "GRAD_REQ_SE",
+    "category": "graduation",
+    "question": "Can you explain graduation requirements for SE?",
+    "history": [],
+    "checks": [
+      {"type": "contains_any", "value": ["240 ECTS", "CGPA", "2.00"]}
+    ]
+  },
+  {
+    "id": "GPA_RULE_250",
+    "category": "regulations",
+    "question": "My GPA is 2.5, how many credits can I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains_any", "value": ["44", "+12", "2.50"]}
+    ]
+  },
+  {
+    "id": "GPA_RULE_220",
+    "category": "regulations",
+    "question": "My GPA is 2.2 how many credits can I take this semester?",
+    "history": [],
+    "checks": [
+      {"type": "contains_any", "value": ["38", "+6", "2.00"]}
+    ]
+  },
+  {
+    "id": "GPA_RULE_190",
+    "category": "regulations",
+    "question": "If my GPA is below 2.00, what is my credit limit?",
+    "history": [],
+    "checks": [
+      {"type": "contains_any", "value": ["32", "2.00", "normal"]}
+    ]
+  },
+  {
+    "id": "OUT_SCOPE_WEATHER",
+    "category": "refusal",
+    "question": "What is the weather in Izmir tomorrow?",
+    "history": [],
+    "checks": [
+      {"type": "contains_any", "value": ["I don't have", "IEU database"]}
+    ]
+  },
+  {
+    "id": "OUT_SCOPE_POLITICS",
+    "category": "refusal",
+    "question": "Who will win the election next year?",
+    "history": [],
+    "checks": [
+      {"type": "contains_any", "value": ["I don't have", "IEU database"]}
+    ]
+  },
+  {
+    "id": "OUT_SCOPE_POEM",
+    "category": "refusal",
+    "question": "Write me a poem about dolphins.",
+    "history": [],
+    "checks": [
+      {"type": "contains_any", "value": ["I don't have", "IEU database"]}
+    ]
+  },
+  {
+    "id": "OUT_SCOPE_COOKING",
+    "category": "refusal",
+    "question": "How do I cook lasagna?",
+    "history": [],
+    "checks": [
+      {"type": "contains_any", "value": ["I don't have", "IEU database"]}
+    ]
+  },
+  {
+    "id": "TYPO_PLAN_QUESTION",
+    "category": "typo",
+    "question": "im sofware enginering studnt 2nd year sping what courss should i take",
+    "history": [],
+    "checks": [
+      {"type": "contains_any", "value": ["SE", "FOLLOWUP_NEEDED:", "I don't have enough information"]}
+    ]
+  },
+  {
+    "id": "TYPO_DEPT_REPLY",
+    "category": "typo",
+    "question": "cee",
+    "history": [
+      {"role": "user", "content": "I am 3rd year spring, what should I take?"},
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which department are you in? (e.g. CE, SE, EEE, IE, BME, ME)"}
+    ],
+    "checks": [
+      {"type": "contains_any", "value": ["FOLLOWUP_NEEDED:", "I don't have"]}
+    ]
+  },
+  {
+    "id": "TR_PLAN_NEED_DEPT",
+    "category": "turkish",
+    "question": "Ben 3. sınıf bahar dönemindeyim, hangi dersleri almalıyım?",
+    "history": [],
+    "checks": [
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "department"}
+    ]
+  },
+  {
+    "id": "TR_PLAN_WITH_DEPT",
+    "category": "turkish",
+    "question": "Ben CE bölümündeyim, 3. sınıf bahar döneminde hangi dersleri almalıyım?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "CE"},
+      {"type": "contains", "value": "Year 3 Spring Semester"}
+    ]
+  },
+  {
+    "id": "TR_FOLLOWUP_DEPT_REPLY",
+    "category": "turkish",
+    "question": "SE",
+    "history": [
+      {"role": "user", "content": "Ben 2. sınıf bahar dönemindeyim, hangi dersleri almalıyım?"},
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which department are you in? (e.g. CE, SE, EEE, IE, BME, ME)"}
+    ],
+    "checks": [
+      {"type": "contains", "value": "SE"},
+      {"type": "contains", "value": "Year 2 Spring Semester"}
+    ]
+  }
+]

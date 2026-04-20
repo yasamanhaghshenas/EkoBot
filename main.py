@@ -23,6 +23,7 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     answer: str
+    is_followup: bool = False
 
 @app.get("/")
 def root():
@@ -32,4 +33,8 @@ def root():
 async def chat(req: ChatRequest):
     history = [{"role": m.role, "content": m.content} for m in req.history]
     answer = gemini.ask(req.question, history)
-    return ChatResponse(answer=answer)
+    
+    is_followup = answer.startswith("FOLLOWUP_NEEDED:")
+    clean_answer = answer.replace("FOLLOWUP_NEEDED:", "").strip() if is_followup else answer
+    
+    return ChatResponse(answer=clean_answer, is_followup=is_followup)

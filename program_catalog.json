@@ -1,0 +1,2362 @@
+[
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Justice (Turkish)",
+    "department_code": "ADL",
+    "prefixes": [
+      "ADL"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://adl.ieu.edu.tr/adalet/en/curr",
+    "syllabus_pattern": "https://adl.ieu.edu.tr/adalet/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Legal Office Management and Secretariat (Turkish)",
+    "department_code": "ADL",
+    "prefixes": [
+      "ADL",
+      "HBY"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://adl.ieu.edu.tr/hukuk_buro_yonetimi/en/curr",
+    "syllabus_pattern": "https://adl.ieu.edu.tr/hukuk_buro_yonetimi/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Applied English Translation",
+    "department_code": "AET",
+    "prefixes": [
+      "AET"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://vs.ieu.edu.tr/uic/en/curr",
+    "syllabus_pattern": "https://vs.ieu.edu.tr/uic/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Architectural Restoration (Turkish)",
+    "department_code": "MMIR",
+    "prefixes": [
+      "MMIR"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://vs.ieu.edu.tr/architectural_restoration/en/curr",
+    "syllabus_pattern": "https://vs.ieu.edu.tr/architectural_restoration/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Banking and Insurance (Turkish)",
+    "department_code": "BNS",
+    "prefixes": [
+      "BNS"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://bs.ieu.edu.tr/en/curr",
+    "syllabus_pattern": "https://bs.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Civil Aviation Cabin Services (Turkish)",
+    "department_code": "MPAZ",
+    "prefixes": [
+      "MPAZ"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://vs.ieu.edu.tr/civil_aviation/en/curr",
+    "syllabus_pattern": "https://vs.ieu.edu.tr/civil_aviation/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Civil Aviation Transportation Management (Turkish)",
+    "department_code": "HYHY",
+    "prefixes": [
+      "HYHY"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://vs.ieu.edu.tr/ground_services/en/curr",
+    "syllabus_pattern": "https://vs.ieu.edu.tr/ground_services/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Computer Programming (Turkish)",
+    "department_code": "BIL",
+    "prefixes": [
+      "BIL",
+      "CP"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://vs.ieu.edu.tr/cp/en/curr",
+    "syllabus_pattern": "https://vs.ieu.edu.tr/cp/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Construction Technology (Turkish)",
+    "department_code": "MINT",
+    "prefixes": [
+      "MINT"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://vs.ieu.edu.tr/insaat/en/curr",
+    "syllabus_pattern": "https://vs.ieu.edu.tr/insaat/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Foreign Trade (Turkish)",
+    "department_code": "DT",
+    "prefixes": [
+      "DT",
+      "FT"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://dt.ieu.edu.tr/en/curr",
+    "syllabus_pattern": "https://dt.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Graphic Design (Turkish)",
+    "department_code": "MGT",
+    "prefixes": [
+      "MGT",
+      "BILT"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://vs.ieu.edu.tr/graphic_design/en/curr",
+    "syllabus_pattern": "https://vs.ieu.edu.tr/graphic_design/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Interior Design (Turkish)",
+    "department_code": "RTV",
+    "prefixes": [
+      "RTV"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://vs.ieu.edu.tr/interior_design/en/curr",
+    "syllabus_pattern": "https://vs.ieu.edu.tr/interior_design/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Media and Communication (Turkish)",
+    "department_code": "RTV",
+    "prefixes": [
+      "RTV",
+      "MED"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://vs.ieu.edu.tr/medyaveiletisim/en/curr",
+    "syllabus_pattern": "https://vs.ieu.edu.tr/medyaveiletisim/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Occupational Health and Safety (Turkish)",
+    "department_code": "MISG",
+    "prefixes": [
+      "MISG"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://vs.ieu.edu.tr/ohs/en/curr",
+    "syllabus_pattern": "https://vs.ieu.edu.tr/ohs/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Radio and TV Programming (Turkish)",
+    "department_code": "RTV",
+    "prefixes": [
+      "RTV"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://rtv.ieu.edu.tr/en/curr",
+    "syllabus_pattern": "https://rtv.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Tourism and Hotel Management (Turkish)",
+    "department_code": "MTOI",
+    "prefixes": [
+      "MTOI"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://vs.ieu.edu.tr/tourism/en/curr",
+    "syllabus_pattern": "https://vs.ieu.edu.tr/tourism/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Child Development (Turkish)",
+    "department_code": "CG",
+    "prefixes": [
+      "CG"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://shs.ieu.edu.tr/cd/en/curr",
+    "syllabus_pattern": "https://shs.ieu.edu.tr/cd/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Elderly Care (Turkish)",
+    "department_code": "TS",
+    "prefixes": [
+      "TS"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://shs.ieu.edu.tr/yasli_bakimi/en/curr",
+    "syllabus_pattern": "https://shs.ieu.edu.tr/yasli_bakimi/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Medical Documentation and Secretariat (Turkish)",
+    "department_code": "TDS",
+    "prefixes": [
+      "TDS",
+      "ADL",
+      "BLG"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://shs.ieu.edu.tr/tds/en/curr",
+    "syllabus_pattern": "https://shs.ieu.edu.tr/tds/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Medical Imaging Techniques (Turkish)",
+    "department_code": "TGT",
+    "prefixes": [
+      "TGT"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://shs.ieu.edu.tr/mit/en/curr",
+    "syllabus_pattern": "https://shs.ieu.edu.tr/mit/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Medical Laboratory Techniques (Turkish)",
+    "department_code": "TLT",
+    "prefixes": [
+      "TLT"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://shs.ieu.edu.tr/medical_laboratory_techniques/en/curr",
+    "syllabus_pattern": "https://shs.ieu.edu.tr/medical_laboratory_techniques/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Opticianry (Turkish)",
+    "department_code": "OPT",
+    "prefixes": [
+      "OPT",
+      "TS"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://shs.ieu.edu.tr/opt/en/curr",
+    "syllabus_pattern": "https://shs.ieu.edu.tr/opt/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Paramedic (Turkish)",
+    "department_code": "IAY",
+    "prefixes": [
+      "IAY"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://shs.ieu.edu.tr/paramedic/en/curr",
+    "syllabus_pattern": "https://shs.ieu.edu.tr/paramedic/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Physiotherapy (Turkish)",
+    "department_code": "FZT",
+    "prefixes": [
+      "FZT",
+      "FTR"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://shs.ieu.edu.tr/pt/en/curr",
+    "syllabus_pattern": "https://shs.ieu.edu.tr/pt/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "Gastronomy and Culinary Arts",
+    "department_code": "GAS",
+    "prefixes": [
+      "GAS",
+      "CUL"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://culinary.ieu.edu.tr/en/curr",
+    "syllabus_pattern": "https://culinary.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "English Prep + Language Programs",
+    "department_code": "ENG",
+    "prefixes": [
+      "ENG",
+      "ING",
+      "GER"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://sfl.ieu.edu.tr/ingilizce_hazirlik_programi/en",
+    "syllabus_pattern": "https://sfl.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Schools & Vocational Schools",
+    "department_name": "English Prep + Language Programs",
+    "department_code": "ENG",
+    "prefixes": [
+      "ENG",
+      "ING",
+      "GER"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://sfl.ieu.edu.tr/turk/en/curr",
+    "syllabus_pattern": "https://sfl.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL"
+  },
+  {
+    "sheet": "Faculty of Arts and Sciences",
+    "department_name": "Physics",
+    "department_code": "PHYS",
+    "prefixes": [
+      "PHYS"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://physics.ieu.edu.tr/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Faculty of Arts and Sciences",
+    "department_name": "Mathematics",
+    "department_code": "MATH",
+    "prefixes": [
+      "MATH"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://dm.ieu.edu.tr/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Faculty of Arts and Sciences",
+    "department_name": "English Translation and Interpreting",
+    "department_code": "ETI",
+    "prefixes": [
+      "ETI",
+      "INT"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://dti.ieu.edu.tr/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Faculty of Arts and Sciences",
+    "department_name": "Psychology",
+    "department_code": "PSY",
+    "prefixes": [
+      "PSY"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://psikoloji.ieu.edu.tr/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Faculty of Arts and Sciences",
+    "department_name": "Sociology",
+    "department_code": "SOC",
+    "prefixes": [
+      "SOC"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://soc.ieu.edu.tr/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Industrial Design",
+    "department_code": "ID",
+    "prefixes": [
+      "ID"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://ent.ieu.edu.tr/en/curr",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ent.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Visual Communication Design",
+    "department_code": "VCD",
+    "prefixes": [
+      "VCD"
+    ],
+    "entry_year": 2013,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ilt.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Visual Communication Design",
+    "department_code": "VCD",
+    "prefixes": [
+      "VCD"
+    ],
+    "entry_year": 2014,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ilt.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Visual Communication Design",
+    "department_code": "VCD",
+    "prefixes": [
+      "VCD"
+    ],
+    "entry_year": 2015,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ilt.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Visual Communication Design",
+    "department_code": "VCD",
+    "prefixes": [
+      "VCD"
+    ],
+    "entry_year": 2016,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ilt.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Visual Communication Design",
+    "department_code": "VCD",
+    "prefixes": [
+      "VCD"
+    ],
+    "entry_year": 2017,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ilt.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Visual Communication Design",
+    "department_code": "VCD",
+    "prefixes": [
+      "VCD"
+    ],
+    "entry_year": 2018,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ilt.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Visual Communication Design",
+    "department_code": "VCD",
+    "prefixes": [
+      "VCD"
+    ],
+    "entry_year": 2019,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ilt.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Visual Communication Design",
+    "department_code": "VCD",
+    "prefixes": [
+      "VCD"
+    ],
+    "entry_year": 2020,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ilt.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Visual Communication Design",
+    "department_code": "VCD",
+    "prefixes": [
+      "VCD"
+    ],
+    "entry_year": 2021,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ilt.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Visual Communication Design",
+    "department_code": "VCD",
+    "prefixes": [
+      "VCD"
+    ],
+    "entry_year": 2022,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ilt.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Visual Communication Design",
+    "department_code": "VCD",
+    "prefixes": [
+      "VCD"
+    ],
+    "entry_year": 2023,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ilt.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Visual Communication Design",
+    "department_code": "VCD",
+    "prefixes": [
+      "VCD"
+    ],
+    "entry_year": 2024,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ilt.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Visual Communication Design",
+    "department_code": "VCD",
+    "prefixes": [
+      "VCD"
+    ],
+    "entry_year": 2025,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr&lang=en",
+    "syllabus_pattern": "https://ilt.ieu.edu.tr/en/syllabus/type/read/id/VCD+101",
+    "curriculum_source_column": "Curriculum URL 2025–Present (ECTS: sid=curr)"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Visual Communication Design",
+    "department_code": "VCD",
+    "prefixes": [
+      "VCD"
+    ],
+    "entry_year": 2026,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ilt.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2025–Present (ECTS: sid=curr)"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Interior Architecture and Environmental Design",
+    "department_code": "IAED",
+    "prefixes": [
+      "IAED",
+      "IA"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://ic.ieu.edu.tr/en/curr",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ic.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Architecture",
+    "department_code": "ARCH",
+    "prefixes": [
+      "ARCH"
+    ],
+    "entry_year": 2012,
+    "curriculum_url": "https://ects.ieu.edu.tr/akademik.php?sid=curr&section=mmr.fadf.ieu.edu.tr&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=mmr.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2012-2013 (Old System)"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Architecture",
+    "department_code": "ARCH",
+    "prefixes": [
+      "ARCH"
+    ],
+    "entry_year": 2013,
+    "curriculum_url": "https://ects.ieu.edu.tr/akademik.php?sid=curr&section=mmr.fadf.ieu.edu.tr&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=mmr.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2012-2013 (Old System)"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Architecture",
+    "department_code": "ARCH",
+    "prefixes": [
+      "ARCH"
+    ],
+    "entry_year": 2013,
+    "curriculum_url": "https://mmr.ieu.edu.tr/en/curr",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=mmr.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2014 (New System)"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Architecture",
+    "department_code": "ARCH",
+    "prefixes": [
+      "ARCH"
+    ],
+    "entry_year": 2014,
+    "curriculum_url": "https://mmr.ieu.edu.tr/en/curr",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=mmr.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2014 (New System)"
+  },
+  {
+    "sheet": "Faculty of Fine Arts and Design",
+    "department_name": "Textile and Fashion Design",
+    "department_code": null,
+    "prefixes": [],
+    "entry_year": null,
+    "curriculum_url": "https://mt.ieu.edu.tr/en/curr",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=mt.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Faculty of Law",
+    "department_name": "Law",
+    "department_code": "HUK",
+    "prefixes": [
+      "HUK",
+      "LAW"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://law.ieu.edu.tr/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Faculty of Communication",
+    "department_name": "Public Relations and Advertising",
+    "department_code": "PRA",
+    "prefixes": [
+      "PRA"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://pra.ieu.edu.tr/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Faculty of Communication",
+    "department_name": "Cinema and Digital Media",
+    "department_code": "CDM",
+    "prefixes": [
+      "CDM"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://cdm.ieu.edu.tr/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Faculty of Communication",
+    "department_name": "New Media and Communication",
+    "department_code": "NMC",
+    "prefixes": [
+      "NMC"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://nmc.ieu.edu.tr/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Facylty of Business",
+    "department_name": "Economics",
+    "department_code": "ECON",
+    "prefixes": [
+      "ECON"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://eco.ieu.edu.tr/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Facylty of Business",
+    "department_name": "Business Administration",
+    "department_code": "BA",
+    "prefixes": [
+      "BA"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://dba.ieu.edu.tr/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Facylty of Business",
+    "department_name": "Logistics Management",
+    "department_code": "LOG",
+    "prefixes": [
+      "LOG"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://dlm.ieu.edu.tr/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Facylty of Business",
+    "department_name": "Accounting and Auditing Program",
+    "department_code": "ACC",
+    "prefixes": [
+      "ACC"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://daa.ieu.edu.tr/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Facylty of Business",
+    "department_name": "Political Science and International Relations",
+    "department_code": "PSIR",
+    "prefixes": [
+      "PSIR",
+      "IREU"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://ireu.ieu.edu.tr/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Facylty of Business",
+    "department_name": "International Trade and Finance",
+    "department_code": "ITF",
+    "prefixes": [
+      "ITF"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://itf.ieu.edu.tr/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Computer Engineering",
+    "department_code": "CE",
+    "prefixes": [
+      "CE"
+    ],
+    "entry_year": 2013,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ce.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ce.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Computer Engineering",
+    "department_code": "CE",
+    "prefixes": [
+      "CE"
+    ],
+    "entry_year": 2014,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ce.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ce.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Computer Engineering",
+    "department_code": "CE",
+    "prefixes": [
+      "CE"
+    ],
+    "entry_year": 2015,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ce.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ce.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Computer Engineering",
+    "department_code": "CE",
+    "prefixes": [
+      "CE"
+    ],
+    "entry_year": 2016,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ce.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ce.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Computer Engineering",
+    "department_code": "CE",
+    "prefixes": [
+      "CE"
+    ],
+    "entry_year": 2017,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ce.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ce.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Computer Engineering",
+    "department_code": "CE",
+    "prefixes": [
+      "CE"
+    ],
+    "entry_year": 2018,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ce.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ce.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Computer Engineering",
+    "department_code": "CE",
+    "prefixes": [
+      "CE"
+    ],
+    "entry_year": 2019,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ce.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ce.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Computer Engineering",
+    "department_code": "CE",
+    "prefixes": [
+      "CE"
+    ],
+    "entry_year": 2020,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ce.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ce.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Computer Engineering",
+    "department_code": "CE",
+    "prefixes": [
+      "CE"
+    ],
+    "entry_year": 2021,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ce.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ce.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Computer Engineering",
+    "department_code": "CE",
+    "prefixes": [
+      "CE"
+    ],
+    "entry_year": 2022,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ce.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ce.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Computer Engineering",
+    "department_code": "CE",
+    "prefixes": [
+      "CE"
+    ],
+    "entry_year": 2023,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ce.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ce.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Computer Engineering",
+    "department_code": "CE",
+    "prefixes": [
+      "CE"
+    ],
+    "entry_year": 2024,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ce.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ce.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Computer Engineering",
+    "department_code": "CE",
+    "prefixes": [
+      "CE"
+    ],
+    "entry_year": 2025,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ce.cs.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_pattern": "https://ce.ieu.edu.tr/en/syllabus_v2/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL 2025–Present (ECTS: sid=curr)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Computer Engineering",
+    "department_code": "CE",
+    "prefixes": [
+      "CE"
+    ],
+    "entry_year": 2026,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ce.cs.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ce.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2025–Present (ECTS: sid=curr)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Biomedical Engineering",
+    "department_code": "BME",
+    "prefixes": [
+      "BME"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://bme.ieu.edu.tr/en/curr",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=biomed.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Electrical and Electronics Engineering",
+    "department_code": "EEE",
+    "prefixes": [
+      "EEE"
+    ],
+    "entry_year": 2013,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ete.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=eee.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Electrical and Electronics Engineering",
+    "department_code": "EEE",
+    "prefixes": [
+      "EEE"
+    ],
+    "entry_year": 2014,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ete.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=eee.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Electrical and Electronics Engineering",
+    "department_code": "EEE",
+    "prefixes": [
+      "EEE"
+    ],
+    "entry_year": 2015,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ete.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=eee.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Electrical and Electronics Engineering",
+    "department_code": "EEE",
+    "prefixes": [
+      "EEE"
+    ],
+    "entry_year": 2016,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ete.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=eee.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Electrical and Electronics Engineering",
+    "department_code": "EEE",
+    "prefixes": [
+      "EEE"
+    ],
+    "entry_year": 2017,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ete.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=eee.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Electrical and Electronics Engineering",
+    "department_code": "EEE",
+    "prefixes": [
+      "EEE"
+    ],
+    "entry_year": 2018,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ete.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=eee.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Electrical and Electronics Engineering",
+    "department_code": "EEE",
+    "prefixes": [
+      "EEE"
+    ],
+    "entry_year": 2019,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ete.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=eee.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Electrical and Electronics Engineering",
+    "department_code": "EEE",
+    "prefixes": [
+      "EEE"
+    ],
+    "entry_year": 2020,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ete.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=eee.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Electrical and Electronics Engineering",
+    "department_code": "EEE",
+    "prefixes": [
+      "EEE"
+    ],
+    "entry_year": 2021,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ete.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=eee.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Electrical and Electronics Engineering",
+    "department_code": "EEE",
+    "prefixes": [
+      "EEE"
+    ],
+    "entry_year": 2022,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ete.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=eee.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Electrical and Electronics Engineering",
+    "department_code": "EEE",
+    "prefixes": [
+      "EEE"
+    ],
+    "entry_year": 2023,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ete.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=eee.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Electrical and Electronics Engineering",
+    "department_code": "EEE",
+    "prefixes": [
+      "EEE"
+    ],
+    "entry_year": 2024,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ete.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=eee.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Electrical and Electronics Engineering",
+    "department_code": "EEE",
+    "prefixes": [
+      "EEE"
+    ],
+    "entry_year": 2025,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ete.cs.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_pattern": "https://eee.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL 2025–Present (ECTS: sid=curr)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Electrical and Electronics Engineering",
+    "department_code": "EEE",
+    "prefixes": [
+      "EEE"
+    ],
+    "entry_year": 2026,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ete.cs.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=eee.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2025–Present (ECTS: sid=curr)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Industrial Engineering",
+    "department_code": "IE",
+    "prefixes": [
+      "IE"
+    ],
+    "entry_year": 2013,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before2020&section=is.cs.ieu.edu.tr&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=is.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Industrial Engineering",
+    "department_code": "IE",
+    "prefixes": [
+      "IE"
+    ],
+    "entry_year": 2014,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before2020&section=is.cs.ieu.edu.tr&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=is.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Industrial Engineering",
+    "department_code": "IE",
+    "prefixes": [
+      "IE"
+    ],
+    "entry_year": 2015,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before2020&section=is.cs.ieu.edu.tr&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=is.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Industrial Engineering",
+    "department_code": "IE",
+    "prefixes": [
+      "IE"
+    ],
+    "entry_year": 2016,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before2020&section=is.cs.ieu.edu.tr&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=is.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Industrial Engineering",
+    "department_code": "IE",
+    "prefixes": [
+      "IE"
+    ],
+    "entry_year": 2017,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before2020&section=is.cs.ieu.edu.tr&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=is.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Industrial Engineering",
+    "department_code": "IE",
+    "prefixes": [
+      "IE"
+    ],
+    "entry_year": 2018,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before2020&section=is.cs.ieu.edu.tr&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=is.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Industrial Engineering",
+    "department_code": "IE",
+    "prefixes": [
+      "IE"
+    ],
+    "entry_year": 2019,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before2020&section=is.cs.ieu.edu.tr&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=is.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Industrial Engineering",
+    "department_code": "IE",
+    "prefixes": [
+      "IE"
+    ],
+    "entry_year": 2020,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=is.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=is.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Industrial Engineering",
+    "department_code": "IE",
+    "prefixes": [
+      "IE"
+    ],
+    "entry_year": 2021,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=is.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=is.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Industrial Engineering",
+    "department_code": "IE",
+    "prefixes": [
+      "IE"
+    ],
+    "entry_year": 2022,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=is.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=is.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Industrial Engineering",
+    "department_code": "IE",
+    "prefixes": [
+      "IE"
+    ],
+    "entry_year": 2023,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=is.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=is.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Industrial Engineering",
+    "department_code": "IE",
+    "prefixes": [
+      "IE"
+    ],
+    "entry_year": 2024,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=is.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=is.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Industrial Engineering",
+    "department_code": "IE",
+    "prefixes": [
+      "IE"
+    ],
+    "entry_year": 2025,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=is.cs.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_pattern": "https://ie.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL 2025–Present (ECTS: sid=curr)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Industrial Engineering",
+    "department_code": "IE",
+    "prefixes": [
+      "IE"
+    ],
+    "entry_year": 2026,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=is.cs.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=is.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2025–Present (ECTS: sid=curr)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Food Engineering",
+    "department_code": "FE",
+    "prefixes": [
+      "FE"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://dfe.ieu.edu.tr/en/curr",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=dfe.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Genetics and Bioengineering",
+    "department_code": "GBE",
+    "prefixes": [
+      "GBE"
+    ],
+    "entry_year": 2013,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=gbe.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=gbe.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Genetics and Bioengineering",
+    "department_code": "GBE",
+    "prefixes": [
+      "GBE"
+    ],
+    "entry_year": 2014,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=gbe.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=gbe.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Genetics and Bioengineering",
+    "department_code": "GBE",
+    "prefixes": [
+      "GBE"
+    ],
+    "entry_year": 2015,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=gbe.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=gbe.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Genetics and Bioengineering",
+    "department_code": "GBE",
+    "prefixes": [
+      "GBE"
+    ],
+    "entry_year": 2016,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=gbe.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=gbe.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Genetics and Bioengineering",
+    "department_code": "GBE",
+    "prefixes": [
+      "GBE"
+    ],
+    "entry_year": 2017,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=gbe.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=gbe.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Genetics and Bioengineering",
+    "department_code": "GBE",
+    "prefixes": [
+      "GBE"
+    ],
+    "entry_year": 2018,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=gbe.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=gbe.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Genetics and Bioengineering",
+    "department_code": "GBE",
+    "prefixes": [
+      "GBE"
+    ],
+    "entry_year": 2019,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=gbe.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=gbe.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Genetics and Bioengineering",
+    "department_code": "GBE",
+    "prefixes": [
+      "GBE"
+    ],
+    "entry_year": 2020,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=gbe.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=gbe.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Genetics and Bioengineering",
+    "department_code": "GBE",
+    "prefixes": [
+      "GBE"
+    ],
+    "entry_year": 2021,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=gbe.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=gbe.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Genetics and Bioengineering",
+    "department_code": "GBE",
+    "prefixes": [
+      "GBE"
+    ],
+    "entry_year": 2022,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=gbe.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=gbe.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Genetics and Bioengineering",
+    "department_code": "GBE",
+    "prefixes": [
+      "GBE"
+    ],
+    "entry_year": 2023,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=gbe.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=gbe.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Genetics and Bioengineering",
+    "department_code": "GBE",
+    "prefixes": [
+      "GBE"
+    ],
+    "entry_year": 2024,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=gbe.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=gbe.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Genetics and Bioengineering",
+    "department_code": "GBE",
+    "prefixes": [
+      "GBE"
+    ],
+    "entry_year": 2025,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=gbe.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_pattern": "https://gbe.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL 2025–Present (ECTS: sid=curr)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Genetics and Bioengineering",
+    "department_code": "GBE",
+    "prefixes": [
+      "GBE"
+    ],
+    "entry_year": 2026,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=gbe.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=gbe.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2025–Present (ECTS: sid=curr)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Aerospace Engineering",
+    "department_code": "AE",
+    "prefixes": [
+      "AE"
+    ],
+    "entry_year": 2013,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ae.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ae.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Aerospace Engineering",
+    "department_code": "AE",
+    "prefixes": [
+      "AE"
+    ],
+    "entry_year": 2014,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ae.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ae.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Aerospace Engineering",
+    "department_code": "AE",
+    "prefixes": [
+      "AE"
+    ],
+    "entry_year": 2015,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ae.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ae.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Aerospace Engineering",
+    "department_code": "AE",
+    "prefixes": [
+      "AE"
+    ],
+    "entry_year": 2016,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ae.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ae.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Aerospace Engineering",
+    "department_code": "AE",
+    "prefixes": [
+      "AE"
+    ],
+    "entry_year": 2017,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ae.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ae.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Aerospace Engineering",
+    "department_code": "AE",
+    "prefixes": [
+      "AE"
+    ],
+    "entry_year": 2018,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ae.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ae.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Aerospace Engineering",
+    "department_code": "AE",
+    "prefixes": [
+      "AE"
+    ],
+    "entry_year": 2019,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ae.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ae.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Aerospace Engineering",
+    "department_code": "AE",
+    "prefixes": [
+      "AE"
+    ],
+    "entry_year": 2020,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ae.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ae.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Aerospace Engineering",
+    "department_code": "AE",
+    "prefixes": [
+      "AE"
+    ],
+    "entry_year": 2021,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ae.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ae.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Aerospace Engineering",
+    "department_code": "AE",
+    "prefixes": [
+      "AE"
+    ],
+    "entry_year": 2022,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ae.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ae.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Aerospace Engineering",
+    "department_code": "AE",
+    "prefixes": [
+      "AE"
+    ],
+    "entry_year": 2023,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ae.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ae.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Aerospace Engineering",
+    "department_code": "AE",
+    "prefixes": [
+      "AE"
+    ],
+    "entry_year": 2024,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ae.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ae.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Aerospace Engineering",
+    "department_code": "AE",
+    "prefixes": [
+      "AE"
+    ],
+    "entry_year": 2025,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ae.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_pattern": "https://ae.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL 2025–Present (ECTS: sid=curr)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Aerospace Engineering",
+    "department_code": "AE",
+    "prefixes": [
+      "AE"
+    ],
+    "entry_year": 2026,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=ae.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=ae.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2025–Present (ECTS: sid=curr)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Civil Engineering",
+    "department_code": "CIVE",
+    "prefixes": [
+      "CIVE"
+    ],
+    "entry_year": 2013,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=cie.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=cie.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Civil Engineering",
+    "department_code": "CIVE",
+    "prefixes": [
+      "CIVE"
+    ],
+    "entry_year": 2014,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=cie.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=cie.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Civil Engineering",
+    "department_code": "CIVE",
+    "prefixes": [
+      "CIVE"
+    ],
+    "entry_year": 2015,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=cie.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=cie.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Civil Engineering",
+    "department_code": "CIVE",
+    "prefixes": [
+      "CIVE"
+    ],
+    "entry_year": 2016,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=cie.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=cie.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Civil Engineering",
+    "department_code": "CIVE",
+    "prefixes": [
+      "CIVE"
+    ],
+    "entry_year": 2017,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=cie.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=cie.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Civil Engineering",
+    "department_code": "CIVE",
+    "prefixes": [
+      "CIVE"
+    ],
+    "entry_year": 2018,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=cie.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=cie.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Civil Engineering",
+    "department_code": "CIVE",
+    "prefixes": [
+      "CIVE"
+    ],
+    "entry_year": 2019,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=cie.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=cie.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Civil Engineering",
+    "department_code": "CIVE",
+    "prefixes": [
+      "CIVE"
+    ],
+    "entry_year": 2020,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=cie.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=cie.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Civil Engineering",
+    "department_code": "CIVE",
+    "prefixes": [
+      "CIVE"
+    ],
+    "entry_year": 2021,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=cie.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=cie.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Civil Engineering",
+    "department_code": "CIVE",
+    "prefixes": [
+      "CIVE"
+    ],
+    "entry_year": 2022,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=cie.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=cie.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Civil Engineering",
+    "department_code": "CIVE",
+    "prefixes": [
+      "CIVE"
+    ],
+    "entry_year": 2023,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=cie.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=cie.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Civil Engineering",
+    "department_code": "CIVE",
+    "prefixes": [
+      "CIVE"
+    ],
+    "entry_year": 2024,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=cie.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=cie.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Civil Engineering",
+    "department_code": "CIVE",
+    "prefixes": [
+      "CIVE"
+    ],
+    "entry_year": 2025,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=cie.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_pattern": "https://cie.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL 2025–Present (ECTS: sid=curr)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Civil Engineering",
+    "department_code": "CIVE",
+    "prefixes": [
+      "CIVE"
+    ],
+    "entry_year": 2026,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=cie.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=cie.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2025–Present (ECTS: sid=curr)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Mechanical Engineering",
+    "department_code": "ME",
+    "prefixes": [
+      "ME"
+    ],
+    "entry_year": 2013,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=me.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=me.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Mechanical Engineering",
+    "department_code": "ME",
+    "prefixes": [
+      "ME"
+    ],
+    "entry_year": 2014,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=me.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=me.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Mechanical Engineering",
+    "department_code": "ME",
+    "prefixes": [
+      "ME"
+    ],
+    "entry_year": 2015,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=me.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=me.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Mechanical Engineering",
+    "department_code": "ME",
+    "prefixes": [
+      "ME"
+    ],
+    "entry_year": 2016,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=me.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=me.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Mechanical Engineering",
+    "department_code": "ME",
+    "prefixes": [
+      "ME"
+    ],
+    "entry_year": 2017,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=me.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=me.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Mechanical Engineering",
+    "department_code": "ME",
+    "prefixes": [
+      "ME"
+    ],
+    "entry_year": 2018,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=me.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=me.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Mechanical Engineering",
+    "department_code": "ME",
+    "prefixes": [
+      "ME"
+    ],
+    "entry_year": 2019,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=me.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=me.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Mechanical Engineering",
+    "department_code": "ME",
+    "prefixes": [
+      "ME"
+    ],
+    "entry_year": 2020,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=me.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=me.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Mechanical Engineering",
+    "department_code": "ME",
+    "prefixes": [
+      "ME"
+    ],
+    "entry_year": 2021,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=me.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=me.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Mechanical Engineering",
+    "department_code": "ME",
+    "prefixes": [
+      "ME"
+    ],
+    "entry_year": 2022,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=me.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=me.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Mechanical Engineering",
+    "department_code": "ME",
+    "prefixes": [
+      "ME"
+    ],
+    "entry_year": 2023,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=me.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=me.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Mechanical Engineering",
+    "department_code": "ME",
+    "prefixes": [
+      "ME"
+    ],
+    "entry_year": 2024,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=me.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=me.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Mechanical Engineering",
+    "department_code": "ME",
+    "prefixes": [
+      "ME"
+    ],
+    "entry_year": 2025,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=me.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_pattern": "https://me.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL 2025–Present (ECTS: sid=curr)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Mechanical Engineering",
+    "department_code": "ME",
+    "prefixes": [
+      "ME"
+    ],
+    "entry_year": 2026,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=me.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=me.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2025–Present (ECTS: sid=curr)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Mechatronics Engineering",
+    "department_code": "MCE",
+    "prefixes": [
+      "MCE"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://mce.ieu.edu.tr/en/curr",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=mce.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Software Engineering",
+    "department_code": "SE",
+    "prefixes": [
+      "SE"
+    ],
+    "entry_year": 2013,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=se.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=se.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Software Engineering",
+    "department_code": "SE",
+    "prefixes": [
+      "SE"
+    ],
+    "entry_year": 2014,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=se.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=se.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Software Engineering",
+    "department_code": "SE",
+    "prefixes": [
+      "SE"
+    ],
+    "entry_year": 2015,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=se.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=se.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Software Engineering",
+    "department_code": "SE",
+    "prefixes": [
+      "SE"
+    ],
+    "entry_year": 2016,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=se.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=se.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Software Engineering",
+    "department_code": "SE",
+    "prefixes": [
+      "SE"
+    ],
+    "entry_year": 2017,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=se.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=se.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Software Engineering",
+    "department_code": "SE",
+    "prefixes": [
+      "SE"
+    ],
+    "entry_year": 2018,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=se.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=se.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Software Engineering",
+    "department_code": "SE",
+    "prefixes": [
+      "SE"
+    ],
+    "entry_year": 2019,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=se.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=se.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2013–2019 (ECTS: sid=curr_before2020)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Software Engineering",
+    "department_code": "SE",
+    "prefixes": [
+      "SE"
+    ],
+    "entry_year": 2020,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=se.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=se.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Software Engineering",
+    "department_code": "SE",
+    "prefixes": [
+      "SE"
+    ],
+    "entry_year": 2021,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=se.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=se.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Software Engineering",
+    "department_code": "SE",
+    "prefixes": [
+      "SE"
+    ],
+    "entry_year": 2022,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=se.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=se.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Software Engineering",
+    "department_code": "SE",
+    "prefixes": [
+      "SE"
+    ],
+    "entry_year": 2023,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=se.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=se.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Software Engineering",
+    "department_code": "SE",
+    "prefixes": [
+      "SE"
+    ],
+    "entry_year": 2024,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=se.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=se.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2020–2024"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Software Engineering",
+    "department_code": "SE",
+    "prefixes": [
+      "SE"
+    ],
+    "entry_year": 2025,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=se.cs.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_pattern": "https://se.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "curriculum_source_column": "Curriculum URL 2025–Present (ECTS: sid=curr)"
+  },
+  {
+    "sheet": "Faculty of Engineering",
+    "department_name": "Software Engineering",
+    "department_code": "SE",
+    "prefixes": [
+      "SE"
+    ],
+    "entry_year": 2026,
+    "curriculum_url": "https://ects.ieu.edu.tr/new/akademik.php?section=se.cs.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_pattern": "https://ects.ieu.edu.tr/new/syllabus.php?section=se.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "curriculum_source_column": "Curriculum URL 2025–Present (ECTS: sid=curr)"
+  },
+  {
+    "sheet": "Faculty of Health Sciences",
+    "department_name": "Physiotherapy and Rehabilitation",
+    "department_code": "FTR",
+    "prefixes": [
+      "FTR"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://ftr.ieu.edu.tr/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Faculty of Health Sciences",
+    "department_name": "Nursing",
+    "department_code": "HEM",
+    "prefixes": [
+      "HEM"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://nursing.ieu.edu.tr/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Faculty of Health Sciences",
+    "department_name": "Nutrition and Dietetics",
+    "department_code": "BES",
+    "prefixes": [
+      "BES"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://bdb.ieu.edu.tr/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Faculty of Medicine",
+    "department_name": "Medicine",
+    "department_code": "MED",
+    "prefixes": [
+      "MED"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://tip.ieu.edu.tr/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Curriculum URL Never Changed"
+  },
+  {
+    "sheet": "Graduate School",
+    "department_name": "csphd",
+    "department_code": null,
+    "prefixes": [],
+    "entry_year": null,
+    "curriculum_url": "https://lisansustu.ieu.edu.tr/{dept}/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Unnamed: 3"
+  },
+  {
+    "sheet": "Graduate School",
+    "department_name": "csphd",
+    "department_code": null,
+    "prefixes": [],
+    "entry_year": null,
+    "curriculum_url": "https://lisansustu.ieu.edu.tr/csphd/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Unnamed: 4"
+  },
+  {
+    "sheet": "Graduate School",
+    "department_name": "?",
+    "department_code": null,
+    "prefixes": [],
+    "entry_year": null,
+    "curriculum_url": "https://lisansustu.ieu.edu.tr/{dept}/en/curr",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "Unnamed: 3"
+  },
+  {
+    "sheet": "Common Courses (GEC)",
+    "department_name": "GEC Pool 1",
+    "department_code": "MATH",
+    "prefixes": [
+      "MATH",
+      "CS"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://ortakdersler.ieu.edu.tr/en/pool-1-matematik-ve-bilgisayar-bilimleri",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "URL"
+  },
+  {
+    "sheet": "Common Courses (GEC)",
+    "department_name": "GEC Pool 2",
+    "department_code": "LIFE",
+    "prefixes": [
+      "LIFE"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://ortakdersler.ieu.edu.tr/en/pool-2-doga-ve-yasam-bilimleri",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "URL"
+  },
+  {
+    "sheet": "Common Courses (GEC)",
+    "department_name": "GEC Pool 3",
+    "department_code": null,
+    "prefixes": [],
+    "entry_year": null,
+    "curriculum_url": "https://ortakdersler.ieu.edu.tr/en/pool-3-iktisat",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "URL"
+  },
+  {
+    "sheet": "Common Courses (GEC)",
+    "department_name": "GEC Pool 4",
+    "department_code": null,
+    "prefixes": [],
+    "entry_year": null,
+    "curriculum_url": "https://ortakdersler.ieu.edu.tr/en/pool-4-insan-ve-toplum-bilimleri",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "URL"
+  },
+  {
+    "sheet": "Common Courses (GEC)",
+    "department_name": "GEC Pool 5",
+    "department_code": "ART",
+    "prefixes": [
+      "ART"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://ortakdersler.ieu.edu.tr/en/pool-5-sanat-ve-iletisim",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "URL"
+  },
+  {
+    "sheet": "Common Courses (GEC)",
+    "department_name": "GEC Pool 6",
+    "department_code": "ETHICS",
+    "prefixes": [
+      "ETHICS",
+      "PUBLIC"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://ortakdersler.ieu.edu.tr/en/pool-6-etik-ve-toplumsal-farkindalik",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "URL"
+  },
+  {
+    "sheet": "Common Courses (GEC)",
+    "department_name": "GEC Pool 7",
+    "department_code": null,
+    "prefixes": [],
+    "entry_year": null,
+    "curriculum_url": "https://ortakdersler.ieu.edu.tr/en/pool-7-inovasyon-ve-girisimcilik",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "URL"
+  },
+  {
+    "sheet": "Common Courses (GEC)",
+    "department_name": "Orientation",
+    "department_code": "IUE",
+    "prefixes": [
+      "IUE",
+      "CAREER"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://ortakdersler.ieu.edu.tr/en/ieu-100-oryantasyon-ve-kariyer-planlama-dersi",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "URL"
+  },
+  {
+    "sheet": "Common Courses (GEC)",
+    "department_name": "Orientation",
+    "department_code": "IUE",
+    "prefixes": [
+      "IUE",
+      "SOCIAL"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://ortakdersler.ieu.edu.tr/en/ieu-110-akademik-ve-sosyal-oryantasyon-dersi",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "URL"
+  },
+  {
+    "sheet": "Common Courses (GEC)",
+    "department_name": "Atatürk / History",
+    "department_code": "HIST",
+    "prefixes": [
+      "HIST"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://ortakdersler.ieu.edu.tr/en/dersler",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "URL"
+  },
+  {
+    "sheet": "Common Courses (GEC)",
+    "department_name": "Turkish Language",
+    "department_code": "TURK",
+    "prefixes": [
+      "TURK"
+    ],
+    "entry_year": null,
+    "curriculum_url": "https://ortakdersler.ieu.edu.tr/en/turk-dili-dersler",
+    "syllabus_pattern": null,
+    "curriculum_source_column": "URL"
+  }
+]
