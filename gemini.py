@@ -300,13 +300,37 @@ def is_graduation_question(text):
 
 
 def is_semester_question(text):
+    t = text.lower()
+
     keywords = [
-        "next semester", "which courses should i take",
-        "what courses do i", "courses do i need", "courses should i pick",
-        "what should i take", "which courses", "courses for spring",
-        "courses for fall", "i should take", "bu dönem", "hangi ders", "hangi dersleri"
+        "next semester",
+        "which courses should i take",
+        "what courses should i take",
+        "what courses do i",
+        "courses do i need",
+        "courses should i pick",
+        "what should i take",
+        "which courses",
+        "courses for spring",
+        "courses for fall",
+        "i should take",
+        "bu dönem",
+        "hangi ders",
+        "hangi dersleri",
     ]
-    return any(k in text.lower() for k in keywords)
+    if any(k in t for k in keywords):
+        return True
+
+    # Catch broader phrasings like:
+    # "what classes should I take", "which subjects do I take now", etc.
+    if re.search(r"\b(what|which)\b.*\b(course|courses|class|classes|subject|subjects|ders|dersler)\b.*\b(should|do)\b.*\b(take|pick|choose|al)\b", t):
+        return True
+
+    # Also catch shorter direct planning requests.
+    if re.search(r"\b(should i take|hangi ders almal(i|ı)y(i|ı)m)\b", t):
+        return True
+
+    return False
 
 
 def is_elective_question(text):
