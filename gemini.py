@@ -1680,11 +1680,161 @@ Always be specific and helpful — do not just say you don't have the informatio
 
 
 # ─────────────────────────────────────────────
+# CONVERSATION STATE & PROFILING HELPERS
+# ─────────────────────────────────────────────
+
+def extract_profile_from_history(history):
+    """
+    Extract what we know about the user from conversation history.
+    Returns: {department, year, term, start_year, gpa, erasmus, failed_courses}
+    """
+    profile = {
+        "department": None,
+        "year": None,
+        "term": None,
+        "start_year": None,
+        "gpa": None,
+        "erasmus": None,
+        "failed_courses": None,
+    }
+
+    # Scan history for extracted values
+    for msg in history:
+        if msg.get("role") != "user":
+            continue
+        content = msg.get("content", "")
+        
+        # Department
+        if not profile["department"]:
+            profile["department"] = detect_department_from_context(content, history, strict=True)
+        
+        # Year and term
+        if not profile["year"] or not profile["term"]:
+            y, t = extract_year_and_term(content)
+            if y and not profile["year"]:
+                profile["year"] = y
+            if t and not profile["term"]:
+                profile["term"] = t
+        
+        # Start year
+        if not profile["start_year"]:
+            profile["start_year"] = extract_starting_year(content)
+        
+        # GPA
+        if not profile["gpa"]:
+            profile["gpa"] = extract_gpa_from_context(content, history)
+        
+        # Erasmus/international status
+        if not profile["erasmus"]:
+            content_lower = content.lower()
+            if any(word in content_lower for word in ["erasmus", "exchange", "international", "international student"]):
+                profile["erasmus"] = any(word in content_lower for word in ["erasmus", "exchange"])
+        
+        # Failed courses
+        if not profile["failed_courses"]:
+            profile["failed_courses"] = extract_failed_courses_from_context(content, history, None)
+    
+    return profile
+
+
+def get_next_profiling_question(profile, question_lower):
+    """
+    Determine which profiling question should be asked next.
+    Returns: (question_string, next_question_type) or (None, None) if profiling complete
+    """
+    # Required: department first
+    if not profile["department"]:
+        return (
+            "Hi! 👋 I'm EkoBot, your IEU academic assistant.\n\n"
+            "To help you find the right courses and graduation requirements, I need to understand your situation.\n\n"
+            "What department are you in? (e.g., CE, SE, EEE, IE, BME, ME, NURSING, etc.)",
+            "department"
+        )
+    
+    # Required: year and semester
+    if not profile["year"] or not profile["term"]:
+        return (
+            "Got it! 👍\n\n"
+            "What year and semester are you currently in?\n"
+            "(e.g., '2nd year spring', 'third year fall', etc.)",
+            "year_term"
+        )
+    
+    # If curriculum has variants, ask for start year
+    dept = profile["department"]
+    if (len(get_available_entry_years(dept)) > 1 or has_multiple_curriculum_variants(dept)) and not profile["start_year"]:
+        return (
+            "Which year did you start university? (e.g., 2022, 2023)\n"
+            "This helps me show you the right curriculum version.",
+            "start_year"
+        )
+    
+    # All required profiling is done
+    return (None, None)
+
+
+def is_greeting_or_small_talk(text):
+    """
+    Check if the message is just a greeting or small talk, not a substantive question.
+    """
+    t = text.lower().strip()
+    greeting_patterns = [
+        "hello", "hi", "hey", "greetings",
+        "how are you", "what's up", "sup",
+        "good morning", "good afternoon", "good evening",
+        "merhaba", "selam", "nasılsın", "nasilsin"
+    ]
+    return any(pattern in t for pattern in greeting_patterns) and len(t) < 50
+
+
+# ─────────────────────────────────────────────
 # MAIN ASK FUNCTION
 # ─────────────────────────────────────────────
 
 def ask(question, history=[]):
     print(f"\n[EkoBot] Question: {question}")
+
+    question_lower = question.lower().strip()
+    
+    # ── PROFILING FLOW ───────────────────────────────────────────────
+    # Check if we need to complete user profiling first
+    profile = extract_profile_from_history(history)
+    next_question, question_type = get_next_profiling_question(profile, question_lower)
+    
+    # If the user is just saying hello/greeting and we haven't profiled yet,
+    # respond with a greeting + first profiling question
+    if is_greeting_or_small_talk(question) and next_question:
+        return next_question
+    
+    # If profiling is not complete, ask for the next required info
+    # (unless they're answering a follow-up profiling question)
+    if next_question:
+        # Check if they might be answering the profiling question
+        # (e.g., replying "SE" to "what department are you in?")
+        last_bot_msg = None
+        if history:
+            for msg in reversed(history[-3:]):
+                if msg.get("role") == "assistant":
+                    last_bot_msg = msg.get("content", "")
+                    break
+        
+        # If the last bot message was asking for dept/year/term/start_year,
+        # be more lenient and try to parse their answer
+        is_answering_profiling = False
+        if last_bot_msg:
+            if "department" in last_bot_msg.lower() and detect_department(question):
+                is_answering_profiling = True
+            elif "year" in last_bot_msg.lower() and ("year" in question_lower or any(c.isdigit() for c in question)):
+                is_answering_profiling = True
+        
+        # If they didn't seem to be answering the profiling question, ask again
+        if not is_answering_profiling and not any(keyword in question_lower for keyword in 
+                                                   ["course", "courses", "semester", "graduation", "requirements", 
+                                                    "ders", "dersleri", "mezun", "graduation"]):
+            return next_question
+    
+    # ── ACADEMIC QUESTION HANDLING ───────────────────────────────────────────────
+    # From here on, proceed with the existing logic
 
     last_bot_q = get_last_bot_question_type(history)
     parsed = parse_request_slots(question, history, last_bot_q)
