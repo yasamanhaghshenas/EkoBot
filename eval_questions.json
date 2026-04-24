@@ -40,8 +40,8 @@
       {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which department are you in? (e.g. CE, SE, EEE, IE, BME, ME)"}
     ],
     "checks": [
-      {"type": "contains", "value": "Year 3 Spring Semester"},
-      {"type": "contains_any", "value": ["CE 326", "CE 316"]}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
     ]
   },
   {
@@ -53,8 +53,8 @@
       {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which department are you in? (e.g. CE, SE, EEE, IE, BME, ME)"}
     ],
     "checks": [
-      {"type": "contains", "value": "SE"},
-      {"type": "contains", "value": "Year 3 Spring Semester"}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
     ]
   },
   {
@@ -83,8 +83,8 @@
     "question": "I am a software engineering student in 2nd year spring. Which courses should I take?",
     "history": [],
     "checks": [
-      {"type": "contains", "value": "SE"},
-      {"type": "contains", "value": "Year 2 Spring Semester"}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
     ]
   },
   {
@@ -93,8 +93,8 @@
     "question": "I am in CE department, 1st year fall. What should I take?",
     "history": [],
     "checks": [
-      {"type": "contains", "value": "CE"},
-      {"type": "contains", "value": "Year 1 Fall Semester"}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
     ]
   },
   {
@@ -103,8 +103,131 @@
     "question": "I am in CE department, 2nd year spring. What should I take?",
     "history": [],
     "checks": [
-      {"type": "contains", "value": "CE"},
-      {"type": "contains", "value": "Year 2 Spring Semester"}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
+    ]
+  },
+  {
+    "id": "PLAN_PHRASE_WHAT_COURSES_SHOULD_I_PICK",
+    "category": "planning",
+    "question": "what courses should i pick",
+    "history": [
+      {"role": "user", "content": "hello"},
+      {"role": "assistant", "content": "Hello. I am here to help you with your questions about IEU courses. Which course or department would you like to know more about?"}
+    ],
+    "checks": [
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which department are you in"}
+    ]
+  },
+  {
+    "id": "PLAN_PHRASE_THIRD_YEAR_SECOND_SEMESTER",
+    "category": "planning",
+    "question": "third year second semester",
+    "history": [
+      {"role": "user", "content": "what courses should i pick"},
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which department are you in? (major) (e.g. CE, SE, EEE, IE, BME, ME, Nursing)"},
+      {"role": "user", "content": "eee"},
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)"}
+    ],
+    "checks": [
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
+    ]
+  },
+  {
+    "id": "PLAN_PHRASE_SECOND_SEMESTER_SPRING_ALIAS",
+    "category": "planning",
+    "question": "I am in EEE department, third year second semester. What courses should I take?",
+    "history": [],
+    "checks": [
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
+    ]
+  },
+  {
+    "id": "PLAN_PHRASE_SECOND_SEMESTER_WITH_START_YEAR",
+    "category": "planning",
+    "question": "I am in EEE department, started in 2022, third year second semester. What courses should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "EEE"},
+      {"type": "contains_any", "value": ["Year 3 Spring Semester", "Spring Semester"]}
+    ]
+  },
+  {
+    "id": "PLAN_UNSEEN_PHRASE_DEPTHINT_THIRD_YEAR",
+    "category": "planning",
+    "question": "what are my courses for third year first and second semester",
+    "history": [
+      {"role": "user", "content": "what courses should i pick this semester"},
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which department are you in? (major) (e.g. CE, SE, EEE, IE, BME, ME, Nursing)"},
+      {"role": "user", "content": "eee"},
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which year and semester are you in, and which year did you start university? (e.g. 2nd year spring, started 2022)"}
+    ],
+    "checks": [
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
+    ]
+  },
+  {
+    "id": "PLAN_UNSEEN_PHRASE_CURRENT_YEAR_TARGET_YEAR",
+    "category": "planning",
+    "question": "right know im in my second year but i want to know what are my courses for third year first and second semester",
+    "history": [
+      {"role": "user", "content": "what courses should i pick this semester"},
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which department are you in? (major) (e.g. CE, SE, EEE, IE, BME, ME, Nursing)"},
+      {"role": "user", "content": "eee"},
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which year and semester are you in, and which year did you start university? (e.g. 2nd year spring, started 2022)"}
+    ],
+    "checks": [
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
+    ]
+  },
+  {
+    "id": "PLAN_GENERIC_LIST_CLASSES",
+    "category": "planning",
+    "question": "Could you list the classes I should take?",
+    "history": [],
+    "checks": [
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which department are you in"}
+    ]
+  },
+  {
+    "id": "PLAN_GENERIC_SHOW_MY_COURSES",
+    "category": "planning",
+    "question": "Show me my courses for next semester",
+    "history": [],
+    "checks": [
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which department are you in"}
+    ]
+  },
+  {
+    "id": "PLAN_GENERIC_TELL_ME_YEAR",
+    "category": "planning",
+    "question": "Tell me the courses for third year spring",
+    "history": [
+      {"role": "user", "content": "I am in EEE department"},
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)"}
+    ],
+    "checks": [
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
+    ]
+  },
+  {
+    "id": "GRADUATION_NURSING_FOLLOWUP",
+    "category": "graduation",
+    "question": "nursing",
+    "history": [
+      {"role": "user", "content": "What are the graduation requirements for my department?"},
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which department are you in? (major) (e.g. CE, SE, EEE, IE, BME, ME, Nursing)"}
+    ],
+    "checks": [
+      {"type": "contains_any", "value": ["240 ECTS", "CGPA", "internship"]}
     ]
   },
   {
@@ -113,8 +236,8 @@
     "question": "I am in EEE department, first year fall, what should I take?",
     "history": [],
     "checks": [
-      {"type": "contains", "value": "EEE"},
-      {"type": "contains", "value": "Year 1 Fall Semester"}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
     ]
   },
   {
@@ -123,8 +246,8 @@
     "question": "I am in EEE department, second year spring, what should I take?",
     "history": [],
     "checks": [
-      {"type": "contains", "value": "EEE"},
-      {"type": "contains", "value": "Year 2 Spring Semester"}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
     ]
   },
   {
@@ -133,8 +256,8 @@
     "question": "I am in IE department, 1st year fall semester. Which courses?",
     "history": [],
     "checks": [
-      {"type": "contains", "value": "IE"},
-      {"type": "contains", "value": "Year 1 Fall Semester"}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
     ]
   },
   {
@@ -143,8 +266,8 @@
     "question": "I am in IE department, 2nd year spring semester. Which courses?",
     "history": [],
     "checks": [
-      {"type": "contains", "value": "IE"},
-      {"type": "contains", "value": "Year 2 Spring Semester"}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
     ]
   },
   {
@@ -193,8 +316,8 @@
     "question": "I am in AE department, 1st year fall, what should I take?",
     "history": [],
     "checks": [
-      {"type": "contains", "value": "AE"},
-      {"type": "contains", "value": "Year 1 Fall Semester"}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
     ]
   },
   {
@@ -203,8 +326,8 @@
     "question": "I am in AE department, 2nd year spring, what should I take?",
     "history": [],
     "checks": [
-      {"type": "contains", "value": "AE"},
-      {"type": "contains", "value": "Year 2 Spring Semester"}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
     ]
   },
   {
@@ -213,8 +336,8 @@
     "question": "I am in CIVE department, 1st year fall, what should I take?",
     "history": [],
     "checks": [
-      {"type": "contains", "value": "CIVE"},
-      {"type": "contains", "value": "Year 1 Fall Semester"}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
     ]
   },
   {
@@ -223,8 +346,8 @@
     "question": "I am in CIVE department, 2nd year spring, what should I take?",
     "history": [],
     "checks": [
-      {"type": "contains", "value": "CIVE"},
-      {"type": "contains", "value": "Year 2 Spring Semester"}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
     ]
   },
   {
@@ -233,8 +356,8 @@
     "question": "I am in GBE department, 1st year fall, what should I take?",
     "history": [],
     "checks": [
-      {"type": "contains", "value": "GBE"},
-      {"type": "contains", "value": "Year 1 Fall Semester"}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
     ]
   },
   {
@@ -243,8 +366,8 @@
     "question": "I am in GBE department, 2nd year spring, what should I take?",
     "history": [],
     "checks": [
-      {"type": "contains", "value": "GBE"},
-      {"type": "contains", "value": "Year 2 Spring Semester"}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
     ]
   },
   {
@@ -273,8 +396,8 @@
     "question": "I am in ME department, first year fall, what should I take?",
     "history": [],
     "checks": [
-      {"type": "contains", "value": "ME"},
-      {"type": "contains", "value": "Year 1 Fall Semester"}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
     ]
   },
   {
@@ -283,8 +406,8 @@
     "question": "I am in ME department, second year spring, what should I take?",
     "history": [],
     "checks": [
-      {"type": "contains", "value": "ME"},
-      {"type": "contains", "value": "Year 2 Spring Semester"}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
     ]
   },
   {
@@ -405,8 +528,8 @@
     "question": "Ben CE bölümündeyim, 3. sınıf bahar döneminde hangi dersleri almalıyım?",
     "history": [],
     "checks": [
-      {"type": "contains", "value": "CE"},
-      {"type": "contains", "value": "Year 3 Spring Semester"}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
     ]
   },
   {
@@ -418,8 +541,48 @@
       {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which department are you in? (e.g. CE, SE, EEE, IE, BME, ME)"}
     ],
     "checks": [
-      {"type": "contains", "value": "SE"},
-      {"type": "contains", "value": "Year 2 Spring Semester"}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year did you start university"}
+    ]
+  },
+  {
+    "id": "FAILED_COURSE_PROMPT_ON_PLAN",
+    "category": "planning",
+    "question": "I am in EEE department, started in 2022, third year second semester. What courses should I take?",
+    "history": [],
+    "checks": [
+      {"type": "contains", "value": "EEE"},
+      {"type": "contains", "value": "If you have any failed courses to retake"}
+    ]
+  },
+  {
+    "id": "FAILED_COURSE_PRIORITY_AFTER_PLAN",
+    "category": "planning",
+    "question": "I failed EEE 313 and EEE 305",
+    "history": [
+      {"role": "user", "content": "I am in EEE department, started in 2022, third year second semester. What courses should I take?"},
+      {"role": "assistant", "content": "EEE - Year 3 Spring Semester:\n\n- EEE 313: Signals and Systems\n- EEE 305: Electromagnetic Theory\n\nIf you have any failed courses to retake, share their course codes (e.g. CE 201, MATH 153) and I will prioritize them in your plan."}
+    ],
+    "checks": [
+      {"type": "contains", "value": "Retake priority"},
+      {"type": "contains", "value": "EEE 313"},
+      {"type": "contains", "value": "EEE 305"}
+    ]
+  },
+  {
+    "id": "FAILED_COURSE_CHAIN_RECURSIVE",
+    "category": "planning",
+    "question": "I failed CE 221",
+    "history": [
+      {"role": "user", "content": "I am in CE department, 2nd year fall. What should I take?"},
+      {"role": "assistant", "content": "CE - Year 2 Fall Semester:\n\n- CE 221: Data Structures\n\nIf you have any failed courses to retake, share their course codes (e.g. CE 201, MATH 153) and I will prioritize them in your plan."}
+    ],
+    "checks": [
+      {"type": "contains", "value": "Retake priority"},
+      {"type": "contains_any", "value": ["No downstream prerequisite blockers", "Blocked dependency chain"]},
+      {"type": "contains", "value": "Suggested recovery order"},
+      {"type": "contains", "value": "ECTS-aware recovery schedule"},
+      {"type": "contains", "value": "Strict prerequisite sequencing is applied"}
     ]
   }
 ]

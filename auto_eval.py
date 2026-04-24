@@ -35,35 +35,278 @@ def load_departments_from_curriculum(path="curriculum.json"):
         return []
 
 
+def load_entry_years_by_department(path="curriculum.json"):
+    if not os.path.exists(path):
+        return {}
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        dept_years = {}
+        for item in data:
+            dept = (item.get("department") or "").strip().upper()
+            if not re.fullmatch(r"[A-Z]{2,6}", dept):
+                continue
+            ey = item.get("entry_year")
+            if ey is None:
+                continue
+            try:
+                dept_years.setdefault(dept, set()).add(int(ey))
+            except Exception:
+                continue
+        return {dept: sorted(years) for dept, years in dept_years.items()}
+    except Exception:
+        return {}
+
+
+def load_curriculum_row_counts(path="curriculum.json"):
+    if not os.path.exists(path):
+        return {}
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        counts = {}
+        for item in data:
+            dept = (item.get("department") or "").strip().upper()
+            if not re.fullmatch(r"[A-Z]{2,6}", dept):
+                continue
+            counts[dept] = counts.get(dept, 0) + 1
+        return counts
+    except Exception:
+        return {}
+
+
+def _parse_semester_name(sem_name):
+    s = sem_name or ""
+    m_year = re.search(r"([1-6])\s*\.\s*Year|([1-6])\s*Year", s, re.IGNORECASE)
+    if not m_year:
+        return None, None
+    year_raw = m_year.group(1) or m_year.group(2)
+    term = None
+    s_lower = s.lower()
+    if "fall" in s_lower:
+        term = "Fall"
+    elif "spring" in s_lower:
+        term = "Spring"
+    if not term:
+        return None, None
+    return int(year_raw), term
+
+
+def _semester_sort_index(year, term):
+    term_order = 0 if (term or "").lower().startswith("fall") else 1
+    return int(year) * 2 + term_order
+
+
+def _year_ordinal(year):
+    return {1: "1st", 2: "2nd", 3: "3rd"}.get(year, f"{year}th")
+
+
+def load_latest_curriculum_rows(path="curriculum.json"):
+    if not os.path.exists(path):
+        return {}
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        return {}
+
+    by_dept = {}
+    for row in data:
+        dept = (row.get("department") or "").strip().upper()
+        if not re.fullmatch(r"[A-Z]{2,6}", dept):
+            continue
+        by_dept.setdefault(dept, []).append(row)
+
+    selected = {}
+    for dept, rows in by_dept.items():
+        rows_with_year = []
+        for row in rows:
+            ey = row.get("entry_year")
+            try:
+                rows_with_year.append((int(ey), row))
+            except Exception:
+                continue
+        if rows_with_year:
+            rows_with_year.sort(key=lambda x: x[0], reverse=True)
+            selected[dept] = rows_with_year[0][1]
+        else:
+            selected[dept] = rows[0]
+
+    return selected
+
+
+def auto_generate_failed_course_cases(limit_per_department=1):
+    rows = load_latest_curriculum_rows()
+    row_counts = load_curriculum_row_counts()
+    cases = []
+
+    for dept, row in sorted(rows.items()):
+        semesters = row.get("semesters") or {}
+        sem_entries = []
+        for sem_name, courses in semesters.items():
+            year, term = _parse_semester_name(sem_name)
+            if not year or not term or not isinstance(courses, list):
+                continue
+            sem_entries.append({
+                "year": year,
+                "term": term,
+                "index": _semester_sort_index(year, term),
+                "courses": courses,
+            })
+
+        sem_entries.sort(key=lambda x: x["index"])
+        if len(sem_entries) < 2:
+            continue
+
+        generated = 0
+        for i in range(1, len(sem_entries)):
+            target = sem_entries[i]
+            prior = sem_entries[i - 1]
+
+            failed_code = None
+            for c in prior["courses"]:
+                code = (c.get("code") or "").strip().upper()
+                if not code or code.startswith("ELEC"):
+                    continue
+                failed_code = code
+                break
+
+            if not failed_code:
+                continue
+
+            start_year = row.get("entry_year")
+            started_phrase = ""
+            if start_year is not None:
+                started_phrase = f", started in {start_year}"
+            elif row_counts.get(dept, 0) > 1:
+                # Skip ambiguous variants when start year is required but unavailable.
+                continue
+
+            cases.append({
+                "id": f"AUTO_FAILED_{dept}_{target['year']}_{target['term'].upper()}_{generated + 1}",
+                "category": "planning",
+                "question": (
+                    f"I am in {dept} department{started_phrase}, {_year_ordinal(target['year'])} year "
+                    f"{target['term'].lower()}. I failed {failed_code}. Which courses should I take?"
+                ),
+                "history": [],
+                "checks": [
+                    {"type": "contains", "value": "Retake priority"},
+                    {"type": "contains", "value": "Suggested recovery order"},
+                    {"type": "contains", "value": "ECTS-aware recovery schedule"},
+                    {"type": "contains", "value": "Strict prerequisite sequencing is applied"},
+                    {"type": "contains_any", "value": ["Blocked dependency chain", "No downstream prerequisite blockers"]},
+                    {"type": "contains_any", "value": ["offered in Fall", "offered in Spring"]}
+                ]
+            })
+            generated += 1
+            if generated >= limit_per_department:
+                break
+
+    return cases
+
+
 def auto_generate_cases(target_count=60):
     """
     Generate deterministic planning/refusal coverage based on available departments.
     This keeps evaluation broad even when the static case file is still small.
     """
     depts = load_departments_from_curriculum()
+    entry_years = load_entry_years_by_department()
+    row_counts = load_curriculum_row_counts()
     cases = []
 
     for dept in depts:
-        cases.append({
-            "id": f"AUTO_PLAN_{dept}_1_FALL",
-            "category": "planning",
-            "question": f"I am in {dept} department, 1st year fall. Which courses should I take?",
-            "history": [],
-            "checks": [
-                {"type": "contains", "value": dept},
-                {"type": "contains", "value": "Year 1 Fall Semester"}
-            ]
-        })
-        cases.append({
-            "id": f"AUTO_PLAN_{dept}_2_SPRING",
-            "category": "planning",
-            "question": f"I am in {dept} department, 2nd year spring. Which courses should I take?",
-            "history": [],
-            "checks": [
-                {"type": "contains", "value": dept},
-                {"type": "contains", "value": "Year 2 Spring Semester"}
-            ]
-        })
+        latest_year = entry_years.get(dept, [])[-1] if entry_years.get(dept) else None
+        fall_question = f"I am in {dept} department, 1st year fall. Which courses should I take?"
+        spring_question = f"I am in {dept} department, 2nd year spring. Which courses should I take?"
+        if latest_year:
+            fall_question = f"I am in {dept} department, started in {latest_year}, 1st year fall. Which courses should I take?"
+            spring_question = f"I am in {dept} department, started in {latest_year}, 2nd year spring. Which courses should I take?"
+
+        if latest_year:
+            cases.append({
+                "id": f"AUTO_PLAN_{dept}_1_FALL",
+                "category": "planning",
+                "question": fall_question,
+                "history": [],
+                "checks": [
+                    {"type": "contains", "value": dept},
+                    {"type": "contains", "value": "Year 1 Fall Semester"}
+                ]
+            })
+            cases.append({
+                "id": f"AUTO_PLAN_{dept}_2_SPRING",
+                "category": "planning",
+                "question": spring_question,
+                "history": [],
+                "checks": [
+                    {"type": "contains", "value": dept},
+                    {"type": "contains", "value": "Year 2 Spring Semester"}
+                ]
+            })
+            cases.append({
+                "id": f"AUTO_PLAN_{dept}_PARAPHRASE_1",
+                "category": "planning",
+                "question": f"I am in {dept} department and started in {latest_year}, what courses should I take in 2nd year spring?",
+                "history": [],
+                "checks": [
+                    {"type": "contains", "value": dept},
+                    {"type": "contains", "value": "Year 2 Spring Semester"}
+                ]
+            })
+            cases.append({
+                "id": f"AUTO_PLAN_{dept}_PARAPHRASE_2",
+                "category": "planning",
+                "question": f"Could you show me the courses I need in 1st year fall for {dept}? I started in {latest_year}.",
+                "history": [],
+                "checks": [
+                    {"type": "contains", "value": dept},
+                    {"type": "contains", "value": "Year 1 Fall Semester"}
+                ]
+            })
+        elif row_counts.get(dept, 0) == 1:
+            cases.append({
+                "id": f"AUTO_PLAN_{dept}_1_FALL",
+                "category": "planning",
+                "question": fall_question,
+                "history": [],
+                "checks": [
+                    {"type": "contains", "value": dept},
+                    {"type": "contains", "value": "Year 1 Fall Semester"}
+                ]
+            })
+            cases.append({
+                "id": f"AUTO_PLAN_{dept}_2_SPRING",
+                "category": "planning",
+                "question": spring_question,
+                "history": [],
+                "checks": [
+                    {"type": "contains", "value": dept},
+                    {"type": "contains", "value": "Year 2 Spring Semester"}
+                ]
+            })
+        else:
+            cases.append({
+                "id": f"AUTO_PLAN_{dept}_1_FALL",
+                "category": "planning",
+                "question": fall_question,
+                "history": [],
+                "checks": [
+                    {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+                    {"type": "contains", "value": "Which year did you start university"}
+                ]
+            })
+            cases.append({
+                "id": f"AUTO_PLAN_{dept}_2_SPRING",
+                "category": "planning",
+                "question": spring_question,
+                "history": [],
+                "checks": [
+                    {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+                    {"type": "contains", "value": "Which year did you start university"}
+                ]
+            })
 
     # Fill up to target with out-of-scope refusal checks.
     refusal_prompts = [
@@ -121,10 +364,104 @@ def _install_mock_modules():
             self.choices = [types.SimpleNamespace(message=types.SimpleNamespace(content=content))]
 
     class MockCompletions:
-        def create(self, model, messages):
+        def create(self, model, messages, **kwargs):
+            system_prompt = messages[0]["content"] if messages else ""
             user_prompt = messages[-1]["content"]
-            m = re.search(r"student question:\s*(.+)$", user_prompt, re.IGNORECASE | re.DOTALL)
+            m = re.search(
+                r"Current user message:\s*(.*?)(?:\nLatest substantive user question:|\nLast bot question type:|\nConversation history:|\Z)",
+                system_prompt,
+                re.IGNORECASE | re.DOTALL,
+            )
+            if not m:
+                m = re.search(
+                    r"Latest substantive user question:\s*(.*?)(?:\nLast bot question type:|\nConversation history:|\Z)",
+                    system_prompt,
+                    re.IGNORECASE | re.DOTALL,
+                )
+            if not m:
+                m = re.search(r"student question:\s*(.+)$", user_prompt, re.IGNORECASE | re.DOTALL)
             q_text = (m.group(1) if m else user_prompt).strip().lower()
+
+            def has_pattern(patterns):
+                return any(re.search(p, q_text) for p in patterns)
+
+            if "student-request parser" in system_prompt.lower() or "return only valid json" in system_prompt.lower():
+                dept = None
+                dept_codes = load_departments_from_curriculum()
+                for code, aliases in {
+                    "CE": ["computer engineering", "ce"],
+                    "SE": ["software engineering", "se"],
+                    "EEE": ["eee", "electrical", "electronics"],
+                    "IE": ["ie", "industrial engineering"],
+                    "BME": ["bme", "biomedical"],
+                    "ME": ["me", "mechanical engineering"],
+                    "MCE": ["mce", "mechatronics"],
+                    "AE": ["ae", "aerospace engineering"],
+                    "CIVE": ["cive", "civil engineering"],
+                    "GBE": ["gbe", "genetics"],
+                    "FE": ["fe", "food engineering"],
+                    "HEM": ["nursing", "hem"],
+                }.items():
+                    if code in {"ME", "AE", "IE", "FE"} and not re.search(r"\b(department|dept|major|student|bolum|bölüm)\b", q_text):
+                        continue
+                    patterns = []
+                    for alias in aliases:
+                        if len(alias) <= 2:
+                            patterns.append(rf"\b{re.escape(alias)}\b")
+                        else:
+                            patterns.append(rf"\b{re.escape(alias)}\b")
+                    if has_pattern(patterns):
+                        dept = code
+                        break
+
+                if dept is None:
+                    for code in dept_codes:
+                        if code in {"ME", "AE", "IE", "FE"} and not re.search(r"\b(department|dept|major|student|bolum|bölüm)\b", q_text):
+                            continue
+                        if re.search(rf"\b{re.escape(code.lower())}\b", q_text):
+                            dept = code
+                            break
+
+                year = None
+                m_year_for = re.search(r"for\s+(the\s+)?(first|second|third|fourth|fifth|sixth|[1-6](?:st|nd|rd|th)?)\s+year", q_text)
+                if m_year_for:
+                    word = m_year_for.group(2)
+                    year_map = {"first": 1, "second": 2, "third": 3, "fourth": 4, "fifth": 5, "sixth": 6}
+                    year = year_map.get(word, None)
+                    if year is None:
+                        year = int(re.sub(r"\D", "", word))
+                else:
+                    m_year = re.search(r"\b([1-6])(?:st|nd|rd|th)?\s+year\b", q_text)
+                    if m_year:
+                        year = int(m_year.group(1))
+
+                term = None
+                if any(k in q_text for k in ["spring", "bahar", "second semester", "2nd semester", "second term"]):
+                    term = "Spring"
+                elif any(k in q_text for k in ["fall", "autumn", "güz", "guz", "first semester", "1st semester", "first term"]):
+                    term = "Fall"
+
+                start_year = None
+                m_start = re.search(r"(?:started|starting year|entry year|since)\D*(20\d{2})", q_text)
+                if m_start:
+                    start_year = int(m_start.group(1))
+
+                intent = "planning"
+                if any(k in q_text for k in ["graduation", "graduate", "mezun"]):
+                    intent = "graduation"
+                elif any(k in q_text for k in ["gpa", "credit", "grade", "not ortalaması", "credit load"]):
+                    intent = "regulations"
+                elif any(k in q_text for k in ["course", "courses", "what should i take", "which courses", "hangi ders"]):
+                    intent = "planning"
+
+                return MockResponse(json.dumps({
+                    "intent": intent,
+                    "department": dept,
+                    "year": year,
+                    "term": term,
+                    "start_year": start_year,
+                    "confidence": 0.88,
+                }))
 
             if "weather" in q_text:
                 return MockResponse("I don't have that information in the IEU database.")
@@ -174,11 +511,14 @@ def _install_mock_modules():
                 return {"documents": [[fixture_docs[code]]]}
             return {"documents": [[]]}
 
+        def get(self, where=None, include=None):
+            return {"documents": [[]]}
+
     class MockClient:
         def __init__(self, path="./db"):
             self.path = path
 
-        def get_or_create_collection(self, name):
+        def get_or_create_collection(self, name, **kwargs):
             return MockCollection()
 
     def persistent_client(path="./db"):
@@ -396,9 +736,17 @@ def main():
     args = parser.parse_args()
 
     cases = load_cases(args.cases)
+
+    # Always add broad failed-course robustness checks derived from curriculum
+    # so coverage scales across departments without manually authored scenarios.
+    existing_ids = {c.get("id") for c in cases}
+    for c in auto_generate_failed_course_cases(limit_per_department=1):
+        if c.get("id") not in existing_ids:
+            cases.append(c)
+            existing_ids.add(c.get("id"))
+
     if len(cases) < args.target_cases:
         needed = args.target_cases - len(cases)
-        existing_ids = {c.get("id") for c in cases}
         for c in auto_generate_cases(target_count=max(args.target_cases * 2, needed + 10)):
             if c.get("id") not in existing_ids:
                 cases.append(c)

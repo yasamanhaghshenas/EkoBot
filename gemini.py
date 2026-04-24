@@ -30,6 +30,9 @@ DEPT_CANONICAL = {
     "NURSING": "HEM",
 }
 
+_COURSE_ECTS_CACHE = None
+_VALID_COURSE_PREFIXES_CACHE = None
+
 
 def load_valid_departments():
     """
@@ -147,7 +150,46 @@ def detect_department_from_history(history):
 
 
 def _contains_course_code(text):
-    return bool(re.search(r'\b[A-Z]{2,5}\s*\d{3}\b', (text or "").upper()))
+    t = text or ""
+    for m in re.finditer(r'\b([A-Z]{2,6})\s*(\d{3,4})\b', t, re.IGNORECASE):
+        if _is_valid_course_prefix(m.group(1)):
+            return True
+    return False
+
+
+def _get_valid_course_prefixes():
+    global _VALID_COURSE_PREFIXES_CACHE
+    if _VALID_COURSE_PREFIXES_CACHE is not None:
+        return _VALID_COURSE_PREFIXES_CACHE
+
+    prefixes = set()
+    if not os.path.exists("courses.json"):
+        _VALID_COURSE_PREFIXES_CACHE = prefixes
+        return prefixes
+
+    try:
+        with open("courses.json", "r", encoding="utf-8") as f:
+            data = json.load(f)
+        for item in data:
+            code = item.get("code") or ""
+            m = re.search(r'\b([A-Z]{2,6})\s*\d{3,4}\b', str(code).upper())
+            if m:
+                prefixes.add(m.group(1))
+    except Exception:
+        pass
+
+    _VALID_COURSE_PREFIXES_CACHE = prefixes
+    return prefixes
+
+
+def _is_valid_course_prefix(prefix):
+    p = (prefix or "").strip().upper()
+    if not p:
+        return False
+    valid = _get_valid_course_prefixes()
+    if not valid:
+        return True
+    return p in valid
 
 
 def detect_department_strict(text, allow_short_code_reply=False):
@@ -230,7 +272,7 @@ def get_last_bot_question_type(history):
     """
     Returns what the bot last asked about so we know how to interpret
     the user's next short reply like 'ce' or '2nd year spring'.
-    Returns: 'dept', 'year_term', 'start_year', or None
+    Returns: 'dept', 'year_term', 'start_year', 'failed_courses', or None
     """
     for msg in reversed(history[-6:]):
         if msg.get("role") != "assistant":
@@ -242,6 +284,8 @@ def get_last_bot_question_type(history):
             return "start_year"
         if "which year" in content or "what year" in content or "year and semester" in content:
             return "year_term"
+        if "failed courses" in content and "course codes" in content:
+            return "failed_courses"
     return None
 
 
@@ -255,6 +299,10 @@ def _is_likely_followup_reply(text):
 
     t = text.strip()
     if not t:
+        return False
+
+    # Substantive questions should stay as anchors even if they mention a year/term.
+    if is_semester_question(t) or is_graduation_question(t) or is_regulations_question(t):
         return False
 
     if detect_department(t):
@@ -285,6 +333,178 @@ def get_latest_substantive_user_question(history):
             continue
         return content
     return None
+
+
+def _normalize_term_value(value):
+    if value is None:
+        return None
+    t = str(value).strip().lower()
+    if not t:
+        return None
+
+    fall_patterns = ["fall", "autumn", "guz", "güz", "first semester", "1st semester", "first term", "1st term"]
+    spring_patterns = ["spring", "bahar", "second semester", "2nd semester", "second term", "2nd term"]
+
+    if any(p in t for p in fall_patterns):
+        return "Fall"
+    if any(p in t for p in spring_patterns):
+        return "Spring"
+    return None
+
+
+def wants_both_semesters(text):
+    t = (text or "").lower()
+    patterns = [
+        r"\b(first|1st)\s+(and|&)\s+(second|2nd)\s+(semester|term)\b",
+        r"\b(second|2nd)\s+(and|&)\s+(first|1st)\s+(semester|term)\b",
+        r"\b(both)\s+(semesters|terms)\b",
+        r"\b(fall)\s+(and|&)\s+(spring)\b",
+        r"\b(spring)\s+(and|&)\s+(fall)\b",
+        r"\b(guz|güz)\s+(ve|and|&)\s+(bahar)\b",
+        r"\b(bahar)\s+(ve|and|&)\s+(guz|güz)\b",
+    ]
+    return any(re.search(p, t) for p in patterns)
+
+
+def _extract_json_object(text):
+    if not text:
+        return None
+    match = re.search(r'\{.*\}', text, re.DOTALL)
+    if not match:
+        return None
+    try:
+        return json.loads(match.group(0))
+    except Exception:
+        return None
+
+
+def parse_request_slots(question, history, last_bot_q):
+    """
+    Parse the user's request into intent and slot values.
+    Uses heuristics first, then an LLM fallback for messy natural language.
+    """
+    anchor_question = None
+    if last_bot_q in ["dept", "year_term", "start_year"]:
+        anchor_question = get_latest_substantive_user_question(history)
+
+    analysis_question = question
+    if anchor_question:
+        analysis_question = anchor_question + " " + question
+
+    result = {
+        "analysis_question": analysis_question,
+        "intent": None,
+        "department": None,
+        "year": None,
+        "term": None,
+        "start_year": None,
+    }
+
+    # Heuristic pass
+    dept = detect_department_from_context(
+        analysis_question,
+        history,
+        strict=True,
+        allow_short_code_reply=(last_bot_q == "dept")
+    )
+    if dept:
+        result["department"] = dept
+
+    year, term = extract_year_and_term(analysis_question)
+    if not year or not term:
+        h_year, h_term = extract_year_and_term_from_history(history)
+        year = year or h_year
+        term = term or h_term
+    result["year"] = year
+    result["term"] = term
+
+    start_year = extract_starting_year(analysis_question)
+    if not start_year:
+        start_year = extract_starting_year_from_history(history)
+    result["start_year"] = start_year
+
+    q_lower = analysis_question.lower()
+    if is_graduation_question(analysis_question):
+        result["intent"] = "graduation"
+    elif is_regulations_question(analysis_question):
+        result["intent"] = "regulations"
+    elif is_semester_question(analysis_question) or any(k in q_lower for k in ["which course", "which courses", "what course", "what courses", "should i take", "i should take", "hangi ders"]):
+        result["intent"] = "planning"
+
+    # LLM normalization for likely academic questions.
+    likely_academic = any([
+        result["intent"] in ["planning", "graduation", "regulations"],
+        last_bot_q in ["dept", "year_term", "start_year"],
+        bool(re.search(r"\b(course|courses|semester|semester\b|graduation|graduate|curriculum|curriculum\b|department|major|requirements)\b", q_lower)),
+    ])
+
+    needs_help = (
+        result["intent"] in ["planning", "graduation"] and not result["department"]
+    ) or (
+        result["intent"] == "planning" and result["department"] and (not result["year"] or not result["term"])
+    ) or (
+        result["intent"] == "planning" and result["department"] and (has_multiple_curriculum_variants(result["department"]) or len(get_available_entry_years(result["department"])) > 1) and not result["start_year"]
+    )
+
+    if likely_academic:
+        try:
+            parser_prompt = f"""You are an IEU student-request parser.
+Return ONLY valid JSON, no markdown, no explanation.
+
+Possible intents: planning, graduation, regulations, course_lookup, other
+Possible departments: {", ".join(VALID_DEPTS)}
+
+Rules:
+
+Return JSON with exactly these keys:
+intent, department, year, term, start_year, confidence
+
+Current user message: {question}
+Latest substantive user question: {anchor_question or "null"}
+Last bot question type: {last_bot_q or "null"}
+Conversation history (recent): {json.dumps(history[-6:], ensure_ascii=False)}
+"""
+            response = client_groq.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                temperature=0,
+                messages=[
+                    {"role": "system", "content": parser_prompt},
+                    {"role": "user", "content": "Parse the request now."},
+                ],
+            )
+            parsed = _extract_json_object(response.choices[0].message.content)
+            if isinstance(parsed, dict):
+                intent = (parsed.get("intent") or "").strip().lower() or None
+                if intent in {"planning", "graduation", "regulations", "course_lookup", "other"}:
+                    result["intent"] = intent
+
+                parsed_dept = normalize_department_code(parsed.get("department"))
+                if parsed_dept and parsed_dept in VALID_DEPTS + ["HEM"]:
+                    result["department"] = parsed_dept
+
+                if parsed.get("year") is not None:
+                    try:
+                        result["year"] = int(parsed.get("year"))
+                    except Exception:
+                        pass
+
+                parsed_term = _normalize_term_value(parsed.get("term"))
+                if parsed_term:
+                    result["term"] = parsed_term
+
+                if parsed.get("start_year") is not None:
+                    try:
+                        result["start_year"] = int(parsed.get("start_year"))
+                    except Exception:
+                        pass
+        except Exception as e:
+            print(f"  request parser fallback error: {e}")
+
+    # Final normalization.
+    if result["department"]:
+        result["department"] = normalize_department_code(result["department"])
+    result["term"] = _normalize_term_value(result["term"])
+    return result
 
 
 # ─────────────────────────────────────────────
@@ -330,6 +550,15 @@ def is_semester_question(text):
     if re.search(r"\b(should i take|hangi ders almal(i|ı)y(i|ı)m)\b", t):
         return True
 
+    # Catch natural phrasing like:
+    # "what are my courses for third year first and second semester"
+    # "show my courses for 2nd year"
+    if re.search(r"\b(what|show|list|tell)\b.*\b(my\s+)?(courses|dersler|dersleri)\b", t):
+        return True
+
+    if re.search(r"\b(for|in)\b.*\b([1-6](st|nd|rd|th)?|first|second|third|fourth|fifth|sixth)\s+year\b", t):
+        return True
+
     return False
 
 
@@ -351,9 +580,28 @@ def extract_year_and_term(text):
     year = None
     term = None
 
+    # Prefer target-year phrasing (e.g., "for third year") over earlier
+    # self-state phrases like "I am in second year".
+    target_word_map = {
+        "first": 1,
+        "second": 2,
+        "third": 3,
+        "fourth": 4,
+        "fifth": 5,
+        "sixth": 6,
+    }
+    m_target_word = re.search(r'\bfor\s+(the\s+)?(first|second|third|fourth|fifth|sixth)\s+year\b', t)
+    if m_target_word:
+        year = target_word_map.get(m_target_word.group(2))
+
+    if year is None:
+        m_target_num = re.search(r'\bfor\s+(the\s+)?([1-6])(?:st|nd|rd|th)?\s*year\b', t)
+        if m_target_num:
+            year = int(m_target_num.group(2))
+
     # numeric: "4th year", "2nd year", "1 year"
     m = re.search(r'\b([1-6])(?:st|nd|rd|th)?\s*year\b', t)
-    if m:
+    if m and year is None:
         year = int(m.group(1))
 
     # word: "second year", "fourth year"
@@ -379,6 +627,12 @@ def extract_year_and_term(text):
         term = "Spring"
     elif any(k in t for k in ["fall", "autumn", "güz", "guz"]):
         term = "Fall"
+    else:
+        # Common English follow-up replies: "first semester", "second semester".
+        if re.search(r'\b(first|1st|one)\s+(semester|term)\b', t):
+            term = "Fall"
+        elif re.search(r'\b(second|2nd|two)\s+(semester|term)\b', t):
+            term = "Spring"
 
     return year, term
 
@@ -596,16 +850,568 @@ def get_curriculum_courses(dept_code, year, term, start_year=None):
                 name = sem_name.lower()
                 if str(year) in name and term.lower() in name:
                     if isinstance(courses, list):
-                        matches.append(courses)
+                        matches.append((item_entry_year, courses))
 
         if len(matches) == 1:
-            return matches[0]
+            return matches[0][1]
         if len(matches) > 1:
-            # Ambiguous variant (likely multiple entry years) without enough context.
-            return []
+            if start_year is not None:
+                filtered = []
+                for item_entry_year, courses in matches:
+                    try:
+                        if item_entry_year is not None and int(item_entry_year) == int(start_year):
+                            filtered.append(courses)
+                    except Exception:
+                        continue
+                if filtered:
+                    return filtered[0]
+
+            # No explicit entry year given: prefer the latest available curriculum.
+            numeric_matches = []
+            for item_entry_year, courses in matches:
+                try:
+                    if item_entry_year is not None:
+                        numeric_matches.append((int(item_entry_year), courses))
+                except Exception:
+                    continue
+
+            if numeric_matches:
+                numeric_matches.sort(key=lambda pair: pair[0], reverse=True)
+                return numeric_matches[0][1]
+
+            return matches[0][1]
     except Exception as e:
         print(f"  curriculum.json read error: {e}")
     return []
+
+
+def _normalize_course_code(value):
+    if not value:
+        return None
+    t = str(value).strip().upper()
+    m = re.search(r'\b([A-Z]{2,6})\s*(\d{3,4})\b', t)
+    if not m:
+        return None
+    return f"{m.group(1)} {m.group(2)}"
+
+
+def _semester_sort_index(year, term):
+    t = (term or "").strip().lower()
+    term_order = 0 if t.startswith("fall") else 1
+    return int(year) * 2 + term_order
+
+
+def _extract_year_term_from_semester_name(sem_name):
+    s = (sem_name or "")
+    y_match = re.search(r'([1-6])\s*\.\s*year|([1-6])\s*year', s, re.IGNORECASE)
+    if not y_match:
+        return None, None
+    year_raw = y_match.group(1) or y_match.group(2)
+    term = None
+    s_lower = s.lower()
+    if "fall" in s_lower:
+        term = "Fall"
+    elif "spring" in s_lower:
+        term = "Spring"
+    if not term:
+        return None, None
+    try:
+        return int(year_raw), term
+    except Exception:
+        return None, None
+
+
+def _select_curriculum_row(dept_code, start_year=None):
+    if not os.path.exists("curriculum.json"):
+        return None
+    try:
+        with open("curriculum.json", "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as e:
+        print(f"  curriculum.json read error: {e}")
+        return None
+
+    rows = [item for item in data if item.get("department") == dept_code]
+    if not rows:
+        return None
+
+    if start_year is not None:
+        for item in rows:
+            try:
+                if item.get("entry_year") is not None and int(item.get("entry_year")) == int(start_year):
+                    return item
+            except Exception:
+                continue
+
+    if len(rows) == 1:
+        return rows[0]
+
+    with_year = []
+    for item in rows:
+        try:
+            if item.get("entry_year") is not None:
+                with_year.append((int(item.get("entry_year")), item))
+        except Exception:
+            continue
+    if with_year:
+        with_year.sort(key=lambda x: x[0], reverse=True)
+        return with_year[0][1]
+
+    return rows[0]
+
+
+def get_curriculum_course_positions(dept_code, start_year=None):
+    row = _select_curriculum_row(dept_code, start_year=start_year)
+    if not row:
+        return {}
+
+    positions = {}
+    semesters = row.get("semesters", {})
+    for sem_name, courses in semesters.items():
+        year, term = _extract_year_term_from_semester_name(sem_name)
+        if not year or not term or not isinstance(courses, list):
+            continue
+        idx = _semester_sort_index(year, term)
+        for c in courses:
+            code = _normalize_course_code(c.get("code"))
+            if not code:
+                continue
+            positions[code] = {
+                "year": year,
+                "term": term,
+                "index": idx,
+                "name": (c.get("name") or "").strip(),
+            }
+    return positions
+
+
+def _extract_field_from_course_text(text, label):
+    m = re.search(rf'^{re.escape(label)}:\s*(.+)$', text or "", re.IGNORECASE | re.MULTILINE)
+    return m.group(1).strip() if m else None
+
+
+def _build_scoped_course_index(dept_code, start_year=None):
+    positions = get_curriculum_course_positions(dept_code, start_year=start_year)
+    candidate_codes = set(positions.keys())
+    if not candidate_codes:
+        return {}, positions
+
+    if not os.path.exists("courses.json"):
+        return {}, positions
+
+    try:
+        with open("courses.json", "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as e:
+        print(f"  courses.json read error: {e}")
+        return {}, positions
+
+    per_code_candidates = {}
+    for item in data:
+        dep_code = _normalize_course_code(item.get("code"))
+        if not dep_code or dep_code not in candidate_codes:
+            continue
+
+        text = item.get("text") or ""
+        prereq_lines = re.findall(r'^Prerequisites:\s*(.+)$', text, re.IGNORECASE | re.MULTILINE)
+        prereq_text = " ".join(prereq_lines)
+        prereq_codes = [_normalize_course_code(x) for x in re.findall(r'\b[A-Z]{2,6}\s*\d{3,4}\b', prereq_text)]
+        prereq_codes = sorted(set([p for p in prereq_codes if p]))
+
+        item_dept = normalize_department_code((item.get("department") or "").strip().upper())
+        semester_raw = (_extract_field_from_course_text(text, "Semester") or "").strip().lower()
+        offered_term = None
+        if semester_raw.startswith("fall"):
+            offered_term = "Fall"
+        elif semester_raw.startswith("spring"):
+            offered_term = "Spring"
+        course_type = (_extract_field_from_course_text(text, "Course Type") or "").lower()
+        target_term = (positions.get(dep_code, {}).get("term") or "").lower()
+
+        score = 0
+        if item_dept == dept_code:
+            score += 100
+        elif item_dept:
+            score -= 100
+        if target_term and target_term in semester_raw:
+            score += 10
+        if "service" in course_type:
+            score -= 1
+
+        per_code_candidates.setdefault(dep_code, []).append({
+            "score": score,
+            "prereqs": prereq_codes,
+            "offered_term": offered_term,
+        })
+
+    scoped_index = {}
+    for dep_code, candidates in per_code_candidates.items():
+        if not candidates:
+            continue
+        candidates.sort(key=lambda x: (-x["score"], len(x["prereqs"])))
+        best = candidates[0]
+        scoped_index[dep_code] = {
+            "prereqs": set(best["prereqs"]),
+            "offered_term": best.get("offered_term") or positions.get(dep_code, {}).get("term"),
+        }
+
+    # Ensure every curriculum code has at least term metadata even if
+    # the detailed catalog record is unavailable.
+    for code, pos in positions.items():
+        scoped_index.setdefault(code, {
+            "prereqs": set(),
+            "offered_term": pos.get("term"),
+        })
+
+    return scoped_index, positions
+
+
+def get_scoped_prerequisite_maps(dept_code, start_year=None):
+    scoped_index, _ = _build_scoped_course_index(dept_code, start_year=start_year)
+    prereq_map = {}
+    for dep_code, meta in scoped_index.items():
+        prereq_map[dep_code] = set(meta.get("prereqs") or set())
+
+    reverse_graph = {}
+    for dep_code, prereqs in prereq_map.items():
+        for prereq in prereqs:
+            reverse_graph.setdefault(prereq, set()).add(dep_code)
+
+    return prereq_map, reverse_graph
+
+
+def get_scoped_offered_terms(dept_code, start_year=None):
+    scoped_index, _ = _build_scoped_course_index(dept_code, start_year=start_year)
+    return {
+        code: meta.get("offered_term")
+        for code, meta in scoped_index.items()
+        if meta.get("offered_term")
+    }
+
+
+def extract_gpa_from_context(question, history):
+    def _to_float(raw):
+        if raw is None:
+            return None
+        t = str(raw).strip().replace(",", ".")
+        try:
+            v = float(t)
+            if 0.0 <= v <= 4.0:
+                return v
+        except Exception:
+            return None
+        return None
+
+    texts = [(question or "")]
+    for msg in reversed(history[-8:]):
+        if msg.get("role") == "user":
+            texts.append(msg.get("content") or "")
+
+    cue_pattern = re.compile(
+        r'(?:\bgpa\b|\bcgpa\b|\bgano\b|\bortalama\b)\D{0,12}([0-4](?:[\.,]\d{1,2})?)',
+        re.IGNORECASE,
+    )
+    for text in texts:
+        m = cue_pattern.search(text)
+        if m:
+            v = _to_float(m.group(1))
+            if v is not None:
+                return v
+
+    return None
+
+
+def get_credit_limit_by_gpa(gpa_value):
+    if gpa_value is None:
+        return 32
+    if gpa_value >= 2.5:
+        return 44
+    if gpa_value >= 2.0:
+        return 38
+    return 32
+
+
+def get_course_ects_map():
+    global _COURSE_ECTS_CACHE
+    if _COURSE_ECTS_CACHE is not None:
+        return _COURSE_ECTS_CACHE
+
+    ects_map = {}
+    if not os.path.exists("courses.json"):
+        _COURSE_ECTS_CACHE = ects_map
+        return ects_map
+
+    try:
+        with open("courses.json", "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as e:
+        print(f"  courses.json read error: {e}")
+        _COURSE_ECTS_CACHE = ects_map
+        return ects_map
+
+    for item in data:
+        code = _normalize_course_code(item.get("code"))
+        if not code:
+            continue
+        text = item.get("text") or ""
+        m = re.search(r'^ECTS:\s*(\d+(?:\.\d+)?)\s*$', text, re.IGNORECASE | re.MULTILINE)
+        if not m:
+            continue
+        try:
+            ects_map[code] = float(m.group(1))
+        except Exception:
+            continue
+
+    _COURSE_ECTS_CACHE = ects_map
+    return ects_map
+
+
+def _index_to_year_term(index):
+    idx = int(index)
+    year = idx // 2
+    term = "Fall" if idx % 2 == 0 else "Spring"
+    return year, term
+
+
+def _align_index_to_offering(index, offered_term):
+    term = (offered_term or "").strip().lower()
+    idx = int(index)
+    if term.startswith("fall") and idx % 2 == 1:
+        return idx + 1
+    if term.startswith("spring") and idx % 2 == 0:
+        return idx + 1
+    return idx
+
+
+def build_ects_aware_recovery_schedule(recovery_order, gpa_value, current_index, prereq_map=None, offered_term_by_code=None):
+    if not recovery_order:
+        return [], get_credit_limit_by_gpa(gpa_value)
+
+    ects_map = get_course_ects_map()
+    max_ects = get_credit_limit_by_gpa(gpa_value)
+    prereq_map = prereq_map or {}
+    offered_term_by_code = offered_term_by_code or {}
+    recovery_codes = {item.get("code") for item in recovery_order if item.get("code")}
+    planned_index_by_code = {
+        item.get("code"): int(item.get("index", current_index))
+        for item in recovery_order
+        if item.get("code")
+    }
+
+    slots = {}
+    scheduled_index = {}
+    for item in recovery_order:
+        code = item.get("code")
+        if not code:
+            continue
+        ects = ects_map.get(code, 0.0)
+        target_index = item.get("index", current_index)
+        if target_index < current_index:
+            target_index = current_index
+        offered_term = item.get("term") or offered_term_by_code.get(code)
+        target_index = _align_index_to_offering(target_index, offered_term)
+
+        # Strict prerequisite sequencing: if prerequisite is in the recovery set,
+        # this course cannot be in the same semester as that prerequisite.
+        for prereq in prereq_map.get(code, set()):
+            if prereq not in recovery_codes:
+                continue
+            if prereq in scheduled_index:
+                target_index = max(target_index, scheduled_index[prereq] + 1)
+            else:
+                target_index = max(target_index, planned_index_by_code.get(prereq, current_index) + 1)
+        target_index = _align_index_to_offering(target_index, offered_term)
+
+        while True:
+            used = sum(x.get("ects", 0.0) for x in slots.get(target_index, []))
+            if ects <= 0:
+                slots.setdefault(target_index, []).append({
+                    "code": code,
+                    "name": item.get("name", ""),
+                    "ects": ects,
+                    "reason": item.get("reason", "dependency order"),
+                })
+                break
+            if used + ects <= max_ects:
+                slots.setdefault(target_index, []).append({
+                    "code": code,
+                    "name": item.get("name", ""),
+                    "ects": ects,
+                    "reason": item.get("reason", "dependency order"),
+                })
+                break
+            if (offered_term or "").strip().lower() in ["fall", "spring"]:
+                target_index += 2
+            else:
+                target_index += 1
+
+        scheduled_index[code] = target_index
+
+    scheduled = []
+    for idx in sorted(slots.keys()):
+        year, term = _index_to_year_term(idx)
+        items = slots[idx]
+        total = sum(x.get("ects", 0.0) for x in items)
+        scheduled.append({
+            "index": idx,
+            "year": year,
+            "term": term,
+            "total_ects": total,
+            "items": items,
+        })
+
+    return scheduled, max_ects
+
+
+def get_blocked_dependency_chain(failed_courses, dept_code, year, term, start_year=None, reverse_graph=None):
+    failed = _dedupe_keep_order([_normalize_course_code(c) for c in (failed_courses or []) if _normalize_course_code(c)])
+    if not failed:
+        return []
+
+    positions = get_curriculum_course_positions(dept_code, start_year=start_year)
+    if not positions:
+        return []
+
+    reverse_graph = reverse_graph or get_scoped_prerequisite_maps(dept_code, start_year=start_year)[1]
+    if not reverse_graph:
+        return []
+
+    try:
+        current_idx = _semester_sort_index(int(year), term)
+    except Exception:
+        return []
+
+    seen = set(failed)
+    depth = {c: 0 for c in failed}
+    parent = {}
+    frontier = list(failed)
+
+    while frontier:
+        next_frontier = []
+        for prereq in frontier:
+            for dep in sorted(reverse_graph.get(prereq, [])):
+                if dep in seen:
+                    continue
+                pos = positions.get(dep)
+                if not pos:
+                    continue
+                if pos["index"] < current_idx:
+                    continue
+                seen.add(dep)
+                depth[dep] = depth.get(prereq, 0) + 1
+                parent[dep] = prereq
+                next_frontier.append(dep)
+        frontier = next_frontier
+
+    blocked = []
+    for code, blocker in parent.items():
+        pos = positions.get(code)
+        if not pos:
+            continue
+        blocked.append({
+            "code": code,
+            "name": pos.get("name", ""),
+            "year": pos.get("year"),
+            "term": pos.get("term"),
+            "blocked_by": blocker,
+            "depth": depth.get(code, 1),
+            "index": pos.get("index", 9999),
+        })
+
+    blocked.sort(key=lambda x: (x["index"], x["depth"], x["code"]))
+    return blocked
+
+
+def build_suggested_recovery_order(failed_courses, blocked_chain, dept_code, start_year=None):
+    failed = _dedupe_keep_order([_normalize_course_code(c) for c in (failed_courses or []) if _normalize_course_code(c)])
+    positions = get_curriculum_course_positions(dept_code, start_year=start_year)
+
+    order_items = []
+    for code in failed:
+        pos = positions.get(code, {})
+        order_items.append({
+            "code": code,
+            "name": pos.get("name", ""),
+            "year": pos.get("year"),
+            "term": pos.get("term"),
+            "depth": 0,
+            "index": pos.get("index", 0),
+            "reason": "failed course",
+        })
+
+    for item in blocked_chain or []:
+        order_items.append({
+            "code": item.get("code"),
+            "name": item.get("name", ""),
+            "year": item.get("year"),
+            "term": item.get("term"),
+            "depth": item.get("depth", 1),
+            "index": item.get("index", 9999),
+            "reason": f"depends on {item.get('blocked_by')}",
+        })
+
+    dedup = {}
+    for item in order_items:
+        code = item.get("code")
+        if not code:
+            continue
+        if code not in dedup:
+            dedup[code] = item
+            continue
+        prev = dedup[code]
+        if (item.get("depth", 99), item.get("index", 9999)) < (prev.get("depth", 99), prev.get("index", 9999)):
+            dedup[code] = item
+
+    ordered = sorted(
+        dedup.values(),
+        key=lambda x: (x.get("depth", 99), x.get("index", 9999), x.get("code", "")),
+    )
+    return ordered
+
+
+def _safe_alternative_courses_for_term(
+    dept,
+    year,
+    term,
+    current_codes,
+    blocked_codes,
+    positions,
+    prereq_map,
+    limit=8,
+):
+    try:
+        current_idx = _semester_sort_index(int(year), term)
+    except Exception:
+        return []
+
+    want_term = (term or "").strip().lower()
+    alternatives = []
+
+    for code, pos in positions.items():
+        if code.startswith("ELEC"):
+            continue
+        if code in current_codes or code in blocked_codes:
+            continue
+        idx = pos.get("index", -1)
+        if idx <= current_idx:
+            continue
+        if (pos.get("term") or "").strip().lower() != want_term:
+            continue
+
+        prereqs = prereq_map.get(code, set())
+        if any(p in blocked_codes for p in prereqs):
+            continue
+
+        alternatives.append({
+            "code": code,
+            "name": pos.get("name", ""),
+            "year": pos.get("year"),
+            "term": pos.get("term"),
+            "index": idx,
+        })
+
+    alternatives.sort(key=lambda x: (x["index"], x["code"]))
+    return alternatives[:limit]
 
 
 def get_electives(dept_code):
@@ -660,9 +1466,71 @@ def is_regulations_question(text):
 # ─────────────────────────────────────────────
 
 def extract_course_codes(text):
-    pattern = r'\b([A-Z]{2,5})\s*(\d{3})\b'
-    matches = re.findall(pattern, text.upper())
-    return list(set([f"{m[0]} {m[1]}" for m in matches]))
+    pattern = r'\b([A-Z]{2,6})\s*(\d{3,4})\b'
+    matches = re.findall(pattern, text or "", re.IGNORECASE)
+    out = []
+    for m in matches:
+        prefix = (m[0] or "").upper()
+        if not _is_valid_course_prefix(prefix):
+            continue
+        out.append(f"{prefix} {m[1]}")
+    return list(set(out))
+
+
+def _dedupe_keep_order(items):
+    seen = set()
+    out = []
+    for item in items:
+        key = (item or "").strip().upper()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        out.append(key)
+    return out
+
+
+def _has_failed_course_cue(text):
+    t = (text or "").lower()
+    cues = [
+        "failed", "fail", "retake", "retaking", "repeat", "repeating",
+        "kald", "kaldim", "kaldım", "tekrar", "ret"
+    ]
+    return any(c in t for c in cues)
+
+
+def extract_failed_courses_from_context(question, history, last_bot_q=None):
+    codes_now = _dedupe_keep_order(extract_course_codes(question or ""))
+    if codes_now and (_has_failed_course_cue(question) or last_bot_q == "failed_courses"):
+        return codes_now
+
+    merged = []
+    for msg in reversed(history[-8:]):
+        if msg.get("role") != "user":
+            continue
+        content = msg.get("content") or ""
+        codes = _dedupe_keep_order(extract_course_codes(content))
+        if not codes:
+            continue
+        if _has_failed_course_cue(content):
+            merged.extend(codes)
+
+    return _dedupe_keep_order(merged)
+
+
+def get_latest_planning_tuple_from_history(history):
+    pattern = r'\b([A-Z]{2,6})\s*-\s*Year\s*([1-6])\s*(Fall|Spring)\s*Semester\b'
+    for msg in reversed(history[-10:]):
+        if msg.get("role") != "assistant":
+            continue
+        content = msg.get("content", "")
+        m = re.search(pattern, content, re.IGNORECASE)
+        if not m:
+            continue
+        dept = normalize_department_code(m.group(1).upper())
+        year = int(m.group(2))
+        term = "Fall" if m.group(3).lower().startswith("fall") else "Spring"
+        return dept, year, term
+    return None
 
 
 def get_context_for_codes(codes):
@@ -686,7 +1554,7 @@ def get_context_for_codes(codes):
             results = collection.query(query_texts=[code], n_results=1)
             if results["documents"][0]:
                 doc = results["documents"][0][0]
-                match = re.search(r'Course Code: ([A-Z]{2,5} \d{3})', doc)
+                match = re.search(r'Course Code: ([A-Z]{2,6} \d{3,4})', doc)
                 if match:
                     print(f"  Fuzzy matched '{code}' -> '{match.group(1)}'")
                     contexts.append(doc)
@@ -819,13 +1687,8 @@ def ask(question, history=[]):
     print(f"\n[EkoBot] Question: {question}")
 
     last_bot_q = get_last_bot_question_type(history)
-    full_question = question
-
-    # if user is answering a follow-up, reconstruct the full question
-    if last_bot_q in ["dept", "year_term", "start_year"]:
-        anchor_question = get_latest_substantive_user_question(history)
-        if anchor_question:
-            full_question = anchor_question + " " + question
+    parsed = parse_request_slots(question, history, last_bot_q)
+    full_question = parsed["analysis_question"]
 
     # ── gather ALL potentially relevant context ───────────────────────
     context_parts = []
@@ -843,43 +1706,47 @@ def ask(question, history=[]):
             context_parts.extend(course_contexts)
 
     # 2. department detection
-    dept = detect_department_from_context(
-        full_question,
-        history,
-        strict=True,
-        allow_short_code_reply=(last_bot_q == "dept")
-    )
-
-    # 3. curriculum data if dept + year/term mentioned
-    year, term = extract_year_and_term(all_text)
-    if not year or not term:
-        year, term = extract_year_and_term_from_history(history)
-
-    # If user is directly answering year/term follow-up, trust current reply first.
-    if last_bot_q == "year_term":
-        y_now, t_now = extract_year_and_term(question)
-        if y_now:
-            year = y_now
-        if t_now:
-            term = t_now
-
-    # 4. starting year extraction (for curricula that vary by entry year)
-    start_year = extract_starting_year(all_text)
-    if not start_year:
-        start_year = extract_starting_year_from_history(history)
-    if last_bot_q == "start_year":
-        y_start_now = extract_starting_year(question)
-        if y_start_now:
-            start_year = y_start_now
+    dept = parsed["department"]
+    year = parsed["year"]
+    term = parsed["term"]
+    start_year = parsed["start_year"]
+    failed_courses = extract_failed_courses_from_context(question, history, last_bot_q)
+    gpa_value = extract_gpa_from_context(full_question, history)
 
     q_lower = full_question.lower()
-    graduation_intent = is_graduation_question(full_question)
-    planning_intent = is_semester_question(full_question) or (
-        (year and term) and any(k in q_lower for k in [
-            "which course", "which courses", "what course", "what courses",
-            "should i take", "i should take", "hangi ders"
-        ])
+    planning_keywords = any(k in q_lower for k in [
+        "which course", "which courses", "what course", "what courses",
+        "should i take", "i should take", "hangi ders"
+    ])
+    graduation_intent = parsed["intent"] == "graduation" or is_graduation_question(full_question)
+    regulations_intent = (
+        parsed["intent"] == "regulations" or is_regulations_question(full_question)
+    ) and not planning_keywords
+    planning_intent = (
+        parsed["intent"] == "planning"
+        or is_semester_question(full_question)
+        or ((year and term) and planning_keywords)
+        or (planning_keywords and not regulations_intent)
     )
+    both_semesters_intent = planning_intent and wants_both_semesters(full_question)
+
+    # If user shares failed course codes after a planning answer, reuse the latest
+    # planning tuple and return a retake-prioritized recommendation.
+    if failed_courses and not planning_intent and not graduation_intent and not regulations_intent:
+        latest_plan = get_latest_planning_tuple_from_history(history)
+        if latest_plan:
+            h_dept, h_year, h_term = latest_plan
+            h_courses = get_curriculum_courses(h_dept, h_year, h_term, start_year=start_year)
+            if h_courses:
+                return _format_semester_courses(
+                    h_dept,
+                    h_year,
+                    h_term,
+                    h_courses,
+                    failed_courses=failed_courses,
+                    start_year=start_year,
+                    gpa_value=gpa_value,
+                )
 
     # Graduation requirement questions should not fall back to generic course search.
     if graduation_intent and not dept:
@@ -895,22 +1762,51 @@ def ask(question, history=[]):
     # instead of falling into semantic search (which can hallucinate).
     # Also handle the case where user is directly answering department follow-up
     # with a short reply like "ce".
-    if (not graduation_intent) and (planning_intent or (last_bot_q == "dept" and detect_department(question))):
+    if (not graduation_intent) and (planning_intent or (last_bot_q == "dept" and parsed["department"])):
         if not dept:
             return "FOLLOWUP_NEEDED: Which department are you in? (major) (e.g. CE, SE, EEE, IE, BME, ME, Nursing)"
         if not year or not term:
+            needs_start_year = len(get_available_entry_years(dept)) > 1 or has_multiple_curriculum_variants(dept)
+            if needs_start_year and not start_year:
+                return "FOLLOWUP_NEEDED: Which year and semester are you in, and which year did you start university? (e.g. 2nd year spring, started 2022)"
             return "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)"
-        entry_years = get_available_entry_years(dept)
-        needs_start_year = len(entry_years) > 1 or has_multiple_curriculum_variants(dept)
+        needs_start_year = len(get_available_entry_years(dept)) > 1 or has_multiple_curriculum_variants(dept)
         if needs_start_year and not start_year:
             return "FOLLOWUP_NEEDED: Which year did you start university? (e.g. 2023)"
+
+    # Deterministic combined answer when the user asks both semesters of a year.
+    if (not graduation_intent) and both_semesters_intent and dept and year:
+        needs_start_year = len(get_available_entry_years(dept)) > 1 or has_multiple_curriculum_variants(dept)
+        if needs_start_year and not start_year:
+            return "FOLLOWUP_NEEDED: Which year did you start university? (e.g. 2023)"
+
+        fall_courses = get_curriculum_courses(dept, year, "Fall", start_year=start_year)
+        spring_courses = get_curriculum_courses(dept, year, "Spring", start_year=start_year)
+
+        parts = []
+        if fall_courses:
+            parts.append(_format_semester_courses(dept, year, "Fall", fall_courses, failed_courses=failed_courses, start_year=start_year, gpa_value=gpa_value))
+        if spring_courses:
+            parts.append(_format_semester_courses(dept, year, "Spring", spring_courses, failed_courses=failed_courses, start_year=start_year, gpa_value=gpa_value))
+
+        if parts:
+            return "\n\n".join(parts)
 
     # Deterministic semester answer once dept + year + term are known.
     if (not graduation_intent) and (planning_intent or last_bot_q in ["year_term", "start_year"]) and dept and year and term:
         courses = get_curriculum_courses(dept, year, term, start_year=start_year)
         if not courses:
+            if last_bot_q in ["year_term", "start_year"]:
+                # Try an LLM-guided retry before giving up on curriculum matching.
+                parsed_retry = parse_request_slots(full_question, history, last_bot_q)
+                dept = parsed_retry["department"] or dept
+                year = parsed_retry["year"] or year
+                term = parsed_retry["term"] or term
+                start_year = parsed_retry["start_year"] or start_year
+                courses = get_curriculum_courses(dept, year, term, start_year=start_year)
+        if not courses:
             return "I don't have that semester's curriculum data in my database."
-        return _format_semester_courses(dept, year, term, courses)
+        return _format_semester_courses(dept, year, term, courses, failed_courses=failed_courses, start_year=start_year, gpa_value=gpa_value)
 
     if dept and year and term:
         courses = get_curriculum_courses(dept, year, term, start_year=start_year)
@@ -938,10 +1834,13 @@ def ask(question, history=[]):
         if grad_text:
             context_parts.append(grad_text[:1000])
 
-    # 5. regulations if GPA/credits/grades mentioned
-    if any(k in full_question.lower() for k in 
+    # 5. regulations if GPA/credits/grades mentioned, but do not let them
+    # override planning questions that also mention GPA.
+    if (regulations_intent and not planning_intent) or (
+        not planning_intent and any(k in full_question.lower() for k in
            ["gpa", "credit", "grade", "kredi", "not", "ortalama",
-            "how many", "can i take"]):
+            "how many", "can i take"])
+    ):
         context_parts.append(get_credit_load_rules())
         regs = get_regulations()
         if regs:
@@ -971,18 +1870,153 @@ def ask(question, history=[]):
 # HELPERS
 # ─────────────────────────────────────────────
 
-def _format_semester_courses(dept, year, term, courses):
+def _format_semester_courses(dept, year, term, courses, failed_courses=None, start_year=None, gpa_value=None):
     elec_count = sum(1 for c in courses if c.get("code", "").startswith("ELEC"))
     lines = [f"{dept} - Year {year} {term} Semester:\n"]
+    failed_courses = _dedupe_keep_order(failed_courses or [])
+    blocked_by_code = {}
+
+    scoped_prereq_map = {}
+    scoped_reverse_graph = {}
+    offered_term_by_code = {}
+    positions = {}
+    if failed_courses:
+        scoped_prereq_map, scoped_reverse_graph = get_scoped_prerequisite_maps(
+            dept,
+            start_year=start_year,
+        )
+        offered_term_by_code = get_scoped_offered_terms(dept, start_year=start_year)
+        positions = get_curriculum_course_positions(dept, start_year=start_year)
+        blocked_chain_preview = get_blocked_dependency_chain(
+            failed_courses,
+            dept,
+            year,
+            term,
+            start_year=start_year,
+            reverse_graph=scoped_reverse_graph,
+        )
+        blocked_by_code = {
+            item.get("code"): item.get("blocked_by")
+            for item in blocked_chain_preview
+            if item.get("code") and item.get("blocked_by")
+        }
+
     for c in courses:
         code = c.get("code", "").strip()
         name = c.get("name", "").strip()
         if not code.startswith("ELEC"):
-            lines.append(f"- {code}: {name}")
+            if code in blocked_by_code:
+                lines.append(
+                    f"- {code}: {name} (blocked now by failed prerequisite chain via {blocked_by_code[code]})"
+                )
+            else:
+                lines.append(f"- {code}: {name}")
 
     if elec_count > 0:
         lines.append(f"\nYou also have {elec_count} elective slot(s) this semester.")
         lines.append("Would you like to see what courses you can choose for those slots?")
+
+    if failed_courses:
+        current_codes = {(c.get("code") or "").strip().upper() for c in courses}
+        lines.append("\nRetake priority (failed courses you mentioned):")
+        for code in failed_courses:
+            offered_term = (
+                (positions.get(code, {}).get("term") or offered_term_by_code.get(code) or "")
+            ).strip()
+            offered_note = f"; offered in {offered_term}" if offered_term else ""
+            if code in current_codes:
+                lines.append(f"- {code} (already in this semester curriculum; prioritize retaking this course{offered_note})")
+            else:
+                lines.append(f"- {code} (not listed in this semester curriculum; add it in its offered term{offered_note} if your credit load allows)")
+
+        blocked_chain = get_blocked_dependency_chain(
+            failed_courses,
+            dept,
+            year,
+            term,
+            start_year=start_year,
+            reverse_graph=scoped_reverse_graph,
+        )
+        if blocked_chain:
+            lines.append("\nBlocked dependency chain (following semesters):")
+            for item in blocked_chain[:20]:
+                title = f"{item['code']}"
+                if item.get("name"):
+                    title += f" - {item['name']}"
+                lines.append(
+                    f"- {title} (Year {item['year']} {item['term']}) blocked by {item['blocked_by']}"
+                )
+            if len(blocked_chain) > 20:
+                lines.append(f"- ...and {len(blocked_chain) - 20} more downstream blocked course(s).")
+        else:
+            lines.append("\nNo downstream prerequisite blockers were found in the available curriculum data.")
+
+        blocked_codes = set(failed_courses)
+        blocked_codes.update(item.get("code") for item in blocked_chain if item.get("code"))
+        alternatives = _safe_alternative_courses_for_term(
+            dept,
+            year,
+            term,
+            current_codes,
+            blocked_codes,
+            positions,
+            scoped_prereq_map,
+            limit=8,
+        )
+        if alternatives:
+            lines.append("\nSafe alternatives for this term (from later years, excluding courses blocked by your failed-chain):")
+            for item in alternatives:
+                title = f"{item['code']}"
+                if item.get("name"):
+                    title += f" - {item['name']}"
+                lines.append(f"- {title} (Year {item['year']} {item['term']})")
+        else:
+            lines.append("\nNo safe same-term alternatives were found from later semesters in the available curriculum data.")
+
+        recovery_order = build_suggested_recovery_order(
+            failed_courses,
+            blocked_chain,
+            dept,
+            start_year=start_year,
+        )
+        if recovery_order:
+            lines.append("\nSuggested recovery order:")
+            for i, item in enumerate(recovery_order[:20], start=1):
+                title = item["code"]
+                if item.get("name"):
+                    title += f" - {item['name']}"
+                semester_part = ""
+                if item.get("year") and item.get("term"):
+                    semester_part = f" (Year {item['year']} {item['term']})"
+                lines.append(f"{i}. {title}{semester_part} [{item.get('reason', 'dependency order')}]")
+            if len(recovery_order) > 20:
+                lines.append(f"...and {len(recovery_order) - 20} more item(s).")
+
+            current_idx = _semester_sort_index(int(year), term)
+            schedule, max_ects = build_ects_aware_recovery_schedule(
+                recovery_order,
+                gpa_value,
+                current_idx,
+                prereq_map=scoped_prereq_map,
+                offered_term_by_code=offered_term_by_code,
+            )
+            if schedule:
+                gpa_note = f"GPA {gpa_value:.2f}" if gpa_value is not None else "GPA not provided"
+                lines.append(f"\nECTS-aware recovery schedule ({gpa_note}, max {max_ects} ECTS/semester):")
+                lines.append("Strict prerequisite sequencing is applied (dependent courses are scheduled after unmet failed prerequisites and only in their offered Fall/Spring term).")
+                for sem in schedule[:8]:
+                    header = f"- Year {sem['year']} {sem['term']}: {sem['total_ects']:.0f}/{max_ects} ECTS"
+                    lines.append(header)
+                    for item in sem["items"]:
+                        title = item["code"]
+                        if item.get("name"):
+                            title += f" - {item['name']}"
+                        ects_txt = f"{item['ects']:.0f} ECTS" if item.get("ects", 0) > 0 else "ECTS unknown"
+                        lines.append(f"  - {title} [{ects_txt}; {item.get('reason', 'dependency order')}]")
+                if len(schedule) > 8:
+                    lines.append(f"- ...and {len(schedule) - 8} more semester(s) in the recovery schedule.")
+    else:
+        lines.append("\nIf you have any failed courses to retake, share their course codes (e.g. CE 201, MATH 153) and I will prioritize them in your plan.")
 
     return "\n".join(lines)
 
