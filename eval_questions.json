@@ -19,6 +19,36 @@
     ]
   },
   {
+    "id": "TEACHER_CE342",
+    "category": "course_lookup",
+    "question": "who is the teacher for ce 342",
+    "history": [],
+    "checks": [
+      {"type": "contains_any", "value": ["M. Çağkan ULUDAĞLI", "Teacher/Lecturer(s)", "Course Coordinator"]},
+      {"type": "not_contains", "value": "Which department are you in"}
+    ]
+  },
+  {
+    "id": "LOOKUP_SE302_INFO",
+    "category": "course_lookup",
+    "question": "Tell me about this course: SE 302.",
+    "history": [],
+    "checks": [
+      {"type": "contains_any", "value": ["Principles of Software Engineering", "SE 116"]},
+      {"type": "not_contains", "value": "Which department are you in"}
+    ]
+  },
+  {
+    "id": "PREREQ_BEFORE_TAKING_CE342",
+    "category": "course_lookup",
+    "question": "what courses do i need to pass before taking CE 342",
+    "history": [],
+    "checks": [
+      {"type": "contains_any", "value": ["EEE 242", "Prerequisites", "prerequisite"]},
+      {"type": "not_contains", "value": "Which department are you in"}
+    ]
+  },
+  {
     "id": "NO_DEPT_ASSUMPTION",
     "category": "planning",
     "question": "im a third year student with gpa of 2.5 which courses should i take for spring",
@@ -55,6 +85,71 @@
     "checks": [
       {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
       {"type": "contains", "value": "Which year did you start university"}
+    ]
+  },
+  {
+    "id": "FOLLOWUP_START_YEAR_THEN_PLAN",
+    "category": "planning",
+    "question": "2018",
+    "history": [
+      {"role": "user", "content": "Which courses should I take?"},
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which department are you in? (major) (e.g. CE, SE, EEE, IE, BME, ME, Nursing)"},
+      {"role": "user", "content": "CE"},
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)"},
+      {"role": "user", "content": "2nd year spring"},
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which year did you start university? (e.g. 2023)"}
+    ],
+    "checks": [
+      {"type": "contains", "value": "Year 2 Spring Semester"},
+      {"type": "not_contains", "value": "Which year did you start university"}
+    ]
+  },
+  {
+    "id": "FAILED_SE116_BLOCKS_CE216",
+    "category": "planning",
+    "question": "ive failed se 116",
+    "history": [
+      {"role": "user", "content": "hi im a ce student 2nd year spring fall semester i entered university inn 2022"},
+      {"role": "assistant", "content": "CE - Year 2 Spring Semester:\n\n- SFL 202: Second Foreign Languages IV\n- CE 223: Database Systems\n- CE 216: Fundamental Topics in Programming\n- MATH 207: Introduction to Differential Equations I\n- TURK 100: Turkish\n- ENG 210: Technical English for Engineers\n\nIf you have any failed courses to retake, share their course codes (e.g. CE 201, MATH 153) and I will prioritize them in your plan."}
+    ],
+    "checks": [
+      {"type": "contains_any", "value": ["CE 216", "blocked now by failed prerequisite chain via SE 116", "Blocked dependency chain"]},
+      {"type": "contains", "value": "SE 116"}
+    ]
+  },
+  {
+    "id": "FAILED_SE116_BLOCKS_THIRD_YEAR",
+    "category": "planning",
+    "question": "ive failed se 116",
+    "history": [
+      {"role": "user", "content": "im a third year student in ce"},
+      {"role": "assistant", "content": "Got it!\n\nWhat year and semester are you currently in?\n(e.g., '2nd year spring', 'third year fall', etc.)"},
+      {"role": "user", "content": "3year spring"},
+      {"role": "assistant", "content": "Which year did you start university? (e.g. 2023)"},
+      {"role": "user", "content": "2022"},
+      {"role": "assistant", "content": "CE - Year 3 Spring Semester:\n\n- CE 342: Fundamentals of Microprocessors\n- CE 326: Computer Networks\n- CE 316: Programming Paradigms\n- MATH 236: Engineering Statistics\n- FENG 345: Numerical Methods for Engineers I\n\nIf you have any failed courses to retake, share their course codes (e.g. CE 201, MATH 153) and I will prioritize them in your plan."}
+    ],
+    "checks": [
+      {"type": "contains_any", "value": ["CE 216", "SE 302", "CE 316", "Blocked dependency chain"]},
+      {"type": "contains", "value": "SE 116"}
+    ]
+  },
+  {
+    "id": "PROFILE_UPDATE_AFTER_CE342",
+    "category": "profile",
+    "question": "im a 2nd year student spring semster CE student enrolled in 2022, ive failed se 116",
+    "history": [
+      {"role": "user", "content": "who teaches CE 342"},
+      {"role": "assistant", "content": "CE 342 - Fundamentals of Microprocessors\nDepartment: CE\nSemester: SPRING\nCredits: 3\nECTS: 6\nTeacher/Lecturer(s): Dr. Öğr. Üyesi Muhtar Çağkan Uludağlı\nCourse Coordinator: Prof. Dr. Yusuf Murat Erten\nPrerequisites: To succesfully complete EEE 242 (with a grade of at least DD)\nDescription: This course discusses various aspects of the most important component of a computer, the microprocessors. The topics include the fundamental concepts of microprocessors and the relationship between assembler and basic components of a computer, 80x86 family architecture, 80x86 based assembly language programming, computer organization and architecture of the PC."}
+    ],
+    "checks": [
+      {"type": "not_contains", "value": "I don't have that information in the IEU database"},
+      {"type": "not_contains", "value": "Which department are you in"},
+      {"type": "not_contains", "value": "Which year did you start university"},
+      {"type": "contains", "value": "CE"},
+      {"type": "contains_any", "value": ["Year 2 Spring", "2nd year spring"]},
+      {"type": "contains", "value": "2022"},
+      {"type": "contains", "value": "SE 116"}
     ]
   },
   {
@@ -444,6 +539,19 @@
     "history": [],
     "checks": [
       {"type": "contains_any", "value": ["38", "+6", "2.00"]}
+    ]
+  },
+  {
+    "id": "GPA_RULE_220_FOLLOWUP_3",
+    "category": "regulations",
+    "question": "what if it is 3",
+    "history": [
+      {"role": "user", "content": "My GPA is 2.2 how many credits can I take this semester?"},
+      {"role": "assistant", "content": "With GPA 2.20, your maximum course load is 38 ECTS per semester.\nRule: You may take normal load + 6 extra ECTS (up to 38 ECTS)."}
+    ],
+    "checks": [
+      {"type": "contains_any", "value": ["44 ECTS", "+12", "GPA 3.00", "GPA 3.0"]},
+      {"type": "not_contains", "value": "Which department are you in"}
     ]
   },
   {

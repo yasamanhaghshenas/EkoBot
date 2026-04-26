@@ -32,6 +32,12 @@ def root():
 @app.post("/chat")
 async def chat(req: ChatRequest):
     history = [{"role": m.role, "content": m.content} for m in req.history]
+
+    # Some clients include the current question in the history payload.
+    # The backend already receives it separately as `question`.
+    if history and history[-1].get("role") == "user":
+        if (history[-1].get("content") or "").strip() == (req.question or "").strip():
+            history = history[:-1]
     answer = gemini.ask(req.question, history)
     
     is_followup = answer.startswith("FOLLOWUP_NEEDED:")

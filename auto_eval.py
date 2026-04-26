@@ -491,8 +491,25 @@ def _install_mock_modules():
             "Course Code: CE 342\n"
             "Course Name: Fundamentals of Microprocessors\n"
             "Department: CE\n"
+            "Semester: SPRING\n"
+            "Credits: 3\n"
+            "ECTS: 6\n"
+            "Teacher/Lecturer(s): Dr. Öğr. Üyesi Muhtar Çağkan Uludağlı\n"
+            "Course Coordinator: Prof. Dr. Yusuf Murat Erten\n"
             "Prerequisites: EEE 242 (DD)\n"
-            "ECTS: 6"
+            "Description: This course discusses various aspects of the most important component of a computer, the microprocessors."
+        ),
+        "SE 302": (
+            "Course Code: SE 302\n"
+            "Course Name: Principles of Software Engineering\n"
+            "Department: SE\n"
+            "Semester: FALL\n"
+            "Credits: 3\n"
+            "ECTS: 6\n"
+            "Teacher/Lecturer(s): Dr. Example Instructor\n"
+            "Course Coordinator: Prof. Example Coordinator\n"
+            "Prerequisites: None\n"
+            "Description: Introduction to software engineering principles, processes, and practices."
         )
     }
 

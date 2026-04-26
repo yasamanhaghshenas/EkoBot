@@ -604,7 +604,7 @@
 
     .input-wrapper {
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       gap: 10px;
       background: var(--input-bg);
       border: 1.5px solid var(--input-border);
@@ -630,6 +630,7 @@
       max-height: 120px;
       line-height: 1.55;
       font-family: 'DM Sans', sans-serif;
+      padding: 6px 0;
     }
 
     #userInput::placeholder { color: var(--text-secondary); }
@@ -645,10 +646,13 @@
       justify-content: center;
       transition: all 0.15s;
       flex-shrink: 0;
+      align-self: center;
       color: white;
       font-size: 15px;
       box-shadow: 0 2px 8px rgba(26,86,160,0.3);
     }
+
+    .input-wrapper.multiline .send-btn { align-self: flex-end; }
 
     .send-btn:hover { background: var(--accent-hover); transform: scale(1.06); }
     .send-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
@@ -1015,14 +1019,17 @@
      const response = await fetch(API_URL, {
        method: 'POST',
        headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({
-         question: question,
-         history: chat.messages.slice(-6).map(m => ({
-           role: m.role === 'user' ? 'user' : 'assistant',
-           content: m.text
-        }))
-      })
-    });
+        body: JSON.stringify({
+          question: question,
+          // Send recent *prior* messages (exclude the question we just added),
+          // otherwise the backend sees the current question twice and we lose
+          // older profiling answers sooner.
+          history: chat.messages.slice(0, -1).slice(-12).map(m => ({
+            role: m.role === 'user' ? 'user' : 'assistant',
+            content: m.text
+         }))
+       })
+     });
       
       const data = await response.json();
       removeTyping();
@@ -1065,6 +1072,8 @@
   function autoResize(el) {
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+    const wrapper = el.closest('.input-wrapper');
+    if (wrapper) wrapper.classList.toggle('multiline', el.scrollHeight > 40);
   }
 
   // ── LANGUAGE ──
