@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import types
+from functools import lru_cache
 from datetime import datetime
 from pathlib import Path
 from urllib.error import URLError, HTTPError
@@ -73,6 +74,62 @@ def load_curriculum_row_counts(path="curriculum.json"):
         return counts
     except Exception:
         return {}
+
+
+@lru_cache(maxsize=1)
+def load_course_docs_from_courses_json(path="courses.json"):
+    """
+    Build a course-code -> course text map from the real scraped course data.
+    This keeps mocked eval aligned with the actual dataset instead of relying
+    on hand-written course fixtures.
+    """
+    if not os.path.exists(path):
+        return {}
+
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        return {}
+
+    def score_item(code, item_text, item_dept):
+        score = 0
+        code_prefix = (code.split()[0] if code else "").strip().upper()
+        dept = (item_dept or "").strip().upper()
+        text = item_text or ""
+        if dept == code_prefix:
+            score += 4
+        if f"Course Code: {code}" in text:
+            score += 3
+        if "Course Lecturer(s)" in text or "Teacher/Lecturer(s)" in text:
+            score += 2
+        if "Course Coordinator" in text:
+            score += 1
+        if "Prerequisites" in text:
+            score += 1
+        return score, len(text)
+
+    grouped = {}
+    for item in data:
+        code = (item.get("code") or "").strip().upper()
+        if not re.fullmatch(r"[A-Z]{2,6}\s*\d{3,4}", code):
+            continue
+
+        text = (item.get("text") or "").strip()
+        if not text:
+            continue
+
+        dept = (item.get("department") or "").strip().upper()
+        current = grouped.get(code)
+        candidate = {
+            "text": text,
+            "score": score_item(code, text, dept),
+            "department": dept,
+        }
+        if current is None or candidate["score"] > current["score"]:
+            grouped[code] = candidate
+
+    return {code: meta["text"] for code, meta in grouped.items()}
 
 
 def _parse_semester_name(sem_name):
@@ -473,8 +530,6 @@ def _install_mock_modules():
                 return MockResponse("With GPA between 2.00 and 2.49, you may take up to 38 ECTS (+6 extra).")
             if "how many credits" in q_text or "gpa" in q_text:
                 return MockResponse("With GPA 2.50 and above, you may take up to 44 ECTS (+12 extra).")
-            if ("prerequisite" in q_text or "prereq" in q_text) and "ce 342" in q_text:
-                return MockResponse("The prerequisite for CE 342 is EEE 242 with at least DD.")
             return MockResponse("I don't have that information in the IEU database.")
 
     class MockGroq:
@@ -486,32 +541,7 @@ def _install_mock_modules():
 
     mock_chroma = types.ModuleType("chromadb")
 
-    fixture_docs = {
-        "CE 342": (
-            "Course Code: CE 342\n"
-            "Course Name: Fundamentals of Microprocessors\n"
-            "Department: CE\n"
-            "Semester: SPRING\n"
-            "Credits: 3\n"
-            "ECTS: 6\n"
-            "Teacher/Lecturer(s): Dr. Öğr. Üyesi Muhtar Çağkan Uludağlı\n"
-            "Course Coordinator: Prof. Dr. Yusuf Murat Erten\n"
-            "Prerequisites: EEE 242 (DD)\n"
-            "Description: This course discusses various aspects of the most important component of a computer, the microprocessors."
-        ),
-        "SE 302": (
-            "Course Code: SE 302\n"
-            "Course Name: Principles of Software Engineering\n"
-            "Department: SE\n"
-            "Semester: FALL\n"
-            "Credits: 3\n"
-            "ECTS: 6\n"
-            "Teacher/Lecturer(s): Dr. Example Instructor\n"
-            "Course Coordinator: Prof. Example Coordinator\n"
-            "Prerequisites: None\n"
-            "Description: Introduction to software engineering principles, processes, and practices."
-        )
-    }
+    fixture_docs = load_course_docs_from_courses_json()
 
     class MockCollection:
         def query(self, query_texts=None, n_results=1, where=None):
@@ -520,7 +550,7 @@ def _install_mock_modules():
                 code = where.get("code")
             if not code and query_texts:
                 q = str(query_texts[0]).upper()
-                m = re.search(r"\b([A-Z]{2,5}\s*\d{3})\b", q)
+                m = re.search(r"\b([A-Z]{2,6}\s*\d{3,4})\b", q)
                 if m:
                     code = re.sub(r"\s+", " ", m.group(1)).strip()
 
@@ -529,6 +559,11 @@ def _install_mock_modules():
             return {"documents": [[]]}
 
         def get(self, where=None, include=None):
+            code = None
+            if where and isinstance(where, dict):
+                code = where.get("code")
+            if code and code in fixture_docs:
+                return {"documents": [[fixture_docs[code]]]}
             return {"documents": [[]]}
 
     class MockClient:
