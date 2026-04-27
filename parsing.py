@@ -1,17 +1,28 @@
 import json
 import os
 import re
+from functools import lru_cache
+
+from catalog import (
+    load_ieu_department_directory,
+    load_ieu_profile_hierarchy,
+    load_program_catalog,
+    resolve_ieu_department,
+    resolve_ieu_faculty,
+)
 
 # ─────────────────────────────────────────────
 # CONSTANTS
 # ─────────────────────────────────────────────
 
 DEFAULT_VALID_DEPTS = [
-    "CE", "SE", "EEE", "IE", "BME", "MCE", "AE", "CIVE", "GBE", "FE", "ME", "NURSING"
+    "CE", "SE", "EEE", "IE", "BME", "MCE", "AE", "CIVE", "GBE", "FE", "ME", "NURSING",
+    "LAW", "VCD",
 ]
 
 DEPT_CANONICAL = {
     "NURSING": "HEM",
+    "LAW": "HUK",
 }
 
 DEPT_ALIASES = {
@@ -27,6 +38,8 @@ DEPT_ALIASES = {
     "GBE":  ["gbe", "genetics", "bioengineering"],
     "FE":   ["fe", "food engineering"],
     "NURSING": ["nursing", "nursing department"],
+    "LAW":  ["law", "law school", "faculty of law"],
+    "VCD":  ["visual communication design"],
 }
 
 _VALID_COURSE_PREFIXES_CACHE = None
@@ -39,14 +52,14 @@ def load_valid_departments():
     """
     codes = set(DEFAULT_VALID_DEPTS)
 
-    for fname in ["curriculum.json", "dept_info.json"]:
+    for fname in ["curriculum.json", "dept_info.json", "program_catalog.json"]:
         if not os.path.exists(fname):
             continue
         try:
             with open(fname, "r", encoding="utf-8") as f:
                 data = json.load(f)
             for item in data:
-                code = (item.get("department") or "").strip().upper()
+                code = (item.get("department") or item.get("department_code") or "").strip().upper()
                 # Accept compact letter-only department codes, ignore long names.
                 if re.fullmatch(r"[A-Z]{2,6}", code):
                     codes.add(code)
@@ -66,6 +79,78 @@ def normalize_department_code(dept_code):
     return DEPT_CANONICAL.get(code, code)
 
 
+def _normalize_key(value):
+    return re.sub(r"\s+", " ", (value or "").strip()).casefold()
+
+
+def _build_department_indexes():
+    valid = set(DEFAULT_VALID_DEPTS)
+    canonical_lookup = {}
+
+    # Keep the legacy manual aliases for backwards compatibility.
+    manual_aliases = {
+        "CE": ["computer engineering", "bilgisayar muhendisligi"],
+        "SE": ["software engineering", "yazilim muhendisligi"],
+        "EEE": ["eee", "electrical", "electronics", "elektrik", "elektronik"],
+        "IE": ["industrial engineering", "endustri muhendisligi"],
+        "BME": ["biomedical engineering", "biyomedikal"],
+        "ME": ["mechanical engineering", "makine muhendisligi"],
+        "CIVE": ["civil engineering", "insaat muhendisligi"],
+        "AE": ["aerospace engineering", "havacilik"],
+        "MCE": ["mechatronics", "mekatronik"],
+        "GBE": ["genetics", "bioengineering"],
+        "FE": ["food engineering"],
+        "NURSING": ["nursing", "nursing department"],
+        "LAW": ["law", "law school", "faculty of law"],
+        "VCD": ["visual communication design"],
+    }
+
+    for canonical, aliases in manual_aliases.items():
+        canonical_lookup[_normalize_key(canonical)] = canonical
+        for alias in aliases:
+            valid.add(alias)
+            canonical_lookup[_normalize_key(alias)] = canonical
+
+    for item in load_ieu_department_directory():
+        canonical = (item.get("canonical_department") or "").strip()
+        if not canonical:
+            continue
+        valid.add(canonical)
+        canonical_lookup[_normalize_key(canonical)] = canonical
+
+        source_label = (item.get("source_department") or "").strip()
+        if source_label:
+            valid.add(source_label)
+            canonical_lookup[_normalize_key(source_label)] = canonical
+
+        for alias in item.get("aliases") or []:
+            alias = (alias or "").strip()
+            if not alias:
+                continue
+            valid.add(alias)
+            canonical_lookup[_normalize_key(alias)] = canonical
+
+        for token in item.get("code_tokens") or []:
+            token = (token or "").strip().upper()
+            if not token:
+                continue
+            valid.add(token)
+            canonical_lookup[_normalize_key(token)] = canonical
+
+    return sorted(valid), canonical_lookup
+
+
+VALID_DEPTS, _DEPT_CANONICAL_LOOKUP = _build_department_indexes()
+VALID_DEPT_KEYS = {_normalize_key(v) for v in VALID_DEPTS}
+
+
+def normalize_department_code(dept_code):
+    if not dept_code:
+        return dept_code
+    key = _normalize_key(dept_code)
+    return _DEPT_CANONICAL_LOOKUP.get(key, dept_code.strip())
+
+
 # ─────────────────────────────────────────────
 # DEPARTMENT DETECTION
 # ─────────────────────────────────────────────
@@ -80,10 +165,11 @@ def detect_department(text):
     if not text:
         return None
 
-    stripped = text.strip().upper()
+    stripped = text.strip()
+    stripped_key = _normalize_key(stripped)
 
     # Case 1: entire message is just a dept code e.g. user replied "ce"
-    if stripped in VALID_DEPTS:
+    if stripped_key in VALID_DEPT_KEYS:
         return normalize_department_code(stripped)
 
     # Case 2: dept code appears as standalone word in message
@@ -117,6 +203,12 @@ def detect_department(text):
             else:
                 if alias in t_lower:
                     return normalize_department_code(dept)
+
+    resolved = resolve_ieu_department(text)
+    if resolved:
+        code = (resolved.get("department_code") or "").strip().upper()
+        if code:
+            return normalize_department_code(code)
 
     return None
 
@@ -192,9 +284,10 @@ def detect_department_strict(text, allow_short_code_reply=False):
     if not text:
         return None
 
-    stripped = text.strip().upper()
-    if allow_short_code_reply and stripped in VALID_DEPTS:
-        return stripped
+    stripped = text.strip()
+    stripped_key = _normalize_key(stripped)
+    if allow_short_code_reply and stripped_key in VALID_DEPT_KEYS:
+        return normalize_department_code(stripped)
 
     dept = detect_department(text)
     if not dept:
@@ -211,6 +304,44 @@ def detect_department_strict(text, allow_short_code_reply=False):
 
     # If the message contains a course code and no explicit profile cue,
     # do not infer department identity from it.
+    if _contains_course_code(text):
+        return None
+
+    return dept
+
+
+def detect_department_strict(text, allow_short_code_reply=False):
+    """
+    Safer strict department detector that ignores course codes when the user
+    is clearly answering a profiling question.
+    """
+    if not text:
+        return None
+
+    stripped = text.strip()
+    stripped_key = _normalize_key(stripped)
+    if allow_short_code_reply and stripped_key in VALID_DEPT_KEYS:
+        return normalize_department_code(stripped)
+
+    t = text.lower()
+    explicit_cues = [
+        "department", "major", "student", "i am", "i'm", "im ",
+        "my dept", "my department", "my major", "bolum", "bأ¶lأ¼m",
+    ]
+
+    if any(cue in t for cue in explicit_cues):
+        sanitized = re.sub(r"\b[A-Z]{2,6}\s*\d{3,4}\b", " ", text, flags=re.IGNORECASE)
+        dept = detect_department(sanitized)
+        if dept:
+            return dept
+
+    dept = detect_department(text)
+    if not dept:
+        return None
+
+    if any(cue in t for cue in explicit_cues) and not _contains_course_code(text):
+        return dept
+
     if _contains_course_code(text):
         return None
 
@@ -260,25 +391,92 @@ def detect_department_from_context(question, history, strict=False, allow_short_
 # LAST BOT QUESTION DETECTION
 # ─────────────────────────────────────────────
 
+def detect_faculty_choice(text):
+    """
+    Detect a faculty/school choice from a button click or typed reply.
+    Returns the normalized faculty label or None.
+    """
+    if not text:
+        return None
+
+    faculty = resolve_ieu_faculty(text)
+    if faculty:
+        return faculty.get("label")
+    return None
+
+
 def get_last_bot_question_type(history):
     """
     Returns what the bot last asked about so we know how to interpret
     the user's next short reply like 'ce' or '2nd year spring'.
-    Returns: 'dept', 'year_term', 'start_year', 'failed_courses', or None
+    Returns: 'faculty', 'dept', 'year_term', 'start_year', 'failed_courses', or None
     """
     for msg in reversed(history[-12:]):
         if msg.get("role") != "assistant":
             continue
         content = msg.get("content", "").lower()
-        if "which department" in content or "what department" in content or "what is your department" in content:
+        if (
+            "which faculty" in content
+            or "what faculty" in content
+            or "select your faculty" in content
+            or "choose your faculty" in content
+            or "which school" in content
+            or "what school" in content
+            or "faculty or school" in content
+        ):
+            return "faculty"
+        if (
+            "which department" in content
+            or "what department" in content
+            or "what is your department" in content
+            or "hangi bölüm" in content
+            or "hangi bolum" in content
+            or "bölümde" in content
+            or "bolumde" in content
+        ):
             return "dept"
-        if "starting year" in content or "entry year" in content or "which year did you start" in content:
+        if (
+            "starting year" in content
+            or "entry year" in content
+            or "enrollment year" in content
+            or "curriculum version" in content
+            or "curriculum choice" in content
+            or "which year did you start" in content
+            or "which year did you enroll" in content
+            or "what year did you enroll" in content
+            or "üniversiteye hangi yıl" in content
+            or "universiteye hangi yil" in content
+            or "kayıt yılı" in content
+            or "kayit yili" in content
+            or "kaydoldu" in content
+            or "kaydoldugun" in content
+        ):
             return "start_year"
-        if "which year" in content or "what year" in content or "year and semester" in content:
+        if (
+            "which year" in content
+            or "what year" in content
+            or "year and semester" in content
+            or "kaçıncı sınıf" in content
+            or "kacinci sinif" in content
+            or "yıl ve dönem" in content
+            or "yil ve donem" in content
+        ):
             return "year_term"
-        if "which semester" in content or "what semester" in content:
+        if (
+            "which semester" in content
+            or "what semester" in content
+            or "hangi dönem" in content
+            or "hangi donem" in content
+        ):
             return "year_term"
-        if "failed courses" in content and "course codes" in content:
+        if (
+            ("failed courses" in content and "course codes" in content)
+            or "başarısız" in content
+            or "basarisiz" in content
+            or "kaldığın" in content
+            or "kaldigin" in content
+            or "ders kod" in content
+        ):
             return "failed_courses"
     return None
 
@@ -298,6 +496,9 @@ def _is_likely_followup_reply(text):
     # Substantive questions should stay as anchors even if they mention a year/term.
     if is_semester_question(t) or is_graduation_question(t) or is_regulations_question(t):
         return False
+
+    if detect_faculty_choice(t):
+        return True
 
     if detect_department(t):
         return True
@@ -463,6 +664,11 @@ def is_course_lookup_question(text):
     if is_semester_question(text) or _has_failed_course_cue(text):
         return False
 
+    # Generic "what is ..." questions should not be treated as course lookups
+    # unless a real course code is present.
+    if not _has_course_code(text):
+        return False
+
     if re.fullmatch(r"\s*[A-Z]{2,6}\s*\d{3,4}\s*", (text or "").strip(), re.IGNORECASE):
         return True
 
@@ -475,7 +681,7 @@ def is_course_lookup_question(text):
         "prereq", "prerequisite", "prerequisites",
         "credit", "credits", "ects",
         "syllabus", "course description", "description", "course aim",
-        "what is", "tell me about", "information about", "details about", "info about",
+        "tell me about", "information about", "details about", "info about",
         "course name", "instructor", "coordinator", "teacher", "teaches",
     ]
     return any(cue in t for cue in lookup_cues)
@@ -621,10 +827,12 @@ def extract_starting_year(text):
     if not text:
         return None
     t = text.lower()
+    compact = re.sub(r"\s+", " ", t).strip()
 
     cue_keywords = [
         "started", "starting year", "entry year", "enrollment year",
-        "admission year", "since", "giris", "giriş",
+        "enroll", "enrolled", "admission year", "matriculation",
+        "since", "giris", "giriş",
     ]
 
     if any(k in t for k in cue_keywords):
@@ -638,6 +846,23 @@ def extract_starting_year(text):
     m_plain = re.search(r"^\s*(20\d{2})\s*$", text)
     if m_plain:
         y = int(m_plain.group(1))
+        if 2000 <= y <= 2100:
+            return y
+
+    # Accept curriculum-choice replies such as "2013-2019" or "2025+".
+    m_range = re.fullmatch(r"(20\d{2})\s*(?:-|to)\s*(20\d{2})\+?", compact)
+    if not m_range:
+        m_range = re.search(r"\b(20\d{2})\s*(?:-|to)\s*(20\d{2})\b", compact)
+    if m_range:
+        y = int(m_range.group(1))
+        if 2000 <= y <= 2100:
+            return y
+
+    m_plus = re.fullmatch(r"(20\d{2})\s*\+", compact)
+    if not m_plus:
+        m_plus = re.search(r"\b(20\d{2})\s*\+", compact)
+    if m_plus:
+        y = int(m_plus.group(1))
         if 2000 <= y <= 2100:
             return y
 
@@ -822,6 +1047,7 @@ def is_regulations_question(text):
         "rule", "rules", "regulation", "regulations", "bylaw", "bylaws",
         "gpa", "grade", "grading", "coefficient", "credit load",
         "how many credits", "credits can i take", "academic standing",
+        "how many ects", "ects can i take", "maximum ects", "max ects",
         "probation", "honor", "withdraw", "withdrawal", "letter grade",
         "aa", "bb", "cc", "dd", "ff", "gano", "not ortalaması",
         "akademik", "başarı koşulu", "credit limit",
@@ -829,6 +1055,154 @@ def is_regulations_question(text):
         "kural", "kurallar", "yonetmelik", "yonerge",
     ]
     return any(k in t for k in keywords)
+
+
+_WEB_INFO_STOPWORDS = {
+    "a", "an", "and", "about", "at", "by", "for", "from", "in", "of", "on",
+    "the", "to", "with", "via",
+    "student", "students", "academic", "official", "office", "program",
+    "programs", "service", "services", "guide", "info", "information",
+    "system", "systems", "university", "department", "faculty", "center",
+    "centre", "portal", "application", "applications", "support",
+}
+
+_WEB_INFO_HIGH_SIGNAL_TOKENS = {
+    "blackboard", "calendar", "conduct", "deadline", "desk", "dmp", "dormitory", "emergency", "erasmus",
+    "exchange", "europass", "guidance", "help", "internship", "library", "mobility",
+    "minor", "obs", "registration", "security", "shuttle", "scholarship", "staff", "tim",
+    "tlc", "transcript", "transfer", "visa",
+}
+
+
+def _normalize_web_info_phrase(text):
+    words = []
+    for raw in re.findall(r"[a-z0-9]+", (text or "").lower()):
+        token = raw
+        if len(token) > 4 and token.endswith("s") and not token.endswith(("ss", "us", "is", "ics")):
+            token = token[:-1]
+        words.append(token)
+    return " ".join(words)
+
+
+@lru_cache(maxsize=1)
+def _load_web_info_source_signals(path="ecobot_rules_sources.json"):
+    if not os.path.exists(path):
+        return []
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as e:
+        print(f"  web info source read error: {e}")
+        return []
+
+    signals = []
+    for item in data:
+        if not isinstance(item, dict):
+            continue
+        title = (item.get("title") or "").strip()
+        description = (item.get("description") or "").strip()
+        combined = f"{title} {description}".strip()
+        if not combined:
+            continue
+
+        title_norm = _normalize_web_info_phrase(title)
+        tokens = []
+        for token in _normalize_web_info_phrase(combined).split():
+            if token in _WEB_INFO_STOPWORDS:
+                continue
+            if token not in tokens:
+                tokens.append(token)
+
+        if tokens or title_norm:
+            signals.append(
+                {
+                    "title_norm": title_norm,
+                    "tokens": tokens,
+                }
+            )
+
+    return signals
+
+
+def is_web_info_question(text):
+    t = (text or "").lower()
+
+    # Pure greetings should never be treated as web-info questions.
+    # This avoids false positives from short strings like "hi" matching
+    # substrings inside words such as "traineeship".
+    greeting_words = {
+        "hi", "hello", "hey", "greetings", "merhaba", "selam", "sup", "yo",
+    }
+    greeting_phrases = {
+        "good morning",
+        "good afternoon",
+        "good evening",
+        "how are you",
+        "what's up",
+        "whats up",
+        "what s up",
+        "hi there",
+        "hello there",
+        "hey there",
+    }
+    q_words = re.findall(r"[a-z0-9']+", t)
+    q_phrase = " ".join(q_words)
+    if q_phrase in greeting_phrases:
+        return False
+    if len(q_words) <= 3 and any(word in greeting_words for word in q_words):
+        return False
+
+    # Regulations / GPA / credit-load questions should be handled by the
+    # regulations path, not the generic web-info retriever.
+    if is_regulations_question(t):
+        return False
+
+    keywords = [
+        "erasmus", "exchange program", "exchange programs", "international exchange",
+        "exchange coordinator", "coordinator", "coordinators", "student mobility",
+        "student charter", "agreements and quotas", "forms", "incoming student mobility",
+        "outgoing student mobility", "incoming international exchange", "outgoing international exchange",
+        "free mover", "international partners", "office of international affairs",
+        "visa", "residence permit", "insurance", "europass", "survival guide",
+        "student affairs", "document requests", "administrative forms", "student id card",
+        "semester leave", "duplicate diploma", "military procedures", "medical procedures",
+        "career guidance", "internship", "guaranteed internship", "campus shuttle",
+        "transportation", "dormitory", "cafes and restaurants", "student clubs",
+        "events calendar", "library", "blackboard", "obs", "academic support", "student life",
+        "academic calendar", "double major", "minor", "transfer regulation",
+        "summer school", "english preparatory", "second foreign language", "credit transfer",
+        "academic staff", "staff directory", "help desk", "security", "scholarship",
+        "student code of conduct", "student information system", "ecobot rules",
+        "eco bot rules", "ekobot rules",
+    ]
+    if any(k in t for k in keywords):
+        return True
+
+    q_norm = _normalize_web_info_phrase(t)
+    if "ekobot rules" in q_norm or "ecobot rules" in q_norm or "eco bot rules" in q_norm:
+        return True
+
+    q_tokens = set(q_norm.split())
+    if not q_tokens:
+        return False
+
+    for item in _load_web_info_source_signals():
+        title_norm = item.get("title_norm") or ""
+        if title_norm and (title_norm in q_norm or q_norm in title_norm):
+            return True
+
+        tokens = item.get("tokens") or []
+        if not tokens:
+            continue
+
+        overlap = [token for token in tokens if token in q_tokens]
+        if not overlap:
+            continue
+
+        if len(overlap) >= 2 or any(token in _WEB_INFO_HIGH_SIGNAL_TOKENS for token in overlap):
+            return True
+
+    return False
 
 
 def is_out_of_scope_question(text):

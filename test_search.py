@@ -1,7 +1,11 @@
 import chromadb
+from embeddings import SentenceTransformerEmbeddingFunction
 
 client = chromadb.PersistentClient(path="./db")
-collection = client.get_or_create_collection("ieu_courses")
+collection = client.get_or_create_collection(
+    "ieu_courses",
+    embedding_function=SentenceTransformerEmbeddingFunction(),
+)
 
 # test what ChromaDB actually finds for your question
 results = collection.query(

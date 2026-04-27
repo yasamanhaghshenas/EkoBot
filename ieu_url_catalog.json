@@ -1,0 +1,787 @@
+[
+  {
+    "faculty_school": "Vocational School of Justice",
+    "department": "Justice (Turkish)",
+    "course_code_prefix": "ADL",
+    "ects_section_id": "adalet.adl.ieu.edu.tr",
+    "curriculum_url": "https://adl.ieu.edu.tr/adalet/en/curr",
+    "syllabus_url": "https://adl.ieu.edu.tr/adalet/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational School of Justice",
+    "department": "Legal Office Management and Secretariat (Turkish)",
+    "course_code_prefix": "ADL / HBY",
+    "ects_section_id": "hukuk_buro_yonetimi.adl.ieu.edu.tr",
+    "curriculum_url": "https://adl.ieu.edu.tr/hukuk_buro_yonetimi/en/curr",
+    "syllabus_url": "https://adl.ieu.edu.tr/hukuk_buro_yonetimi/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational Schools",
+    "department": "Applied English Translation",
+    "course_code_prefix": "AET",
+    "ects_section_id": "uic.vs.ieu.edu.tr",
+    "curriculum_url": "https://vs.ieu.edu.tr/uic/en/curr",
+    "syllabus_url": "https://vs.ieu.edu.tr/uic/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational Schools",
+    "department": "Architectural Restoration (Turkish)",
+    "course_code_prefix": "MMIR",
+    "ects_section_id": "archres.vs.ieu.edu.tr",
+    "curriculum_url": "https://vs.ieu.edu.tr/architectural_restoration/en/curr",
+    "syllabus_url": "https://vs.ieu.edu.tr/architectural_restoration/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational Schools",
+    "department": "Banking and Insurance (Turkish)",
+    "course_code_prefix": "BNS",
+    "ects_section_id": "bs.ieu.edu.tr",
+    "curriculum_url": "https://bs.ieu.edu.tr/en/curr",
+    "syllabus_url": "https://bs.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational Schools",
+    "department": "Civil Aviation Cabin Services (Turkish)",
+    "course_code_prefix": "MPAZ",
+    "ects_section_id": "civil_aviation.vs.ieu.edu.tr",
+    "curriculum_url": "https://vs.ieu.edu.tr/civil_aviation/en/curr",
+    "syllabus_url": "https://vs.ieu.edu.tr/civil_aviation/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational Schools",
+    "department": "Civil Aviation Transportation Management (Turkish)",
+    "course_code_prefix": "HYHY",
+    "ects_section_id": "ground_services.vs.ieu.edu.tr",
+    "curriculum_url": "https://vs.ieu.edu.tr/ground_services/en/curr",
+    "syllabus_url": "https://vs.ieu.edu.tr/ground_services/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational Schools",
+    "department": "Computer Programming (Turkish)",
+    "course_code_prefix": "BIL/CP",
+    "ects_section_id": "cp.vs.ieu.edu.tr",
+    "curriculum_url": "https://vs.ieu.edu.tr/cp/en/curr",
+    "syllabus_url": "https://vs.ieu.edu.tr/cp/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational Schools",
+    "department": "Construction Technology (Turkish)",
+    "course_code_prefix": "MINT",
+    "ects_section_id": "insaat.vs.ieu.edu.tr",
+    "curriculum_url": "https://vs.ieu.edu.tr/insaat/en/curr",
+    "syllabus_url": "https://vs.ieu.edu.tr/insaat/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational Schools",
+    "department": "Foreign Trade (Turkish)",
+    "course_code_prefix": "DT/FT",
+    "ects_section_id": "dt.ieu.edu.tr",
+    "curriculum_url": "https://dt.ieu.edu.tr/en/curr",
+    "syllabus_url": "https://dt.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational Schools",
+    "department": "Graphic Design (Turkish)",
+    "course_code_prefix": "MGT / BILT",
+    "ects_section_id": "graphic_design.vs.ieu.edu.tr",
+    "curriculum_url": "https://vs.ieu.edu.tr/graphic_design/en/curr",
+    "syllabus_url": "https://vs.ieu.edu.tr/graphic_design/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational Schools",
+    "department": "Interior Design (Turkish)",
+    "course_code_prefix": "RTV",
+    "ects_section_id": "interior_design.vs.ieu.edu.tr",
+    "curriculum_url": "https://vs.ieu.edu.tr/interior_design/en/curr",
+    "syllabus_url": "https://vs.ieu.edu.tr/interior_design/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "notes_status": "✅ Confirmed. Prefix: RTV. ⚠️ Shares RTV prefix with Radio & TV dept — context distinguishes them.",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational Schools",
+    "department": "Media and Communication (Turkish)",
+    "course_code_prefix": "RTV/MED",
+    "ects_section_id": "medyaveiletisim.vs.ieu.edu.tr",
+    "curriculum_url": "https://vs.ieu.edu.tr/medyaveiletisim/en/curr",
+    "syllabus_url": "https://vs.ieu.edu.tr/medyaveiletisim/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "notes_status": "✅ Confirmed. Note: Media & Comm. ≠ Radio & TV (separate dept). ⚠️ Also see rtv.ieu.edu.tr for RTV Programming.",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational Schools",
+    "department": "Occupational Health and Safety (Turkish)",
+    "course_code_prefix": "MISG",
+    "ects_section_id": "ohs.vs.ieu.edu.tr",
+    "curriculum_url": "https://vs.ieu.edu.tr/ohs/en/curr",
+    "syllabus_url": "https://vs.ieu.edu.tr/ohs/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "notes_status": "⚠️ Currently Unavailable",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational Schools",
+    "department": "Radio and TV Programming (Turkish)",
+    "course_code_prefix": "RTV",
+    "ects_section_id": "rtv.ieu.edu.tr",
+    "curriculum_url": "https://rtv.ieu.edu.tr/en/curr",
+    "syllabus_url": "https://rtv.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "notes_status": "ASK",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational Schools",
+    "department": "Tourism and Hotel Management (Turkish)",
+    "course_code_prefix": "MTOI",
+    "ects_section_id": "tur.vs.ieu.edu.tr",
+    "curriculum_url": "https://vs.ieu.edu.tr/tourism/en/curr",
+    "syllabus_url": "https://vs.ieu.edu.tr/tourism/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "notes_status": "✅ Confirmed. Prefix: MTOI. ⚠️ ECTS section is tur.vs.ieu.edu.tr (NOT tourism.vs.ieu.edu.tr)",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational School of Health Services",
+    "department": "Child Development (Turkish)",
+    "course_code_prefix": "CG",
+    "ects_section_id": "cd.shs.ieu.edu.tr",
+    "curriculum_url": "https://shs.ieu.edu.tr/cd/en/curr",
+    "syllabus_url": "https://shs.ieu.edu.tr/cd/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational School of Health Services",
+    "department": "Elderly Care (Turkish)",
+    "course_code_prefix": "TS",
+    "ects_section_id": "yasli_bakimi.shs.ieu.edu.tr",
+    "curriculum_url": "https://shs.ieu.edu.tr/yasli_bakimi/en/curr",
+    "syllabus_url": "https://shs.ieu.edu.tr/yasli_bakimi/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational School of Health Services",
+    "department": "Medical Documentation and Secretariat (Turkish)",
+    "course_code_prefix": "TDS / ADL / BLG",
+    "ects_section_id": "tds.shs.ieu.edu.tr",
+    "curriculum_url": "https://shs.ieu.edu.tr/tds/en/curr",
+    "syllabus_url": "https://shs.ieu.edu.tr/tds/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational School of Health Services",
+    "department": "Medical Imaging Techniques (Turkish)",
+    "course_code_prefix": "TGT",
+    "ects_section_id": "mit.shs.ieu.edu.tr",
+    "curriculum_url": "https://shs.ieu.edu.tr/mit/en/curr",
+    "syllabus_url": "https://shs.ieu.edu.tr/mit/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational School of Health Services",
+    "department": "Medical Laboratory Techniques (Turkish)",
+    "course_code_prefix": "TLT",
+    "ects_section_id": "medical_laboratory_techniques.shs.ieu.edu.tr",
+    "curriculum_url": "https://shs.ieu.edu.tr/medical_laboratory_techniques/en/curr",
+    "syllabus_url": "https://shs.ieu.edu.tr/medical_laboratory_techniques/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational School of Health Services",
+    "department": "Opticianry (Turkish)",
+    "course_code_prefix": "OPT / TS",
+    "ects_section_id": "opt.shs.ieu.edu.tr",
+    "curriculum_url": "https://shs.ieu.edu.tr/opt/en/curr",
+    "syllabus_url": "https://shs.ieu.edu.tr/opt/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational School of Health Services",
+    "department": "Paramedic (Turkish)",
+    "course_code_prefix": "IAY",
+    "ects_section_id": "paramedic.shs.ieu.edu.tr",
+    "curriculum_url": "https://shs.ieu.edu.tr/paramedic/en/curr",
+    "syllabus_url": "https://shs.ieu.edu.tr/paramedic/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "Vocational School of Health Services",
+    "department": "Physiotherapy (Turkish)",
+    "course_code_prefix": "FZT / FTR",
+    "ects_section_id": "pt.shs.ieu.edu.tr",
+    "curriculum_url": "https://shs.ieu.edu.tr/pt/en/curr",
+    "syllabus_url": "https://shs.ieu.edu.tr/pt/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "School of Applied Management Sciences",
+    "department": "Gastronomy and Culinary Arts",
+    "course_code_prefix": "GAS/CUL",
+    "ects_section_id": "culinary.ieu.edu.tr",
+    "curriculum_url": "https://culinary.ieu.edu.tr/en/curr",
+    "syllabus_url": "https://culinary.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_school": "School of Foreign Languages",
+    "department": "English Prep + Language Programs",
+    "course_code_prefix": "ENG/ING/GER/SPN etc.",
+    "curriculum_url": "https://sfl.ieu.edu.tr/ingilizce_hazirlik_programi/en  |  https://sfl.ieu.edu.tr/turk/en/curr",
+    "syllabus_url": "https://sfl.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "notes_status": "🟡 SFL is a prep/language support school — not a degree-granting dept. English Prep: sfl.ieu.edu.tr/ingilizce_hazirlik_programi/. Turkish: sfl.ieu.edu.tr/turk/. German/Spanish depts exist. No standard curriculum URL.",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Schools & Vocational Schools"
+  },
+  {
+    "faculty_of_arts_and_sciences": "Physics",
+    "faculty_of_fine_arts_and_design": "Industrial Design",
+    "faculty_of_law": "Law",
+    "faculty_of_communication": "Public Relations and Advertising",
+    "faculty_of_business": "Economics",
+    "faculty_of_engineering": "Computer Engineering",
+    "faculty_of_health_sciences": "Physiotherapy and Rehabilitation",
+    "faculty_of_medicine": "Medicine (+ more depts to be added later)",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculties"
+  },
+  {
+    "faculty_of_arts_and_sciences": "Mathematics",
+    "faculty_of_fine_arts_and_design": "Visual Communication Design",
+    "faculty_of_communication": "Cinema and Digital Media",
+    "faculty_of_business": "Business Administration",
+    "faculty_of_engineering": "Biomedical Engineering",
+    "faculty_of_health_sciences": "Nursing",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculties"
+  },
+  {
+    "faculty_of_arts_and_sciences": "English Translation and Interpreting",
+    "faculty_of_fine_arts_and_design": "Interior Architecture and Environmental Design",
+    "faculty_of_communication": "New Media and Communication",
+    "faculty_of_business": "Logistics Management",
+    "faculty_of_engineering": "Electrical and Electronics Engineering",
+    "faculty_of_health_sciences": "Nutrition and Dietetics",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculties"
+  },
+  {
+    "faculty_of_arts_and_sciences": "Psychology",
+    "faculty_of_fine_arts_and_design": "Architecture",
+    "faculty_of_business": "Accounting and Auditing Program",
+    "faculty_of_engineering": "Industrial Engineering",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculties"
+  },
+  {
+    "faculty_of_arts_and_sciences": "Sociology",
+    "faculty_of_fine_arts_and_design": "Textile and Fashion Design",
+    "faculty_of_business": "Political Science and International Relations",
+    "faculty_of_engineering": "Food Engineering",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculties"
+  },
+  {
+    "faculty_of_business": "International Trade and Finance",
+    "faculty_of_engineering": "Genetics and Bioengineering",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculties"
+  },
+  {
+    "faculty_of_engineering": "Aerospace Engineering",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculties"
+  },
+  {
+    "faculty_of_engineering": "Civil Engineering",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculties"
+  },
+  {
+    "faculty_of_engineering": "Mechanical Engineering",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculties"
+  },
+  {
+    "faculty_of_engineering": "Mechatronics Engineering",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculties"
+  },
+  {
+    "faculty_of_engineering": "Software Engineering",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculties"
+  },
+  {
+    "department": "Physics",
+    "course_code_prefix": "PHYS",
+    "curriculum_url_never_changed": "https://physics.ieu.edu.tr/en/curr",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Arts and Sciences"
+  },
+  {
+    "department": "Mathematics",
+    "course_code_prefix": "MATH",
+    "curriculum_url_never_changed": "https://dm.ieu.edu.tr/en/curr",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Arts and Sciences"
+  },
+  {
+    "department": "English Translation and Interpreting",
+    "course_code_prefix": "ETI / INT",
+    "curriculum_url_never_changed": "https://dti.ieu.edu.tr/en/curr",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Arts and Sciences"
+  },
+  {
+    "department": "Psychology",
+    "course_code_prefix": "PSY",
+    "curriculum_url_never_changed": "https://psikoloji.ieu.edu.tr/en/curr",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Arts and Sciences"
+  },
+  {
+    "department": "Sociology",
+    "course_code_prefix": "SOC",
+    "curriculum_url_never_changed": "https://soc.ieu.edu.tr/en/curr",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Arts and Sciences"
+  },
+  {
+    "department": "Industrial Design",
+    "course_code_prefix": "ID",
+    "curriculum_url_never_changed": "https://ent.ieu.edu.tr/en/curr",
+    "curriculum_url_2012_2013_old_system": "NA",
+    "curriculum_url_2013_2014_new_system": "NA",
+    "curriculum_url_2013_2019_ects_sid_curr_before2020": "NA",
+    "curriculum_url_2020_2024": "NA",
+    "curriculum_url_2025_present_ects_sid_curr": "NA",
+    "syllabus_url_ects_old_curricula": "https://ects.ieu.edu.tr/new/syllabus.php?section=ent.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "syllabus_url_dept_subdomain_2025": "https://ent.ieu.edu.tr/en/syllabus/type/read/id/ID+101",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Fine Arts and Design"
+  },
+  {
+    "department": "Visual Communication Design",
+    "course_code_prefix": "VCD",
+    "curriculum_url_never_changed": "NA",
+    "curriculum_url_2012_2013_old_system": "NA",
+    "curriculum_url_2013_2014_new_system": "NA",
+    "curriculum_url_2013_2019_ects_sid_curr_before2020": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before2020&lang=en",
+    "curriculum_url_2020_2024": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before_2025&lang=en",
+    "curriculum_url_2025_present_ects_sid_curr": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr&lang=en",
+    "syllabus_url_ects_old_curricula": "https://ects.ieu.edu.tr/new/syllabus.php?section=ilt.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "syllabus_url_dept_subdomain_2025": "https://ilt.ieu.edu.tr/en/syllabus/type/read/id/VCD+101",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Fine Arts and Design"
+  },
+  {
+    "department": "Interior Architecture and Environmental Design",
+    "course_code_prefix": "IAED / IA",
+    "curriculum_url_never_changed": "https://ic.ieu.edu.tr/en/curr",
+    "curriculum_url_2012_2013_old_system": "NA",
+    "curriculum_url_2013_2014_new_system": "NA",
+    "curriculum_url_2013_2019_ects_sid_curr_before2020": "NA",
+    "curriculum_url_2020_2024": "NA",
+    "curriculum_url_2025_present_ects_sid_curr": "NA",
+    "syllabus_url_ects_old_curricula": "https://ects.ieu.edu.tr/new/syllabus.php?section=ic.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "syllabus_url_dept_subdomain_2025": "https://ic.ieu.edu.tr/en/syllabus/type/read/id/IAED+101",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Fine Arts and Design"
+  },
+  {
+    "department": "Architecture",
+    "course_code_prefix": "ARCH",
+    "curriculum_url_never_changed": "NA",
+    "curriculum_url_2012_2013_old_system": "https://https//ects.ieu.edu.tr/akademik.php?sid=curr&section=mmr.fadf.ieu.edu.tr&lang=en It is unavailable",
+    "curriculum_url_2013_2014_new_system": "https://mmr.ieu.edu.tr/en/curr   I believe we still use this to this day",
+    "curriculum_url_2013_2019_ects_sid_curr_before2020": "NA",
+    "curriculum_url_2020_2024": "NA",
+    "curriculum_url_2025_present_ects_sid_curr": "NA",
+    "syllabus_url_ects_old_curricula": "https://ects.ieu.edu.tr/new/syllabus.php?section=mmr.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "syllabus_url_dept_subdomain_2025": "https://mmr.ieu.edu.tr/en/syllabus/type/read/id/ARCH+101",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Fine Arts and Design"
+  },
+  {
+    "department": "Textile and Fashion Design",
+    "curriculum_url_never_changed": "https://mt.ieu.edu.tr/en/curr",
+    "curriculum_url_2012_2013_old_system": "NA",
+    "curriculum_url_2013_2014_new_system": "NA",
+    "curriculum_url_2013_2019_ects_sid_curr_before2020": "NA",
+    "curriculum_url_2020_2024": "NA",
+    "curriculum_url_2025_present_ects_sid_curr": "NA",
+    "syllabus_url_ects_old_curricula": "https://ects.ieu.edu.tr/new/syllabus.php?section=mt.fadf.ieu.edu.tr&course_code={CODE}+{NUM}&currType=before_2025",
+    "syllabus_url_dept_subdomain_2025": "https://mt.ieu.edu.tr/en/syllabus/type/read/id/TFD+101",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Fine Arts and Design"
+  },
+  {
+    "department": "Law",
+    "course_code_prefix": "HUK / LAW",
+    "curriculum_url_never_changed": "There was a change inn 2022/2023 students who enrolled after that should pay attention to: Important Information About Elective Courses\n\nIn order to graduate, our students must take 8 of the elective courses in the pool of elective courses (at least 5 of them must be departmental electives from the LAW code or other courses taught in English and included in the Elective course pool of the Faculty of Law).  // Howerver for all students no matter which year they enrolled, this is the URL: https://law.ieu.edu.tr/en/curr",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Law"
+  },
+  {
+    "department": "Public Relations and Advertising",
+    "course_code_prefix": "PRA",
+    "curriculum_url_never_changed": "https://pra.ieu.edu.tr/en/curr",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Communication"
+  },
+  {
+    "department": "Cinema and Digital Media",
+    "course_code_prefix": "CDM",
+    "curriculum_url_never_changed": "https://cdm.ieu.edu.tr/en/curr",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Communication"
+  },
+  {
+    "department": "New Media and Communication",
+    "course_code_prefix": "NMC",
+    "curriculum_url_never_changed": "https://nmc.ieu.edu.tr/en/curr",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Communication"
+  },
+  {
+    "department": "Economics",
+    "course_code_prefix": "ECON",
+    "curriculum_url_never_changed": "https://eco.ieu.edu.tr/en/curr",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Facylty of Business"
+  },
+  {
+    "department": "Business Administration",
+    "course_code_prefix": "BA",
+    "curriculum_url_never_changed": "https://dba.ieu.edu.tr/en/curr",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Facylty of Business"
+  },
+  {
+    "department": "Logistics Management",
+    "course_code_prefix": "LOG",
+    "curriculum_url_never_changed": "https://dlm.ieu.edu.tr/en/curr",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Facylty of Business"
+  },
+  {
+    "department": "Accounting and Auditing Program",
+    "course_code_prefix": "ACC",
+    "curriculum_url_never_changed": "https://daa.ieu.edu.tr/en/curr",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Facylty of Business"
+  },
+  {
+    "department": "Political Science and International Relations",
+    "course_code_prefix": "PSIR / IREU",
+    "curriculum_url_never_changed": "https://ireu.ieu.edu.tr/en/curr",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Facylty of Business"
+  },
+  {
+    "department": "International Trade and Finance",
+    "course_code_prefix": "ITF",
+    "curriculum_url_never_changed": "https://itf.ieu.edu.tr/en/curr",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Facylty of Business"
+  },
+  {
+    "course_code_prefix": "CE",
+    "curriculum_url_never_changed": "NA",
+    "curriculum_url_2013_2019_ects_sid_curr_before2020": "https://ects.ieu.edu.tr/new/akademik.php?section=ce.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "curriculum_url_2020_2024": "https://ects.ieu.edu.tr/new/akademik.php?section=ce.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "curriculum_url_2025_present_ects_sid_curr": "https://ects.ieu.edu.tr/new/akademik.php?section=ce.cs.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_url_ects_old_curricula": "https://ects.ieu.edu.tr/new/syllabus.php?section=ce.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "syllabus_url_dept_subdomain_2025": "https://ce.ieu.edu.tr/en/syllabus_v2/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Engineering"
+  },
+  {
+    "course_code_prefix": "BME",
+    "curriculum_url_never_changed": "https://bme.ieu.edu.tr/en/curr",
+    "curriculum_url_2013_2019_ects_sid_curr_before2020": "NA",
+    "curriculum_url_2020_2024": "NA",
+    "curriculum_url_2025_present_ects_sid_curr": "NA",
+    "syllabus_url_ects_old_curricula": "https://ects.ieu.edu.tr/new/syllabus.php?section=biomed.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "syllabus_url_dept_subdomain_2025": "https://bme.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Engineering"
+  },
+  {
+    "course_code_prefix": "EEE",
+    "curriculum_url_never_changed": "NA",
+    "curriculum_url_2013_2019_ects_sid_curr_before2020": "https://ects.ieu.edu.tr/new/akademik.php?section=ete.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "curriculum_url_2020_2024": "https://ects.ieu.edu.tr/new/akademik.php?section=ete.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "curriculum_url_2025_present_ects_sid_curr": "https://ects.ieu.edu.tr/new/akademik.php?section=ete.cs.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_url_ects_old_curricula": "https://ects.ieu.edu.tr/new/syllabus.php?section=eee.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "syllabus_url_dept_subdomain_2025": "https://eee.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Engineering"
+  },
+  {
+    "course_code_prefix": "IE",
+    "curriculum_url_never_changed": "NA",
+    "curriculum_url_2013_2019_ects_sid_curr_before2020": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr_before2020&section=is.cs.ieu.edu.tr&lang=en",
+    "curriculum_url_2020_2024": "https://ects.ieu.edu.tr/new/akademik.php?section=is.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "curriculum_url_2025_present_ects_sid_curr": "https://ects.ieu.edu.tr/new/akademik.php?section=is.cs.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_url_ects_old_curricula": "https://ects.ieu.edu.tr/new/syllabus.php?section=is.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "syllabus_url_dept_subdomain_2025": "https://ie.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Engineering"
+  },
+  {
+    "course_code_prefix": "FE",
+    "curriculum_url_never_changed": "https://dfe.ieu.edu.tr/en/curr",
+    "curriculum_url_2013_2019_ects_sid_curr_before2020": "NA",
+    "curriculum_url_2020_2024": "NA",
+    "curriculum_url_2025_present_ects_sid_curr": "NA",
+    "syllabus_url_ects_old_curricula": "https://ects.ieu.edu.tr/new/syllabus.php?section=dfe.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "syllabus_url_dept_subdomain_2025": "https://dfe.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Engineering"
+  },
+  {
+    "course_code_prefix": "GBE",
+    "curriculum_url_never_changed": "NA",
+    "curriculum_url_2013_2019_ects_sid_curr_before2020": "https://ects.ieu.edu.tr/new/akademik.php?section=gbe.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "curriculum_url_2020_2024": "https://ects.ieu.edu.tr/new/akademik.php?section=gbe.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "curriculum_url_2025_present_ects_sid_curr": "https://ects.ieu.edu.tr/new/akademik.php?section=gbe.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_url_ects_old_curricula": "https://ects.ieu.edu.tr/new/syllabus.php?section=gbe.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "syllabus_url_dept_subdomain_2025": "https://gbe.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Engineering"
+  },
+  {
+    "course_code_prefix": "AE",
+    "curriculum_url_never_changed": "NA",
+    "curriculum_url_2013_2019_ects_sid_curr_before2020": "https://ects.ieu.edu.tr/new/akademik.php?section=ae.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "curriculum_url_2020_2024": "https://ects.ieu.edu.tr/new/akademik.php?section=ae.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "curriculum_url_2025_present_ects_sid_curr": "https://ects.ieu.edu.tr/new/akademik.php?section=ae.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_url_ects_old_curricula": "https://ects.ieu.edu.tr/new/syllabus.php?section=ae.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "syllabus_url_dept_subdomain_2025": "https://ae.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Engineering"
+  },
+  {
+    "course_code_prefix": "CIVE",
+    "curriculum_url_never_changed": "NA",
+    "curriculum_url_2013_2019_ects_sid_curr_before2020": "https://ects.ieu.edu.tr/new/akademik.php?section=cie.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "curriculum_url_2020_2024": "https://ects.ieu.edu.tr/new/akademik.php?section=cie.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "curriculum_url_2025_present_ects_sid_curr": "https://ects.ieu.edu.tr/new/akademik.php?section=cie.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_url_ects_old_curricula": "https://ects.ieu.edu.tr/new/syllabus.php?section=cie.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "syllabus_url_dept_subdomain_2025": "https://cie.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Engineering"
+  },
+  {
+    "course_code_prefix": "ME",
+    "curriculum_url_never_changed": "NA",
+    "curriculum_url_2013_2019_ects_sid_curr_before2020": "https://ects.ieu.edu.tr/new/akademik.php?section=me.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "curriculum_url_2020_2024": "https://ects.ieu.edu.tr/new/akademik.php?section=me.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "curriculum_url_2025_present_ects_sid_curr": "https://ects.ieu.edu.tr/new/akademik.php?section=me.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_url_ects_old_curricula": "https://ects.ieu.edu.tr/new/syllabus.php?section=me.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "syllabus_url_dept_subdomain_2025": "https://me.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Engineering"
+  },
+  {
+    "course_code_prefix": "MCE",
+    "curriculum_url_never_changed": "https://mce.ieu.edu.tr/en/curr",
+    "curriculum_url_2013_2019_ects_sid_curr_before2020": "NA",
+    "curriculum_url_2020_2024": "NA",
+    "curriculum_url_2025_present_ects_sid_curr": "NA",
+    "syllabus_url_ects_old_curricula": "https://ects.ieu.edu.tr/new/syllabus.php?section=mce.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "syllabus_url_dept_subdomain_2025": "https://mce.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Engineering"
+  },
+  {
+    "course_code_prefix": "SE",
+    "curriculum_url_never_changed": "NA",
+    "curriculum_url_2013_2019_ects_sid_curr_before2020": "https://ects.ieu.edu.tr/new/akademik.php?section=se.cs.ieu.edu.tr&sid=curr_before2020&lang=en",
+    "curriculum_url_2020_2024": "https://ects.ieu.edu.tr/new/akademik.php?section=se.cs.ieu.edu.tr&sid=curr_before_2025&lang=en",
+    "curriculum_url_2025_present_ects_sid_curr": "https://ects.ieu.edu.tr/new/akademik.php?section=se.cs.ieu.edu.tr&sid=curr&lang=en",
+    "syllabus_url_ects_old_curricula": "https://ects.ieu.edu.tr/new/syllabus.php?section=se.cs.ieu.edu.tr&course_code={CODE}%20{NUM}&currType=before_2025",
+    "syllabus_url_dept_subdomain_2025": "https://se.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Engineering"
+  },
+  {
+    "department": "Physiotherapy and Rehabilitation",
+    "course_code_prefix": "FTR",
+    "curriculum_url_never_changed": "https://ftr.ieu.edu.tr/en/curr",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Health Sciences"
+  },
+  {
+    "department": "Nursing",
+    "course_code_prefix": "HEM",
+    "curriculum_url_never_changed": "https://nursing.ieu.edu.tr/en/curr",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Health Sciences"
+  },
+  {
+    "department": "Nutrition and Dietetics",
+    "course_code_prefix": "BES",
+    "curriculum_url_never_changed": "https://bdb.ieu.edu.tr/en/curr",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Health Sciences"
+  },
+  {
+    "department": "Medicine",
+    "course_code_prefix": "MED",
+    "curriculum_url_never_changed": "https://tip.ieu.edu.tr/en/curr",
+    "notes_status": "check for more departmets",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Faculty of Medicine"
+  },
+  {
+    "yellow_pattern_confirmed_but_scrapability_not_tested_red_not_yet_researched": "Program",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Graduate School"
+  },
+  {
+    "yellow_pattern_confirmed_but_scrapability_not_tested_red_not_yet_researched": "All Graduate Programs (listing)",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Graduate School"
+  },
+  {
+    "yellow_pattern_confirmed_but_scrapability_not_tested_red_not_yet_researched": "CS PhD (confirmed example)",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Graduate School"
+  },
+  {
+    "yellow_pattern_confirmed_but_scrapability_not_tested_red_not_yet_researched": "All other grad programs",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Graduate School"
+  },
+  {
+    "type": "GEC Pool 1",
+    "code_pool_name": "Math & CS",
+    "url": "https://ortakdersler.ieu.edu.tr/en/pool-1-matematik-ve-bilgisayar-bilimleri",
+    "notes": "Syllabus links directly on page",
+    "status": "✅ Confirmed",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Common Courses (GEC)"
+  },
+  {
+    "type": "GEC Pool 2",
+    "code_pool_name": "Natural & Life Sciences",
+    "url": "https://ortakdersler.ieu.edu.tr/en/pool-2-doga-ve-yasam-bilimleri",
+    "notes": "Syllabus links directly on page",
+    "status": "✅ Confirmed",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Common Courses (GEC)"
+  },
+  {
+    "type": "GEC Pool 3",
+    "code_pool_name": "Economics",
+    "url": "https://ortakdersler.ieu.edu.tr/en/pool-3-iktisat",
+    "notes": "Syllabus links directly on page",
+    "status": "✅ Confirmed",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Common Courses (GEC)"
+  },
+  {
+    "type": "GEC Pool 4",
+    "code_pool_name": "Humanities",
+    "url": "https://ortakdersler.ieu.edu.tr/en/pool-4-insan-ve-toplum-bilimleri",
+    "notes": "Syllabus links directly on page",
+    "status": "✅ Confirmed",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Common Courses (GEC)"
+  },
+  {
+    "type": "GEC Pool 5",
+    "code_pool_name": "Art & Communication",
+    "url": "https://ortakdersler.ieu.edu.tr/en/pool-5-sanat-ve-iletisim",
+    "notes": "No direct links — use eco.ieu.edu.tr + course code",
+    "status": "✅ Confirmed",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Common Courses (GEC)"
+  },
+  {
+    "type": "GEC Pool 6",
+    "code_pool_name": "Ethics & Public Awareness",
+    "url": "https://ortakdersler.ieu.edu.tr/en/pool-6-etik-ve-toplumsal-farkindalik",
+    "notes": "No direct links — use dba.ieu.edu.tr + course code",
+    "status": "✅ Confirmed",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Common Courses (GEC)"
+  },
+  {
+    "type": "GEC Pool 7",
+    "code_pool_name": "Innovation & Entrepreneurship",
+    "url": "https://ortakdersler.ieu.edu.tr/en/pool-7-inovasyon-ve-girisimcilik",
+    "notes": "No direct links — use eco.ieu.edu.tr + course code",
+    "status": "✅ Confirmed",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Common Courses (GEC)"
+  },
+  {
+    "type": "Orientation",
+    "code_pool_name": "IUE 100 — Orientation & Career Planning",
+    "url": "https://ortakdersler.ieu.edu.tr/en/ieu-100-oryantasyon-ve-kariyer-planlama-dersi",
+    "status": "✅ Confirmed",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Common Courses (GEC)"
+  },
+  {
+    "type": "Orientation",
+    "code_pool_name": "IUE 110 — Academic & Social Orientation",
+    "url": "https://ortakdersler.ieu.edu.tr/en/ieu-110-akademik-ve-sosyal-oryantasyon-dersi",
+    "status": "✅ Confirmed",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Common Courses (GEC)"
+  },
+  {
+    "type": "Atatürk / History",
+    "code_pool_name": "ATATURK / HIST courses",
+    "url": "https://ortakdersler.ieu.edu.tr/en/dersler",
+    "notes": "⚠️ Bot must ask if student is international — different course applies",
+    "status": "✅ Confirmed",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Common Courses (GEC)"
+  },
+  {
+    "type": "Turkish Language",
+    "code_pool_name": "TURK / TRK courses",
+    "url": "https://ortakdersler.ieu.edu.tr/en/turk-dili-dersler",
+    "notes": "⚠️ Bot must ask if student is international — different course applies",
+    "status": "✅ Confirmed",
+    "source_workbook": "IEU URLs.xlsx",
+    "sheet": "Common Courses (GEC)"
+  }
+]

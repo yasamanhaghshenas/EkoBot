@@ -1,16 +1,17 @@
-from groq import Groq
+﻿from groq import Groq
 import chromadb
 import json
 import os
 import re
 
-from embeddings import SimpleHashEmbeddingFunction
+from embeddings import SentenceTransformerEmbeddingFunction
 from parsing import (
     VALID_DEPTS,
     _dedupe_keep_order,
     _normalize_term_value,
     detect_department,
     detect_department_from_context,
+    detect_faculty_choice,
     extract_course_codes,
     extract_failed_courses_from_context,
     extract_gpa_from_context,
@@ -28,6 +29,7 @@ from parsing import (
     is_course_lookup_question,
     is_graduation_question,
     is_regulations_question,
+    is_web_info_question,
     is_semester_question,
     normalize_department_code,
     wants_both_semesters,
@@ -36,13 +38,16 @@ from parsing import (
 from catalog import (
     _semester_sort_index,
     get_available_entry_years,
-    get_credit_load_rules,
     get_curriculum_course_positions,
     get_curriculum_courses,
     get_electives,
     get_graduation_text,
-    get_regulations,
+    get_ieu_department_options,
+    get_ieu_faculty_options,
+    get_curriculum_variant_options,
     has_multiple_curriculum_variants,
+    resolve_ieu_department,
+    resolve_ieu_faculty,
 )
 from planning import (
     _safe_alternative_courses_for_term,
@@ -63,7 +68,9 @@ else:
     print("WARNING: GROQ_API_KEY is not set. LLM fallback disabled.")
 
 client = chromadb.PersistentClient(path="./db")
-collection = client.get_or_create_collection("ieu_courses", embedding_function=SimpleHashEmbeddingFunction())
+collection = client.get_or_create_collection("ieu_courses", embedding_function=SentenceTransformerEmbeddingFunction())
+
+_REGULATIONS_CACHE = None
 
 
 def _extract_json_object(text):
@@ -95,6 +102,8 @@ def parse_request_slots(question, history, last_bot_q):
         "analysis_question": analysis_question,
         "intent": None,
         "department": None,
+        "program_name": None,
+        "curriculum_url": None,
         "year": None,
         "term": None,
         "start_year": None,
@@ -132,6 +141,8 @@ def parse_request_slots(question, history, last_bot_q):
         result["intent"] = "graduation"
     elif is_regulations_question(analysis_question):
         result["intent"] = "regulations"
+    elif is_web_info_question(analysis_question):
+        result["intent"] = "web_info"
     elif is_semester_question(analysis_question) or any(k in q_lower for k in ["which course", "which courses", "what course", "what courses", "should i take", "i should take", "hangi ders"]):
         result["intent"] = "planning"
 
@@ -140,6 +151,7 @@ def parse_request_slots(question, history, last_bot_q):
         result["intent"] in ["planning", "graduation", "regulations"],
         last_bot_q in ["dept", "year_term", "start_year"],
         bool(re.search(r"\b(course|courses|semester|semester\b|graduation|graduate|curriculum|curriculum\b|department|major|requirements)\b", q_lower)),
+        bool(is_web_info_question(analysis_question)),
     ])
 
     needs_help = (
@@ -147,7 +159,7 @@ def parse_request_slots(question, history, last_bot_q):
     ) or (
         result["intent"] == "planning" and result["department"] and (not result["year"] or not result["term"])
     ) or (
-        result["intent"] == "planning" and result["department"] and (has_multiple_curriculum_variants(result["department"]) or len(get_available_entry_years(result["department"])) > 1) and not result["start_year"]
+        result["intent"] == "planning" and result["department"] and has_multiple_curriculum_variants(result["department"]) and not result["start_year"]
     )
 
     if likely_academic and client_groq is not None:
@@ -155,7 +167,7 @@ def parse_request_slots(question, history, last_bot_q):
             parser_prompt = f"""You are an IEU student-request parser.
 Return ONLY valid JSON, no markdown, no explanation.
 
-Possible intents: planning, graduation, regulations, course_lookup, other
+Possible intents: planning, graduation, regulations, course_lookup, web_info, other
 Possible departments: {", ".join(VALID_DEPTS)}
 
 Rules:
@@ -169,7 +181,7 @@ Last bot question type: {last_bot_q or "null"}
 Conversation history (recent): {json.dumps(history[-12:], ensure_ascii=False)}
 """
             response = client_groq.chat.completions.create(
-                model="llama-3.3-70b-versatile",
+                model="llama-3.1-8b-instant",
                 temperature=0,
                 messages=[
                     {"role": "system", "content": parser_prompt},
@@ -179,7 +191,7 @@ Conversation history (recent): {json.dumps(history[-12:], ensure_ascii=False)}
             parsed = _extract_json_object(response.choices[0].message.content)
             if isinstance(parsed, dict):
                 intent = (parsed.get("intent") or "").strip().lower() or None
-                if intent in {"planning", "graduation", "regulations", "course_lookup", "other"}:
+                if intent in {"planning", "graduation", "regulations", "course_lookup", "web_info", "other"}:
                     result["intent"] = intent
 
                 parsed_dept = normalize_department_code(parsed.get("department"))
@@ -207,17 +219,21 @@ Conversation history (recent): {json.dumps(history[-12:], ensure_ascii=False)}
     # Final normalization.
     if result["department"]:
         result["department"] = normalize_department_code(result["department"])
+        resolved_dept = resolve_ieu_department(result["department"])
+        if resolved_dept:
+            result["program_name"] = (resolved_dept.get("program_name") or resolved_dept.get("label") or "").strip() or None
+            result["curriculum_url"] = (resolved_dept.get("curriculum_url") or "").strip() or None
     result["term"] = _normalize_term_value(result["term"])
     return result
 
 
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # LLM CALL
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-def call_llm(question, context_docs, history):
+def call_llm(question, context_docs, history, client_type=None):
     if client_groq is None:
-        return "I don't have that information in the IEU database."
+        return "The language model is unavailable right now. Please try again later."
 
     context = "\n\n---\n\n".join(context_docs)
     # truncate context to avoid token limit (max ~8000 chars)
@@ -225,10 +241,12 @@ def call_llm(question, context_docs, history):
         context = context[:8000] + "\n...[truncated]"
     print(f"  Calling LLM with {len(context_docs)} context doc(s)...")
 
-    messages = [
-        {
-            "role": "system",
-            "content": """You are EkoBot, an academic assistant for İzmir University of Economics (IEU).
+    client_type_norm = (client_type or "").strip().lower()
+    mobile_rule = ""
+    if client_type_norm == "mobile":
+        mobile_rule = "\n10. For mobile clients, do not use markdown headers or bullet points. Reply in plain text."
+
+    system_prompt = """You are EkoBot, an academic assistant for ؤ°zmir University of Economics (IEU).
 
 You are EkoBot. You have been given relevant IEU data as context.
 Reason over ALL the context provided to give the best possible answer.
@@ -245,45 +263,31 @@ STRICT RULES:
 4. If multiple courses are asked about, answer each one separately with a clear label.
 5. If a course code looks like a typo, mention the correction.
 6. Always reply in the same language the student used (Turkish or English).
-7. Be concise, friendly, and direct — like a helpful academic advisor.
+7. Be concise, friendly, and direct â€” like a helpful academic advisor.
 8. For direct course code requests (e.g. 'tell me about CE 326'), treat it as a direct lookup.
     Do NOT argue with the code prefix or claim it "should" belong to another department.
     Report the department exactly as shown in the provided course record.
 9. When the user gives a short follow-up reply like 'yes', 'sure',
-   'tell me more', 'go ahead', or 'and?' — look at the conversation
+   'tell me more', 'go ahead', or 'and?' â€” look at the conversation
    history to find what course or topic was being discussed, and
    continue answering about THAT same topic. Never search for new
    courses when the user is clearly continuing the same conversation.
-   Example: if the bot just explained SE 350 and asked 'would you
-   like to know more?' and user says 'yes' — answer more about
-   SE 350, do not search for something new.
+    Example: if the bot just explained SE 350 and asked 'would you
+    like to know more?' and user says 'yes' â€” answer more about
+    SE 350, do not search for something new.
 
-IEU DEPARTMENT CODES:
-- CE = Computer Engineering
-- SE = Software Engineering
-- EEE = Electrical & Electronics Engineering
-- IE = Industrial Engineering
-- BME = Biomedical Engineering
-- ME = Mechanical Engineering
-- CIVE = Civil Engineering
-- MCE = Mechatronics Engineering
+Always be specific and helpful â€” do not just say you don't have the information."""
+    if mobile_rule:
+        system_prompt += mobile_rule
 
-ELECTIVE SLOTS:
-- ELEC 001-010 are placeholder slots in the curriculum, not real course names.
-- When elective slots appear, explain naturally: 'You have X elective slots this semester.
-    Would you like to see what courses you can choose for those slots?'
-
-GPA AND CREDIT LOAD RULES:
-
-Normal semester load is typically around 32 ECTS.
-If GPA is between 2.00 and 2.49, student may take up to +6 extra ECTS (up to 38 ECTS).
-If GPA is 2.50 or above, student may take up to +12 extra ECTS (up to 44 ECTS).
-If GPA < 2.00, student takes normal course load with maximum 32 ECTS.
-Always be specific and helpful — do not just say you don't have the information.""",
+    messages = [
+        {
+            "role": "system",
+            "content": system_prompt,
         }
     ]
 
-    for msg in history[-12:]:
+    for msg in history[-6:]:
         messages.append(msg)
 
     messages.append({
@@ -296,16 +300,30 @@ Always be specific and helpful — do not just say you don't have the informatio
         ),
     })
 
-    response = client_groq.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=messages,
-    )
-    return response.choices[0].message.content
+    try:
+        response = client_groq.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=messages,
+        )
+        return response.choices[0].message.content
+    except Exception:
+        return "The language model is unavailable right now. Please try again later."
 
 
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # CONVERSATION STATE & PROFILING HELPERS
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+def _curriculum_entry_year_followup(clarify_invalid_reply=False):
+    lines = [
+        "FOLLOWUP_NEEDED: Which year did you enroll in university? "
+        "(which year did you start university? e.g. 2023)",
+    ]
+    if clarify_invalid_reply:
+        lines.append("I still need your enrollment year, not your current year and semester.")
+    lines.append("Please choose one of the options below.")
+    return "\n".join(lines)
+
 
 def extract_profile_from_history(history):
     """
@@ -313,7 +331,10 @@ def extract_profile_from_history(history):
     Returns: {department, year, term, start_year, gpa, erasmus, failed_courses}
     """
     profile = {
+        "faculty": None,
         "department": None,
+        "program_name": None,
+        "curriculum_url": None,
         "year": None,
         "term": None,
         "start_year": None,
@@ -328,9 +349,44 @@ def extract_profile_from_history(history):
             continue
         content = msg.get("content", "")
 
+        if not profile["faculty"]:
+            faculty = detect_faculty_choice(content)
+            if faculty:
+                profile["faculty"] = faculty
+
+        resolved_dept = resolve_ieu_department(content, faculty_name=profile["faculty"])
+        if not resolved_dept:
+            resolved_dept = resolve_ieu_department(content)
+
+        if not resolved_dept and not profile["department"]:
+            dept_code = detect_department_from_context(content, history, strict=True)
+            if dept_code:
+                profile["department"] = normalize_department_code(dept_code)
+                resolved_dept = resolve_ieu_department(dept_code, faculty_name=profile["faculty"])
+
+        if resolved_dept:
+            dept_code = (resolved_dept.get("department_code") or "").strip().upper()
+            if dept_code and not profile["department"]:
+                profile["department"] = normalize_department_code(dept_code)
+            dept_name = (resolved_dept.get("program_name") or resolved_dept.get("label") or "").strip()
+            if dept_name and not profile["program_name"]:
+                profile["program_name"] = dept_name
+            if not profile["faculty"]:
+                profile["faculty"] = (resolved_dept.get("faculty_label") or resolved_dept.get("faculty_sheet") or "").strip() or None
+            if not profile["curriculum_url"]:
+                profile["curriculum_url"] = (resolved_dept.get("curriculum_url") or "").strip() or None
+
         # Department
         if not profile["department"]:
             profile["department"] = detect_department_from_context(content, history, strict=True)
+        if profile["department"] and not profile["program_name"]:
+            code_resolved = resolve_ieu_department(profile["department"], faculty_name=profile["faculty"])
+            if code_resolved:
+                profile["program_name"] = (code_resolved.get("program_name") or code_resolved.get("label") or "").strip() or None
+                if not profile["faculty"]:
+                    profile["faculty"] = (code_resolved.get("faculty_label") or code_resolved.get("faculty_sheet") or "").strip() or None
+                if not profile["curriculum_url"]:
+                    profile["curriculum_url"] = (code_resolved.get("curriculum_url") or "").strip() or None
 
         # Year and term
         if not profile["year"] or not profile["term"]:
@@ -363,50 +419,134 @@ def extract_profile_from_history(history):
     return profile
 
 
-def get_next_profiling_question(profile, question_lower):
+def get_next_profiling_question(profile, question_lower, require_curriculum_details=True):
     """
     Determine which profiling question should be asked next.
     Returns: (question_string, next_question_type) or (None, None) if profiling complete
     """
-    # Required: department first
-    if not profile["department"]:
+    # Required: faculty first
+    if not profile["faculty"]:
         return (
-            "Hi! 👋 I'm EkoBot, your IEU academic assistant.\n\n"
+            "Hi! ًں‘‹ I'm EkoBot, your IEU academic assistant.\n\n"
             "To help you find the right courses and graduation requirements, I need to understand your situation.\n\n"
-            "What department are you in? (e.g., CE, SE, EEE, IE, BME, ME, NURSING, etc.)",
-            "department",
+            "Which faculty are you in? Please choose one of the options below.",
+            "faculty",
         )
 
-    # Required: year and semester
-    if not profile["year"] or not profile["term"]:
+    # Required: department next
+    if not profile["department"] or not profile["program_name"]:
         return (
-            "Got it! 👍\n\n"
-            "What year and semester are you currently in?\n"
-            "(e.g., '2nd year spring', 'third year fall', etc.)",
-            "year_term",
+            "Got it!\n\n"
+            f"Which department are you in under {profile.get('faculty') or 'your faculty'}? Please choose one of the options below.",
+            "dept",
         )
 
-    # If curriculum has variants, ask for start year
-    dept = profile["department"]
-    if (len(get_available_entry_years(dept)) > 1 or has_multiple_curriculum_variants(dept)) and not profile["start_year"]:
-        return (
-            "Which year did you start university? (e.g., 2022, 2023)\n"
-            "This helps me show you the right curriculum version.",
-            "start_year",
-        )
+    if require_curriculum_details:
+        # Required: curriculum entry year only when the curriculum changed.
+        # Ask this before year/semester so the user can pick the curriculum bucket first.
+        if not profile["start_year"] and has_multiple_curriculum_variants(
+            profile["department"],
+            program_name=profile.get("program_name"),
+        ):
+            return (
+                "Which year did you enroll in university? "
+                "(which year did you start university? e.g. 2023)\n"
+                "Please choose one of the options below.",
+                "start_year",
+            )
+
+        # Required: year and semester
+        if not profile["year"] or not profile["term"]:
+            return (
+                "Got it! ًں‘چ\n\n"
+                "What year and semester are you currently in?\n"
+                "(e.g., '2nd year spring', 'third year fall', etc.)",
+                "year_term",
+            )
 
     # All required profiling is done
     return (None, None)
 
 
-def _profiling_followup_message(question_type):
-    if question_type == "department":
-        return "FOLLOWUP_NEEDED: Which department are you in? (major) (e.g. CE, SE, EEE, IE, BME, ME, Nursing)"
+def _requires_curriculum_details(question, history):
+    anchor = get_latest_substantive_user_question(history or [])
+    anchor_text = anchor or question or ""
+    return not is_graduation_question(anchor_text)
+
+
+def _profiling_followup_message(question_type, profile=None):
+    if question_type == "faculty":
+        return "FOLLOWUP_NEEDED: Which faculty are you in? Please choose one of the options below."
+    if question_type == "dept":
+        faculty = (profile or {}).get("faculty")
+        if faculty:
+            return f"FOLLOWUP_NEEDED: Which department are you in under {faculty}? Please choose one of the options below."
+        return "FOLLOWUP_NEEDED: Which department are you in? Please choose one of the options below."
     if question_type == "year_term":
         return "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)"
     if question_type == "start_year":
-        return "FOLLOWUP_NEEDED: Which year did you start university? (e.g. 2023)"
+        return _curriculum_entry_year_followup()
     return None
+
+
+def _profiling_followup_options(question_type, profile):
+    if question_type == "faculty":
+        return get_ieu_faculty_options()
+    if question_type == "dept":
+        faculty = (profile or {}).get("faculty")
+        if faculty:
+            return get_ieu_department_options(faculty)
+    if question_type == "start_year":
+        profile = profile or {}
+        dept = profile.get("department")
+        if dept:
+            options = get_curriculum_variant_options(
+                dept,
+                program_name=profile.get("program_name"),
+            )
+            if options:
+                return options
+            years = get_available_entry_years(
+                dept,
+                program_name=profile.get("program_name"),
+            )
+            if len(years) > 1:
+                return [{"label": str(year), "value": str(year)} for year in years]
+    return None
+
+
+def ask_with_options(question, history=None, client_type=None):
+    history = history or []
+    answer = ask(question, history, client_type=client_type)
+    is_followup = answer.startswith("FOLLOWUP_NEEDED:")
+    clean_answer = answer.replace("FOLLOWUP_NEEDED:", "").strip() if is_followup else answer
+
+    options = None
+    if is_followup:
+        history_with_current = list(history or []) + [{"role": "user", "content": question}]
+        profile = extract_profile_from_history(history_with_current)
+        lowered = clean_answer.lower()
+        if "which faculty" in lowered:
+            options = _profiling_followup_options("faculty", profile)
+        elif "which department" in lowered:
+            options = _profiling_followup_options("dept", profile)
+        elif any(
+            phrase in lowered
+            for phrase in [
+                "which year did you enroll",
+                "what year did you enroll",
+                "entry year",
+                "starting year",
+                "curriculum version",
+            ]
+        ):
+            options = _profiling_followup_options("start_year", profile)
+
+    return {
+        "answer": clean_answer,
+        "is_followup": is_followup,
+        "options": options or None,
+    }
 
 
 def _is_short_ack(text):
@@ -443,7 +583,13 @@ def _maybe_elective_followup(question, history):
         return None
 
     dept, _, _ = latest_plan
-    electives = get_electives(dept)
+    profile = extract_profile_from_history(history)
+    electives = get_electives(
+        dept,
+        start_year=profile.get("start_year"),
+        program_name=profile.get("program_name"),
+        curriculum_url=profile.get("curriculum_url"),
+    )
     if not electives:
         return "I don't have elective options for that department in the IEU database."
 
@@ -458,14 +604,20 @@ def _format_profile_context_ack(profile):
         return None
 
     parts = []
+    faculty = profile.get("faculty")
     dept = profile.get("department")
+    program_name = profile.get("program_name")
     year = profile.get("year")
     term = profile.get("term")
     start_year = profile.get("start_year")
     failed_courses = _dedupe_keep_order(profile.get("failed_courses") or [])
 
+    if faculty:
+        parts.append(faculty)
     if dept:
         parts.append(dept)
+    if program_name and program_name != dept:
+        parts.append(program_name)
     if year and term:
         parts.append(f"Year {year} {term}")
     elif year:
@@ -473,7 +625,7 @@ def _format_profile_context_ack(profile):
     elif term:
         parts.append(term)
     if start_year:
-        parts.append(f"started {start_year}")
+        parts.append(f"enrolled {start_year}")
     if failed_courses:
         parts.append("failed " + ", ".join(failed_courses))
 
@@ -718,12 +870,238 @@ def _is_credit_load_question(text):
     t = (text or "").lower()
     return any(k in t for k in [
         "how many credits", "credits can i take", "credit limit", "credit load", "ects",
-        "kredi", "ne kadar kredi", "kac kredi", "kaç kredi",
+        "kredi", "ne kadar kredi", "kac kredi", "kaأ§ kredi",
     ])
 
 
+def _get_regulations_from_db(collection_obj):
+    global _REGULATIONS_CACHE
+    if _REGULATIONS_CACHE is not None:
+        return _REGULATIONS_CACHE
+
+    try:
+        results = collection_obj.get(
+            where={"doc_type": "regulations"},
+            include=["documents"],
+        )
+        docs = results.get("documents") or []
+        if docs:
+            doc = docs[0]
+            if isinstance(doc, list):
+                doc = doc[0] if doc else None
+            if doc:
+                _REGULATIONS_CACHE = json.loads(doc)
+                return _REGULATIONS_CACHE
+    except Exception as e:
+        print(f"  regulations lookup error: {e}")
+
+    return None
+
+
+def _query_web_info_context(collection_obj, question, max_docs=3):
+    try:
+        results = collection_obj.query(
+            query_texts=[question],
+            n_results=max_docs,
+            where={"doc_type": "web_info"},
+            include=["documents"],
+        )
+        docs = (results.get("documents") or [[]])[0]
+        return [doc for doc in docs if doc]
+    except Exception as e:
+        print(f"  web info query error: {e}")
+        return []
+
+
+def _parse_web_info_doc(doc):
+    meta = {
+        "title": None,
+        "category": None,
+        "description": None,
+        "url": None,
+    }
+    if not doc:
+        return meta, []
+
+    for field in ["Title", "Category", "Description", "URL"]:
+        m = re.search(rf"^{re.escape(field)}:\s*(.+)$", doc, re.IGNORECASE | re.MULTILINE)
+        if m:
+            meta[field.lower()] = m.group(1).strip()
+
+    body = ""
+    if "\n\n" in doc:
+        body = doc.split("\n\n", 1)[1]
+    else:
+        lines = doc.splitlines()
+        body_start = 0
+        for i, line in enumerate(lines):
+            if line.strip().lower().startswith("url:"):
+                body_start = i + 1
+        body = "\n".join(lines[body_start:])
+
+    body_lines = [line.strip() for line in body.splitlines() if line.strip()]
+    return meta, body_lines
+
+
+def _extract_web_info_snippet(body_lines, question_terms, max_lines=6):
+    if not body_lines:
+        return []
+
+    scored = []
+    for idx, line in enumerate(body_lines):
+        line_lower = line.lower()
+        score = 0
+        for term in question_terms:
+            if term in line_lower:
+                score += 2 if len(term) > 4 else 1
+        if score > 0:
+            scored.append((score, idx))
+
+    if not scored:
+        return body_lines[:max_lines]
+
+    chosen = []
+    seen = set()
+    for _, idx in sorted(scored, key=lambda item: (-item[0], item[1]))[:3]:
+        for j in range(max(0, idx - 1), min(len(body_lines), idx + 2)):
+            if j in seen:
+                continue
+            seen.add(j)
+            chosen.append(body_lines[j])
+            if len(chosen) >= max_lines:
+                return chosen
+
+    return chosen[:max_lines]
+
+
+def _score_web_info_doc(question_terms, meta, body_lines):
+    if not question_terms:
+        return 0
+
+    score = 0
+    title_desc = " ".join(
+        part for part in [
+            meta.get("title") or "",
+            meta.get("category") or "",
+            meta.get("description") or "",
+        ]
+        if part
+    ).lower()
+    body_sample = " ".join(body_lines[:20]).lower()
+
+    for term in question_terms:
+        if term in title_desc:
+            score += 3
+        elif term in body_sample:
+            score += 1
+    return score
+
+
+def _format_web_info_answer(question, docs, max_docs=2):
+    if not docs:
+        return None
+
+    stopwords = {
+        "a", "an", "and", "are", "as", "at", "be", "can", "do", "does", "for",
+        "from", "how", "i", "is", "it", "me", "my", "of", "on", "or", "please",
+        "tell", "the", "this", "to", "what", "when", "where", "who", "with",
+        "you", "your",
+    }
+    question_terms = []
+    for raw in re.findall(r"[a-z0-9]+", (question or "").lower()):
+        if len(raw) < 3 or raw in stopwords:
+            continue
+        if raw not in question_terms:
+            question_terms.append(raw)
+
+    scored_docs = []
+    for order, doc in enumerate(docs[:max_docs]):
+        meta, body_lines = _parse_web_info_doc(doc)
+        score = _score_web_info_doc(question_terms, meta, body_lines)
+        scored_docs.append((score, order, meta, body_lines))
+
+    positive_docs = [item for item in scored_docs if item[0] > 0]
+    if positive_docs:
+        scored_docs = positive_docs
+    else:
+        scored_docs = scored_docs[:1]
+
+    parts = []
+    for _, _, meta, body_lines in sorted(scored_docs, key=lambda item: (-item[0], item[1])):
+        lines = []
+        if meta["title"]:
+            lines.append(f"Title: {meta['title']}")
+        if meta["category"]:
+            lines.append(f"Category: {meta['category']}")
+        if meta["description"]:
+            lines.append(f"Description: {meta['description']}")
+        if meta["url"]:
+            lines.append(f"URL: {meta['url']}")
+
+        snippet = _extract_web_info_snippet(body_lines, question_terms)
+        if snippet:
+            if lines:
+                lines.append("")
+            lines.extend(snippet)
+
+        if lines:
+            parts.append("\n".join(lines).strip())
+
+    answer = "\n\n---\n\n".join(parts).strip()
+    if len(answer) > 1800:
+        answer = answer[:1800].rstrip()
+        if not answer.endswith("..."):
+            answer += "..."
+    return answer or None
+
+
+def _format_course_correction_note(corrections, prefer_tr):
+    if not corrections:
+        return None
+    lines = []
+    for original, corrected in corrections.items():
+        lines.append(_t(
+            f"Note: I could not find {original} in the IEU database. Showing the closest match {corrected}.",
+            f"Not: IEU veritabaninda {original} bulunamadi. En yakin eslesme {corrected} gosteriliyor.",
+            prefer_tr,
+        ))
+    return "\n".join(lines)
+
+
+def _maybe_entry_year_note(dept, start_year, prefer_tr, program_name=None, curriculum_url=None):
+    if not dept or start_year is None:
+        return None
+    years = get_available_entry_years(dept, program_name=program_name)
+    if not years or start_year in years:
+        return None
+    closest = min(years, key=lambda y: abs(y - start_year))
+    return _t(
+        f"Note: I could not find curriculum data for entry year {start_year}. Using the closest available entry year {closest}.",
+        f"Not: {start_year} giris yili icin mufredat bulunamadi. En yakin yil {closest} kullaniliyor.",
+        prefer_tr,
+    )
+
+
+def _extract_max_ects_from_rule(rule_text):
+    if not rule_text:
+        return None
+    m = re.search(r"up to\s*(\d+)\s*ects", rule_text, re.IGNORECASE)
+    if m:
+        try:
+            return int(m.group(1))
+        except Exception:
+            return None
+    m = re.search(r"maximum\s*(\d+)\s*ects", rule_text, re.IGNORECASE)
+    if m:
+        try:
+            return int(m.group(1))
+        except Exception:
+            return None
+    return None
+
+
 def _format_regulations_answer(question, history, gpa_value):
-    regs = get_regulations()
+    regs = _get_regulations_from_db(collection)
     if not regs:
         return None
 
@@ -739,7 +1117,6 @@ def _format_regulations_answer(question, history, gpa_value):
                 prefer_tr,
             )
 
-        max_ects = get_credit_limit_by_gpa(gpa_value)
         rules = (regs.get("credit_load") or {}).get("rules_by_gpa") or {}
         if gpa_value >= 2.5:
             rule = rules.get("2.50_and_above") or ""
@@ -747,6 +1124,10 @@ def _format_regulations_answer(question, history, gpa_value):
             rule = rules.get("2.00_to_2.49") or ""
         else:
             rule = rules.get("below_threshold") or ""
+
+        max_ects = _extract_max_ects_from_rule(rule)
+        if max_ects is None:
+            max_ects = get_credit_limit_by_gpa(gpa_value)
 
         lines = [
             _t(
@@ -867,40 +1248,104 @@ def is_greeting_or_small_talk(text):
     """
     Check if the message is just a greeting or small talk, not a substantive question.
     """
-    t = text.lower().strip()
-    greeting_patterns = [
-        "hello", "hi", "hey", "greetings",
-        "how are you", "what's up", "sup",
-        "good morning", "good afternoon", "good evening",
-        "merhaba", "selam", "nasılsın", "nasilsin",
-    ]
-    return any(pattern in t for pattern in greeting_patterns) and len(t) < 50
+    t = (text or "").lower().strip()
+    if not t:
+        return False
+
+    words = re.findall(r"[a-z0-9']+", t)
+    if not words:
+        return False
+
+    greeting_words = {
+        "hi", "hello", "hey", "greetings", "merhaba", "selam", "sup", "yo",
+        "nasilsin", "nas\u0131ls\u0131n",
+    }
+    greeting_phrases = {
+        "good morning",
+        "good afternoon",
+        "good evening",
+        "how are you",
+        "what's up",
+        "whats up",
+        "what s up",
+        "hi there",
+        "hello there",
+        "hey there",
+    }
+    phrase = " ".join(words)
+    if phrase in greeting_phrases:
+        return True
+
+    # Only treat very short messages as greetings when they are made up of
+    # obvious greeting words. This keeps "which internship" and similar phrases
+    # from being misread as small talk.
+    if len(words) <= 3 and any(word in greeting_words for word in words):
+        return True
+    return False
 
 
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # MAIN ASK FUNCTION
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-def ask(question, history=[]):
+def _looks_like_curriculum_lookup(text):
+    """
+    Detect questions that are asking for a study plan / curriculum.
+    These are the only questions that should force the profile-gathering flow.
+    """
+    t = (text or "").lower()
+    if is_semester_question(text):
+        return True
+
+    curriculum_cues = [
+        "curriculum",
+        "curricula",
+        "mufredat",
+        "study plan",
+        "course plan",
+        "program plan",
+        "programme plan",
+        "degree plan",
+    ]
+    return any(cue in t for cue in curriculum_cues)
+
+
+def ask(question, history=[], client_type=None):
     # Some eval harnesses redirect stdout to non-UTF8 files on Windows.
     # Keep debug logging ASCII-only to avoid encode errors.
     safe_question = (question or "").encode("ascii", "backslashreplace").decode("ascii")
     print(f"\n[EkoBot] Question: {safe_question}")
 
     question_lower = question.lower().strip()
+    last_bot_q = get_last_bot_question_type(history)
 
-    if is_out_of_scope_question(question):
+    if is_greeting_or_small_talk(question):
+        if last_bot_q in {"faculty", "dept", "year_term", "start_year", "failed_courses"}:
+            pending_map = {
+                "faculty": "faculty",
+                "dept": "dept",
+                "year_term": "year_term",
+                "start_year": "start_year",
+                "failed_courses": "failed_courses",
+            }
+            profile = extract_profile_from_history(history or [])
+            followup = _profiling_followup_message(pending_map.get(last_bot_q), profile)
+            if followup:
+                return followup
+        return "Hi! How can I help you with IEU information today?"
+
+    if is_out_of_scope_question(question) and not is_web_info_question(question):
         return "I don't have that information in the IEU database."
 
-    last_bot_q = get_last_bot_question_type(history)
-    if _is_short_ack(question) and last_bot_q in {"dept", "year_term", "start_year", "failed_courses"}:
+    if _is_short_ack(question) and last_bot_q in {"faculty", "dept", "year_term", "start_year", "failed_courses"}:
         if last_bot_q == "failed_courses":
             return "FOLLOWUP_NEEDED: Please list the failed course codes (e.g. CE 201, MATH 153)."
         followup = _profiling_followup_message({
-            "dept": "department",
+            "faculty": "faculty",
+            "dept": "dept",
             "year_term": "year_term",
             "start_year": "start_year",
-        }.get(last_bot_q))
+        }.get(last_bot_q), None)
         if followup:
             return followup
 
@@ -912,46 +1357,46 @@ def ask(question, history=[]):
     if regs_followup:
         return regs_followup
 
-    year_hint, term_hint = extract_year_and_term(question)
-    academic_hint = any([
-        is_course_lookup_question(question),
-        is_semester_question(question),
-        is_regulations_question(question),
-        is_graduation_question(question),
-        bool(extract_course_codes(question)),
-        bool(year_hint and term_hint),
-        bool(extract_starting_year_loose(question)),
-    ])
+    regulations_question = is_regulations_question(question)
 
-    # If the bot previously asked a profiling follow-up (dept/year-term/start-year/etc),
-    # treat the user's reply as part of the academic flow *when* the last substantive
-    # user question was academic. This prevents replies like "nursing" from being
-    # mis-routed into onboarding profiling.
-    if not academic_hint and last_bot_q in {"dept", "year_term", "start_year", "failed_courses"}:
-        anchor_question = get_latest_substantive_user_question(history)
-        if anchor_question:
-            a_year, a_term = extract_year_and_term(anchor_question)
-            anchor_academic = any([
-                is_course_lookup_question(anchor_question),
-                is_semester_question(anchor_question),
-                is_regulations_question(anchor_question),
-                is_graduation_question(anchor_question),
-                bool(extract_course_codes(anchor_question)),
-                bool(a_year and a_term),
-                bool(extract_starting_year_loose(anchor_question)),
-            ])
-            if anchor_academic:
-                academic_hint = True
+    profile_flow_trigger = _looks_like_curriculum_lookup(question) and not regulations_question
 
-    # ── PROFILING FLOW ───────────────────────────────────────────────
-    # Check if we need to complete user profiling first
-    if not academic_hint:
+    if not regulations_question and not profile_flow_trigger and last_bot_q in {"faculty", "dept", "year_term", "start_year", "failed_courses"}:
+        if last_bot_q == "faculty":
+            profile_flow_trigger = bool(detect_faculty_choice(question) or detect_department(question))
+        elif last_bot_q == "dept":
+            profile_flow_trigger = bool(detect_department(question))
+        elif last_bot_q == "year_term":
+            profile_flow_trigger = bool(
+                extract_year_only(question) or extract_term_only(question)
+                or any(extract_year_and_term(question))
+            )
+        elif last_bot_q == "start_year":
+            if extract_starting_year_loose(question):
+                profile_flow_trigger = True
+            elif (
+                extract_year_only(question)
+                or extract_term_only(question)
+                or any(extract_year_and_term(question))
+            ):
+                return _curriculum_entry_year_followup(clarify_invalid_reply=True)
+        elif last_bot_q == "failed_courses":
+            profile_flow_trigger = bool(extract_failed_courses_from_context(question, history, None))
+
+    # PROFILING FLOW
+    # Only ask for profile details when the current message is curriculum-related
+    # or it is clearly answering a pending curriculum-profile follow-up.
+    if profile_flow_trigger:
         # Include the current user message when building the profile. Clients vary in
         # whether they include the latest message in `history`, so do it here to keep
         # behavior consistent.
         history_with_current = list(history or []) + [{"role": "user", "content": question}]
         profile = extract_profile_from_history(history_with_current)
-        next_question, question_type = get_next_profiling_question(profile, question_lower)
+        next_question, question_type = get_next_profiling_question(
+            profile,
+            question_lower,
+            require_curriculum_details=_requires_curriculum_details(question, history),
+        )
 
         # If the user is just saying hello/greeting and we haven't profiled yet,
         # respond with a greeting + first profiling question
@@ -971,7 +1416,9 @@ def ask(question, history=[]):
             # Decide whether the user is answering the *next* profiling question
             # (not merely reacting to whatever the last assistant message said).
             is_answering_profiling = False
-            if question_type == "department":
+            if question_type == "faculty":
+                is_answering_profiling = bool(detect_faculty_choice(question) or detect_department(question))
+            elif question_type == "dept":
                 is_answering_profiling = bool(detect_department(question))
             elif question_type == "year_term":
                 is_answering_profiling = bool(
@@ -997,27 +1444,37 @@ def ask(question, history=[]):
                 if not year_final and not term_final:
                     return "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)"
 
+            if is_answering_profiling and question_type != "year_term" and next_question:
+                return next_question
+
             # If they didn't seem to be answering the profiling question, ask again
             if not is_answering_profiling:
-                followup = _profiling_followup_message(question_type)
+                followup = _profiling_followup_message(question_type, profile)
                 return followup or next_question
 
-    # ── ACADEMIC QUESTION HANDLING ───────────────────────────────────────────────
+    # â”€â”€ ACADEMIC QUESTION HANDLING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     # From here on, proceed with the existing logic
     if _looks_like_profile_update_only(question, history, last_bot_q):
         history_with_current = list(history or []) + [{"role": "user", "content": question}]
         profile = extract_profile_from_history(history_with_current)
-        next_question, question_type = get_next_profiling_question(profile, question_lower)
+        next_question, question_type = get_next_profiling_question(
+            profile,
+            question_lower,
+            require_curriculum_details=_requires_curriculum_details(question, history),
+        )
         if next_question:
-            return _profiling_followup_message(question_type) or next_question
+            return _profiling_followup_message(question_type, profile) or next_question
         profile_ack = _format_profile_context_ack(profile)
         if profile_ack:
             return profile_ack
 
     parsed = parse_request_slots(question, history, last_bot_q)
     full_question = parsed["analysis_question"]
+    prefer_tr = _looks_turkish(full_question)
+    history_with_current = list(history or []) + [{"role": "user", "content": question}]
+    profile = extract_profile_from_history(history_with_current)
 
-    # ── gather ALL potentially relevant context ───────────────────────
+    # â”€â”€ gather ALL potentially relevant context â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     context_parts = []
 
     # 1. specific course codes
@@ -1034,21 +1491,32 @@ def ask(question, history=[]):
         codes = extract_course_codes(all_text)
     course_contexts = []
     missing_codes = []
+    corrections = {}
     if codes:
-        course_contexts, missing_codes = get_context_for_codes(collection, codes)
+        course_contexts, missing_codes, corrections = get_context_for_codes(collection, codes)
         if course_contexts:
             ql = full_question.lower()
             if len(codes) == 1 and any(p in ql for p in ["tell me about", "more details", "details about", "information about", "what is ", "what about", "how about"]):
+                correction_note = _format_course_correction_note(corrections, _looks_turkish(full_question))
+                if correction_note:
+                    return correction_note + "\n\n" + format_course_direct_response(course_contexts[0])
                 return format_course_direct_response(course_contexts[0])
             context_parts.extend(course_contexts)
+            correction_note = _format_course_correction_note(corrections, prefer_tr)
+            if correction_note:
+                context_parts.append(correction_note)
 
     # 2. department detection
-    dept = parsed["department"]
+    dept = parsed["department"] or profile.get("department")
     year = parsed["year"]
     term = parsed["term"]
     start_year = parsed["start_year"]
     failed_courses = extract_failed_courses_from_context(question, history, last_bot_q)
     gpa_value = extract_gpa_from_context(full_question, history)
+    program_name = profile.get("program_name")
+    curriculum_url = profile.get("curriculum_url")
+    faculty = profile.get("faculty")
+    entry_year_note = _maybe_entry_year_note(dept, start_year, prefer_tr, program_name=program_name, curriculum_url=curriculum_url)
     conversation_snapshot = _build_conversation_snapshot(
         question,
         parsed,
@@ -1076,17 +1544,37 @@ def ask(question, history=[]):
         or planning_keywords
     ) and not course_lookup_intent
     both_semesters_intent = planning_intent and wants_both_semesters(full_question)
+    web_info_intent = (
+        parsed["intent"] == "web_info" or is_web_info_question(full_question)
+    ) and not (regulations_intent or planning_intent or graduation_intent or course_lookup_intent)
+    web_docs = _query_web_info_context(collection, full_question) if web_info_intent else []
+
+    if web_docs:
+        if web_info_intent and client_groq is None:
+            return _format_web_info_answer(full_question, web_docs) or web_docs[0]
+        if client_groq is None and not (course_lookup_intent or planning_intent or graduation_intent):
+            return _format_web_info_answer(full_question, web_docs) or web_docs[0]
+        context_parts.extend(web_docs)
 
     if course_lookup_intent and not planning_intent and not graduation_intent and not regulations_intent:
         if course_contexts:
             formatted = [format_course_direct_response(doc) for doc in course_contexts]
+            correction_note = _format_course_correction_note(corrections, _looks_turkish(full_question))
+            if correction_note:
+                formatted.insert(0, correction_note)
             if missing_codes:
                 missing_list = ", ".join(missing_codes)
-                formatted.append(f"I don't have that information in the IEU database for {missing_list}.")
+                formatted.append(
+                    f"I don't have that information in the IEU database for {missing_list}. "
+                    "Please check the ECTS system directly."
+                )
             return "\n\n".join(formatted)
         if missing_codes:
             missing_list = ", ".join(missing_codes)
-            return f"I don't have that information in the IEU database for {missing_list}."
+            return (
+                f"I don't have that information in the IEU database for {missing_list}. "
+                "Please check the ECTS system directly."
+            )
 
     # If user shares failed course codes after a planning answer, reuse the latest
     # planning tuple and return a retake-prioritized recommendation.
@@ -1094,8 +1582,22 @@ def ask(question, history=[]):
         latest_plan = get_latest_planning_tuple_from_history(history)
         if latest_plan:
             h_dept, h_year, h_term = latest_plan
-            h_courses = get_curriculum_courses(h_dept, h_year, h_term, start_year=start_year)
+            h_courses = get_curriculum_courses(
+                h_dept,
+                h_year,
+                h_term,
+                start_year=start_year,
+                program_name=program_name,
+                curriculum_url=curriculum_url,
+            )
             if h_courses:
+                retry_entry_year_note = _maybe_entry_year_note(
+                    h_dept,
+                    start_year,
+                    prefer_tr,
+                    program_name=program_name,
+                    curriculum_url=curriculum_url,
+                )
                 return _format_semester_courses(
                     h_dept,
                     h_year,
@@ -1103,23 +1605,31 @@ def ask(question, history=[]):
                     h_courses,
                     failed_courses=failed_courses,
                     start_year=start_year,
+                    program_name=program_name,
+                    curriculum_url=curriculum_url,
                     gpa_value=gpa_value,
+                    entry_year_note=retry_entry_year_note,
                 )
 
     # Graduation requirement questions should not fall back to generic course search.
-    if graduation_intent and not dept:
-        return "FOLLOWUP_NEEDED: Which department are you in? (major) (e.g. CE, SE, EEE, IE, BME, ME, Nursing)"
+    if graduation_intent and (not dept or not program_name):
+        if not faculty:
+            return _profiling_followup_message("faculty", profile)
+        return _profiling_followup_message("dept", profile)
 
     if graduation_intent and dept:
         grad_text = get_graduation_text(dept, collection=collection)
         if not grad_text:
-            return "I don't have graduation requirements for that department in my database yet."
+            return (
+                "I don't have graduation requirements for that department in my database yet. "
+                "Please check the ECTS system directly."
+            )
         if client_groq is None:
             return grad_text[:2000]
         context_parts.append(grad_text[:2000])
 
     # Deterministic regulations answers (works even without LLM).
-    if regulations_intent and (not planning_intent) and (not graduation_intent):
+    if regulations_intent and (not planning_intent) and (not graduation_intent) and (not web_info_intent):
         regs_answer = _format_regulations_answer(full_question, history, gpa_value)
         if regs_answer:
             return regs_answer
@@ -1129,29 +1639,62 @@ def ask(question, history=[]):
     # Also handle the case where user is directly answering department follow-up
     # with a short reply like "ce".
     if (not graduation_intent) and (planning_intent or (last_bot_q == "dept" and parsed["department"])):
-        if not dept:
-            return "FOLLOWUP_NEEDED: Which department are you in? (major) (e.g. CE, SE, EEE, IE, BME, ME, Nursing)"
+        if not dept or not program_name:
+            if not faculty:
+                return _profiling_followup_message("faculty", profile)
+            return _profiling_followup_message("dept", profile)
+        if not start_year and has_multiple_curriculum_variants(dept, program_name=program_name):
+            return _curriculum_entry_year_followup()
         if not year or not term:
-            needs_start_year = len(get_available_entry_years(dept)) > 1 or has_multiple_curriculum_variants(dept)
             return "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)"
-        needs_start_year = len(get_available_entry_years(dept)) > 1 or has_multiple_curriculum_variants(dept)
-        if needs_start_year and not start_year:
-            return "FOLLOWUP_NEEDED: Which year did you start university? (e.g. 2023)"
 
     # Deterministic combined answer when the user asks both semesters of a year.
     if (not graduation_intent) and both_semesters_intent and dept and year:
-        needs_start_year = len(get_available_entry_years(dept)) > 1 or has_multiple_curriculum_variants(dept)
-        if needs_start_year and not start_year:
-            return "FOLLOWUP_NEEDED: Which year did you start university? (e.g. 2023)"
+        if not start_year and has_multiple_curriculum_variants(dept, program_name=program_name):
+            return _curriculum_entry_year_followup()
 
-        fall_courses = get_curriculum_courses(dept, year, "Fall", start_year=start_year)
-        spring_courses = get_curriculum_courses(dept, year, "Spring", start_year=start_year)
+        fall_courses = get_curriculum_courses(
+            dept,
+            year,
+            "Fall",
+            start_year=start_year,
+            program_name=program_name,
+            curriculum_url=curriculum_url,
+        )
+        spring_courses = get_curriculum_courses(
+            dept,
+            year,
+            "Spring",
+            start_year=start_year,
+            program_name=program_name,
+            curriculum_url=curriculum_url,
+        )
 
         parts = []
         if fall_courses:
-            parts.append(_format_semester_courses(dept, year, "Fall", fall_courses, failed_courses=failed_courses, start_year=start_year, gpa_value=gpa_value))
+            parts.append(_format_semester_courses(
+                dept,
+                year,
+                "Fall",
+                fall_courses,
+                failed_courses=failed_courses,
+                start_year=start_year,
+                program_name=program_name,
+                curriculum_url=curriculum_url,
+                gpa_value=gpa_value,
+            ))
         if spring_courses:
-            parts.append(_format_semester_courses(dept, year, "Spring", spring_courses, failed_courses=failed_courses, start_year=start_year, gpa_value=gpa_value))
+            parts.append(_format_semester_courses(
+                dept,
+                year,
+                "Spring",
+                spring_courses,
+                failed_courses=failed_courses,
+                start_year=start_year,
+                program_name=program_name,
+                curriculum_url=curriculum_url,
+                gpa_value=gpa_value,
+            ))
 
         if parts:
             answer = "\n\n".join(parts)
@@ -1159,11 +1702,20 @@ def ask(question, history=[]):
                 regs_answer = _format_regulations_answer(full_question, history, gpa_value)
                 if regs_answer:
                     answer = answer + "\n\n" + regs_answer.replace("FOLLOWUP_NEEDED: ", "")
+            if entry_year_note:
+                answer = answer + "\n\n" + entry_year_note
             return answer
 
     # Deterministic semester answer once dept + year + term are known.
     if (not graduation_intent) and (planning_intent or last_bot_q in ["year_term", "start_year"]) and dept and year and term:
-        courses = get_curriculum_courses(dept, year, term, start_year=start_year)
+        courses = get_curriculum_courses(
+            dept,
+            year,
+            term,
+            start_year=start_year,
+            program_name=program_name,
+            curriculum_url=curriculum_url,
+        )
         if not courses:
             if last_bot_q in ["year_term", "start_year"]:
                 # Try an LLM-guided retry before giving up on curriculum matching.
@@ -1172,10 +1724,38 @@ def ask(question, history=[]):
                 year = parsed_retry["year"] or year
                 term = parsed_retry["term"] or term
                 start_year = parsed_retry["start_year"] or start_year
-                courses = get_curriculum_courses(dept, year, term, start_year=start_year)
+                entry_year_note = _maybe_entry_year_note(
+                    dept,
+                    start_year,
+                    prefer_tr,
+                    program_name=program_name,
+                    curriculum_url=curriculum_url,
+                )
+                courses = get_curriculum_courses(
+                    dept,
+                    year,
+                    term,
+                    start_year=start_year,
+                    program_name=program_name,
+                    curriculum_url=curriculum_url,
+                )
         if not courses:
-            return "I don't have that semester's curriculum data in my database."
-        answer = _format_semester_courses(dept, year, term, courses, failed_courses=failed_courses, start_year=start_year, gpa_value=gpa_value)
+            return (
+                "I don't have that semester's curriculum data in my database. "
+                "Please check the ECTS system directly."
+            )
+        answer = _format_semester_courses(
+            dept,
+            year,
+            term,
+            courses,
+            failed_courses=failed_courses,
+            start_year=start_year,
+            program_name=program_name,
+            curriculum_url=curriculum_url,
+            gpa_value=gpa_value,
+            entry_year_note=entry_year_note,
+        )
         if regulations_intent and _is_credit_load_question(full_question):
             regs_answer = _format_regulations_answer(full_question, history, gpa_value)
             if regs_answer:
@@ -1183,7 +1763,14 @@ def ask(question, history=[]):
         return answer
 
     if dept and year and term:
-        courses = get_curriculum_courses(dept, year, term, start_year=start_year)
+        courses = get_curriculum_courses(
+            dept,
+            year,
+            term,
+            start_year=start_year,
+            program_name=program_name,
+            curriculum_url=curriculum_url,
+        )
         if courses:
             elec_count = sum(1 for c in courses
                            if c.get("code", "").startswith("ELEC"))
@@ -1195,7 +1782,12 @@ def ask(question, history=[]):
             if elec_count:
                 curr_text += (f"\n\nPlus {elec_count} elective slot(s). "
                              f"Available electives for {dept}:")
-                electives = get_electives(dept)
+                electives = get_electives(
+                    dept,
+                    start_year=start_year,
+                    program_name=program_name,
+                    curriculum_url=curriculum_url,
+                )
                 for e in electives[:20]:
                     curr_text += f"\n- {e['code']}: {e['name']}"
             context_parts.append(curr_text)
@@ -1212,8 +1804,7 @@ def ask(question, history=[]):
     if regulations_intent or any(k in full_question.lower() for k in
         ["gpa", "credit", "grade", "kredi", "not", "ortalama",
          "how many", "can i take", "withdraw", "probation", "letter grade", "harf"]):
-        context_parts.append(get_credit_load_rules())
-        regs = get_regulations()
+        regs = _get_regulations_from_db(collection)
         if regs:
             # Keep this compact; the LLM can still reason over deterministic outputs above.
             context_parts.append(json.dumps(regs.get("grading", {}), ensure_ascii=False))
@@ -1234,10 +1825,12 @@ def ask(question, history=[]):
         context_parts = _query_relevant_context(collection, query_texts, n_results=3, max_docs=6)
 
     if not context_parts:
-        return ("I don't have enough information to answer that. "
-                "Could you give me more details?")
+        return (
+            "I don't have that information in the IEU database. "
+            "Please check the ECTS system directly or share more details."
+        )
 
-    # ── ask LLM to reason over ALL context ───────────────────────────
+    # â”€â”€ ask LLM to reason over ALL context â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     # truncate to avoid token limit
     if conversation_snapshot:
         context_parts.insert(0, conversation_snapshot)
@@ -1246,14 +1839,25 @@ def ask(question, history=[]):
     if len(combined) > 8000:
         combined = combined[:8000]
 
-    return call_llm(full_question, [combined], history)
+    return call_llm(full_question, [combined], history, client_type=client_type)
 
 
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # HELPERS
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-def _format_semester_courses(dept, year, term, courses, failed_courses=None, start_year=None, gpa_value=None):
+def _format_semester_courses(
+    dept,
+    year,
+    term,
+    courses,
+    failed_courses=None,
+    start_year=None,
+    program_name=None,
+    curriculum_url=None,
+    gpa_value=None,
+    entry_year_note=None,
+):
     elec_count = sum(1 for c in courses if c.get("code", "").startswith("ELEC"))
     lines = [f"{dept} - Year {year} {term} Semester:\n"]
     failed_courses = _dedupe_keep_order(failed_courses or [])
@@ -1267,15 +1871,29 @@ def _format_semester_courses(dept, year, term, courses, failed_courses=None, sta
         scoped_prereq_map, scoped_reverse_graph = get_scoped_prerequisite_maps(
             dept,
             start_year=start_year,
+            program_name=program_name,
+            curriculum_url=curriculum_url,
         )
-        offered_term_by_code = get_scoped_offered_terms(dept, start_year=start_year)
-        positions = get_curriculum_course_positions(dept, start_year=start_year)
+        offered_term_by_code = get_scoped_offered_terms(
+            dept,
+            start_year=start_year,
+            program_name=program_name,
+            curriculum_url=curriculum_url,
+        )
+        positions = get_curriculum_course_positions(
+            dept,
+            start_year=start_year,
+            program_name=program_name,
+            curriculum_url=curriculum_url,
+        )
         blocked_chain_preview = get_blocked_dependency_chain(
             failed_courses,
             dept,
             year,
             term,
             start_year=start_year,
+            program_name=program_name,
+            curriculum_url=curriculum_url,
             reverse_graph=scoped_reverse_graph,
         )
         blocked_by_code = {
@@ -1318,6 +1936,8 @@ def _format_semester_courses(dept, year, term, courses, failed_courses=None, sta
             year,
             term,
             start_year=start_year,
+            program_name=program_name,
+            curriculum_url=curriculum_url,
             reverse_graph=scoped_reverse_graph,
         )
         if blocked_chain:
@@ -1361,6 +1981,8 @@ def _format_semester_courses(dept, year, term, courses, failed_courses=None, sta
             blocked_chain,
             dept,
             start_year=start_year,
+            program_name=program_name,
+            curriculum_url=curriculum_url,
         )
         if recovery_order:
             lines.append("\nSuggested recovery order:")
@@ -1403,15 +2025,19 @@ def _format_semester_courses(dept, year, term, courses, failed_courses=None, sta
     else:
         lines.append("\nIf you have any failed courses to retake, share their course codes (e.g. CE 201, MATH 153) and I will prioritize them in your plan.")
 
+    if entry_year_note:
+        lines.append("")
+        lines.append(entry_year_note)
+
     return "\n".join(lines)
 
 
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # TERMINAL TEST
-# ─────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 if __name__ == "__main__":
-    print("EkoBot — type your question (or 'quit' to exit)")
+    print("EkoBot â€” type your question (or 'quit' to exit)")
     print("-" * 50)
     conversation_history = []
 

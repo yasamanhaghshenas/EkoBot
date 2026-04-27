@@ -1,0 +1,513 @@
+[
+  {
+    "title": "Erasmus+ Student Mobility for Studies",
+    "url": "https://www.ieu.edu.tr/international/en/erasmus-ogrenci-ogrenim-hareketliligi",
+    "description": "Main guide for IEU students going abroad for a semester",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Erasmus+ Student Mobility for Traineeships",
+    "url": "https://www.ieu.edu.tr/international/en/erasmus-ogrenci-staj-hareketliligi",
+    "description": "Rules for students doing internships abroad via Erasmus+",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Erasmus+ Short Term PhD Traineeship",
+    "url": "https://www.ieu.edu.tr/international/en/erasmus-kisa-donem-doktora-staj-hareketliligi",
+    "description": "Short term mobility for PhD students",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Erasmus+ Blended Intensive Mobilities",
+    "url": "https://www.ieu.edu.tr/international/en/erasmus-karma-yogun-programlar",
+    "description": "Blended intensive program mobility info",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Erasmus+ Student Charter",
+    "url": "https://www.ieu.edu.tr/international/en/erasmus-ogrenci-beyannamesi",
+    "description": "Student rights and responsibilities in Erasmus+",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Regulation on Erasmus+ and Other Exchange Programs",
+    "url": "https://www.ieu.edu.tr/international/en/yonergeuygulama-el-kitabi",
+    "description": "Official legal framework and rules for all exchange programs",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Erasmus+ Agreements and Quotas",
+    "url": "https://www.ieu.edu.tr/international/en/erasmus-anlasmalari-ve-kontenjanlar",
+    "description": "List of partner universities and available seats per university",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Erasmus+ Forms",
+    "url": "https://www.ieu.edu.tr/international/en/formlar",
+    "description": "Downloadable forms for agreements and grant applications",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Academic Info for Students Going Abroad (Erasmus)",
+    "url": "https://oim.ieu.edu.tr/en/erasmusla-gidenler-icin-akademik-bilgiler",
+    "description": "Course approval and credit transfer info for outgoing Erasmus students",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Incoming Student Mobility for Studies",
+    "url": "https://www.ieu.edu.tr/international/en/ogrenim-hareketliligi",
+    "description": "Steps for students coming TO IEU from abroad for studies",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Incoming Student Mobility for Traineeships",
+    "url": "https://www.ieu.edu.tr/international/en/staj-hareketliligi",
+    "description": "Steps for students coming TO IEU for traineeships",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Incoming International Exchange Students",
+    "url": "https://www.ieu.edu.tr/international/en/gelen-uluslararasi-degisim-ogrencileri",
+    "description": "Info for non-Erasmus international exchange students coming to IEU",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Outgoing International Exchange Students",
+    "url": "https://www.ieu.edu.tr/international/en/giden-uluslararasi-degisim-ogrencileri",
+    "description": "Info for IEU students going abroad through non-Erasmus programs",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Visiting Students (Free Movers)",
+    "url": "https://www.ieu.edu.tr/international/en/misafirozel-ogrenci",
+    "description": "Info for students coming as free movers without an exchange agreement",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Other Academic Protocols",
+    "url": "https://oia.ieu.edu.tr/en/genel_akademik_protokoller",
+    "description": "Non-Erasmus bilateral agreements and academic protocols",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Visa, Residence Permit & Insurance",
+    "url": "https://www.ieu.edu.tr/international/en/vize-oturum-izni-sigorta",
+    "description": "How to apply for student residence permit and insurance requirements",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Survival Guide for International Students",
+    "url": "https://www.ieu.edu.tr/international/en/survival-guide-international-students",
+    "description": "Practical advice on banking, transport, and daily life in Izmir",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Transportation",
+    "url": "https://www.ieu.edu.tr/international/en/ulasim",
+    "description": "Getting around Izmir and to campus",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Life on Campus",
+    "url": "https://www.ieu.edu.tr/international/en/kampus-yasami",
+    "description": "Campus facilities and student life info",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Europass",
+    "url": "https://oia.ieu.edu.tr/en/europass",
+    "description": "European document supplement for graduates going abroad",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "ESN IUE",
+    "url": "https://www.ieu.edu.tr/international/en/esn-iue",
+    "description": "Student network and buddy system for exchange students",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Exchange Program Coordinators",
+    "url": "https://www.ieu.edu.tr/international/en/uluslararasi-degisim-programlari-koordinatorleri",
+    "description": "Faculty contacts for course approvals and academic coordination",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "International Partners",
+    "url": "https://www.ieu.edu.tr/international/en/uluslararasi-partnerler",
+    "description": "Full list of IEU international partner universities",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Office of International Affairs",
+    "url": "https://oia.ieu.edu.tr/en",
+    "description": "Main office handling all international student affairs",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Erasmus + International"
+  },
+  {
+    "title": "Regulation for Associate and Undergraduate Education and Exams",
+    "url": "https://www.ieu.edu.tr/en/bylaws/type/read/id/72",
+    "description": "Main regulation covering GPA, grading, attendance, course loads, graduation rules",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Academic Rules"
+  },
+  {
+    "title": "Double Major Program Regulation",
+    "url": "https://www.ieu.edu.tr/en/bylaws/type/read/id/21",
+    "description": "Rules for taking two majors simultaneously",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Academic Rules"
+  },
+  {
+    "title": "Minor Program Regulation",
+    "url": "https://www.ieu.edu.tr/en/bylaws/type/read/id/22",
+    "description": "Rules for adding a minor to your degree",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Academic Rules"
+  },
+  {
+    "title": "Double Major Programs Info",
+    "url": "https://oim.ieu.edu.tr/en/cift-anadal-programlari-cap",
+    "description": "How to apply and requirements for double major",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Academic Rules"
+  },
+  {
+    "title": "Minor Programs Info",
+    "url": "https://oim.ieu.edu.tr/en/yandal-programlari-ydp",
+    "description": "How to apply and requirements for minor programs",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Academic Rules"
+  },
+  {
+    "title": "Second Foreign Language Programs",
+    "url": "https://sfl.ieu.edu.tr/ikinciyabancidil/en",
+    "description": "Info on adding a second foreign language program",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Academic Rules"
+  },
+  {
+    "title": "Transfer Regulation (Associate & Undergraduate)",
+    "url": "https://www.ieu.edu.tr/en/bylaws/type/read/id/130",
+    "description": "Rules for transferring between programs or universities",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Academic Rules"
+  },
+  {
+    "title": "Regulation on Transfer, Double Major, Minor & Credit Transfer",
+    "url": "https://www.ieu.edu.tr/en/bylaws/type/read/id/116",
+    "description": "Official YÖK regulation on transfers and credit transfers between institutions",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Academic Rules"
+  },
+  {
+    "title": "Summer School Procedures",
+    "url": "https://www.ieu.edu.tr/en/bylaws/type/read/id/108",
+    "description": "Rules and conditions for taking courses in summer school",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Academic Rules"
+  },
+  {
+    "title": "English Preparatory Program Regulation",
+    "url": "https://www.ieu.edu.tr/en/bylaws/type/read/id/100",
+    "description": "Rules for the English prep year, passing conditions, exemptions",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Academic Rules"
+  },
+  {
+    "title": "Academic Calendar",
+    "url": "https://www.ieu.edu.tr/en/akademik-takvim",
+    "description": "Add-drop dates, exam weeks, registration deadlines, holidays",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Academic Rules"
+  },
+  {
+    "title": "ECTS Catalogue",
+    "url": "https://ects.ieu.edu.tr/new/",
+    "description": "Full course catalog with ECTS credits, prerequisites, syllabi",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Academic Rules"
+  },
+  {
+    "title": "Undergraduate and Associate Scholarship Regulation",
+    "url": "https://www.ieu.edu.tr/en/bylaws/type/read/id/75",
+    "description": "Rules for maintaining and losing scholarships",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Academic Rules"
+  },
+  {
+    "title": "Scholarships and Discounts",
+    "url": "https://www.ieu.edu.tr/tercih/en/burslar.php",
+    "description": "All available scholarship types and conditions",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Academic Rules"
+  },
+  {
+    "title": "Disciplinary Procedure for Students",
+    "url": "https://www.ieu.edu.tr/en/bylaws/type/read/id/13",
+    "description": "Rules on academic dishonesty and disciplinary actions",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Academic Rules"
+  },
+  {
+    "title": "DMP / Minor Application Portal",
+    "url": "https://apply.ieu.edu.tr/capydp",
+    "description": "Direct application portal for Double Major and Minor programs",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Academic Rules"
+  },
+  {
+    "title": "Student Affairs Important Information",
+    "url": "https://oim.ieu.edu.tr/en/onemli-bilgiler",
+    "description": "General important information and rules from Student Affairs Directorate",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Academic Rules"
+  },
+  {
+    "title": "Student Affairs FAQ",
+    "url": "https://oim.ieu.edu.tr/en/sss",
+    "description": "Frequently asked questions answered directly by Student Affairs",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Academic Rules"
+  },
+  {
+    "title": "Student Affairs Directorate",
+    "url": "https://oim.ieu.edu.tr/en",
+    "description": "Main office for all student administrative processes",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Student Services & Admin"
+  },
+  {
+    "title": "Document Requests",
+    "url": "https://oim.ieu.edu.tr/en/belge-talepleri",
+    "description": "How to request student certificates, transcripts, and official documents",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Student Services & Admin"
+  },
+  {
+    "title": "Administrative Forms",
+    "url": "https://oim.ieu.edu.tr/en/formlar",
+    "description": "All downloadable student forms for official processes",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Student Services & Admin"
+  },
+  {
+    "title": "Student ID Card",
+    "url": "https://oim.ieu.edu.tr/en/ogrenci-kimlik-karti",
+    "description": "How to get or replace your student ID card",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Student Services & Admin"
+  },
+  {
+    "title": "Semester Leave",
+    "url": "https://oim.ieu.edu.tr/en/donem-izinleri",
+    "description": "How to apply for a semester off and conditions",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Student Services & Admin"
+  },
+  {
+    "title": "Second Copy of Diploma / Certificate of Graduation",
+    "url": "https://oim.ieu.edu.tr/en/ikinci-nusha-diploma-diploma-eki-mezuniyet-belgesi",
+    "description": "How to request a duplicate diploma or graduation certificate",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Student Services & Admin"
+  },
+  {
+    "title": "Military Procedures",
+    "url": "https://oim.ieu.edu.tr/en/askerlik-islemleri",
+    "description": "Military deferment info for Turkish male students",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Student Services & Admin"
+  },
+  {
+    "title": "Medical Procedures",
+    "url": "https://oim.ieu.edu.tr/en/saglik-islemleri",
+    "description": "Medical report submission and health-related academic procedures",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Student Services & Admin"
+  },
+  {
+    "title": "Internship Guide",
+    "url": "https://kariyer.ieu.edu.tr/en/staj-basvuru-kilavuzu",
+    "description": "How to apply for internships and required steps",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Student Services & Admin"
+  },
+  {
+    "title": "Guaranteed Internship Project",
+    "url": "https://kariyer.ieu.edu.tr/en/garantili-staj-projesi",
+    "description": "IEU's program guaranteeing internship placement for students",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Student Services & Admin"
+  },
+  {
+    "title": "Career Guidance Centre",
+    "url": "https://kariyer.ieu.edu.tr/en",
+    "description": "Career support, job listings, CV help and interview prep",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Student Services & Admin"
+  },
+  {
+    "title": "Student Job Opportunities",
+    "url": "https://kariyer.ieu.edu.tr/en/part-time-ve-staj-ilanlari",
+    "description": "Part-time job and internship listings",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Student Services & Admin"
+  },
+  {
+    "title": "Dean of Students",
+    "url": "https://dos.izmirekonomi.edu.tr/en",
+    "description": "Office for student rights, complaints, and general student welfare",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Student Services & Admin"
+  },
+  {
+    "title": "Psychological Counseling Center",
+    "url": "https://pgdm.ieu.edu.tr/en",
+    "description": "Free psychological support and counseling for students",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Student Services & Admin"
+  },
+  {
+    "title": "Health Services",
+    "url": "https://www.ieu.edu.tr/en/saglik-ve-psikolojik-danisma",
+    "description": "On-campus health services and medical support",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Student Services & Admin"
+  },
+  {
+    "title": "Disability Support Center",
+    "url": "https://engelsiz.ieu.edu.tr/en/",
+    "description": "Academic and physical support for students with disabilities",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Student Services & Admin"
+  },
+  {
+    "title": "Academic Staff Directory",
+    "url": "https://people.ieu.edu.tr/",
+    "description": "Find contact info for any academic staff member",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Student Services & Admin"
+  },
+  {
+    "title": "Campus Shuttle Service (TIM)",
+    "url": "https://tim.ieu.edu.tr/en",
+    "description": "Official university shuttle routes and timetables",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Campus & Practical"
+  },
+  {
+    "title": "Transportation Guide",
+    "url": "https://www.ieu.edu.tr/international/en/ulasim",
+    "description": "Public bus lines (969, 480, 483) to reach Balçova campus from the city",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Campus & Practical"
+  },
+  {
+    "title": "Student Dormitory",
+    "url": "https://yurt.ieu.edu.tr/en",
+    "description": "On-campus dormitory info, application, and rules",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Campus & Practical"
+  },
+  {
+    "title": "Cafes and Restaurants",
+    "url": "https://www.ieu.edu.tr/en/kafe-ve-restoran",
+    "description": "Campus dining options, menus, and locations",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Campus & Practical"
+  },
+  {
+    "title": "Student Clubs",
+    "url": "https://www.ieu.edu.tr/en/clubs",
+    "description": "Full list of student clubs and how to join",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Campus & Practical"
+  },
+  {
+    "title": "Events Calendar",
+    "url": "https://www.ieu.edu.tr/en/events/type/all",
+    "description": "Upcoming events on campus",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Campus & Practical"
+  },
+  {
+    "title": "Life at IUE",
+    "url": "https://www.ieu.edu.tr/en/ieude-hayat",
+    "description": "General overview of student life at IEU",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Campus & Practical"
+  },
+  {
+    "title": "Library",
+    "url": "https://kutuphane.ieu.edu.tr/en",
+    "description": "Library catalog, opening hours, and digital resources",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Campus & Practical"
+  },
+  {
+    "title": "Blackboard",
+    "url": "https://ieu.blackboard.com/",
+    "description": "Course management system for assignments and materials",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Campus & Practical"
+  },
+  {
+    "title": "Student Information System (OBS)",
+    "url": "https://obs.izmirekonomi.edu.tr/",
+    "description": "Official system for grades, transcripts, and enrollment",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Campus & Practical"
+  },
+  {
+    "title": "Academic Support (TLC)",
+    "url": "https://www.ieu.edu.tr/tlc/en/for-students",
+    "description": "Teaching and learning center support for students",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Campus & Practical"
+  },
+  {
+    "title": "IT Help Desk",
+    "url": "https://itsupport.ieu.edu.tr/en/",
+    "description": "Technical support for campus IT services",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Campus & Practical"
+  },
+  {
+    "title": "EkoID Info",
+    "url": "https://comp.izmirekonomi.edu.tr/en/ekoid",
+    "description": "Info about the university EkoID login system",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Campus & Practical"
+  },
+  {
+    "title": "Emergency and Security",
+    "url": "https://tim.ieu.edu.tr/en/guvenlik-hizmetleri",
+    "description": "Campus security contacts and emergency procedures",
+    "source_workbook": "EcoBot Rules.xlsx",
+    "sheet": "Campus & Practical"
+  }
+]

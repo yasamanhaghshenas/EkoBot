@@ -4,6 +4,8 @@ import json
 import re
 import time
 
+from catalog import load_ieu_department_directory
+
 # All departments with their curriculum URLs and syllabus URL patterns
 
 departments = [
@@ -32,6 +34,7 @@ departments = [
     {"name": "Interior Architecture", "curr_url": "https://ic.ieu.edu.tr/en/curr", "syllabus_pattern": "https://ic.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}"},
     {"name": "Architecture", "curr_url": "https://mmr.ieu.edu.tr/en/curr", "syllabus_pattern": "https://mmr.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}"},
     {"name": "Textile and Fashion Design", "curr_url": "https://mt.ieu.edu.tr/en/curr", "syllabus_pattern": "https://mt.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}"},
+    {"name": "Visual Communication Design", "curr_url": "https://ects.ieu.edu.tr/new/akademik.php?sid=curr&lang=en", "syllabus_pattern": "https://ilt.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}"},
 
     # ── LAW ──
     {"name": "Law", "curr_url": "https://law.ieu.edu.tr/en/curr", "syllabus_pattern": "https://law.ieu.edu.tr/en/syllabus/type/read/id/{CODE}+{NUM}"},
@@ -70,6 +73,28 @@ departments = [
     {"name": "Tourism and Hotel Management", "curr_url": "https://vs.ieu.edu.tr/tourism/en/curr", "syllabus_pattern": "https://vs.ieu.edu.tr/tourism/en/syllabus/type/read/id/{CODE}+{NUM}"},
 ]
 
+
+def get_departments():
+    directory = load_ieu_department_directory()
+    if not directory:
+        return departments
+
+    out = []
+    seen = set()
+    for item in directory:
+        name = (item.get("canonical_department") or item.get("source_department") or "").strip()
+        curr_url = (item.get("curriculum_url") or "").strip()
+        syllabus_pattern = (item.get("syllabus_pattern") or "").strip()
+        if not name or not curr_url or not syllabus_pattern:
+            continue
+        key = (name, curr_url, syllabus_pattern)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append({"name": name, "curr_url": curr_url, "syllabus_pattern": syllabus_pattern})
+
+    return out
+
 def get_course_codes_from_page(dept):
     try:
         response = requests.get(dept["curr_url"], timeout=10)
@@ -105,7 +130,7 @@ print("Collecting course codes from all departments...\n")
 all_courses = []
 seen_codes = set()
 
-for dept in departments:
+for dept in get_departments():
     courses = get_course_codes_from_page(dept)
     for c in courses:
         if c["code"] not in seen_codes:

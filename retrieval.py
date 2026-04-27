@@ -3,9 +3,14 @@ import re
 from catalog import _normalize_course_code
 
 
+def _looks_like_course_code(value):
+    return bool(re.match(r"^[A-Z]{2,6}\s\d{3,4}$", (value or "").strip()))
+
+
 def get_context_for_codes(collection, codes):
     contexts = []
     missing = []
+    corrections = {}
     for code in codes:
         normalized = _normalize_course_code(code) or code
         found = False
@@ -14,15 +19,37 @@ def get_context_for_codes(collection, codes):
                 query_texts=[normalized],
                 n_results=1,
                 where={"code": normalized},
+                include=["documents", "metadatas"],
             )
-            if results["documents"][0]:
-                contexts.append(results["documents"][0][0])
+            docs = (results.get("documents") or [[]])[0]
+            if docs:
+                contexts.append(docs[0])
                 found = True
         except Exception:
             pass
+
+        if not found:
+            try:
+                results = collection.query(
+                    query_texts=[normalized],
+                    n_results=1,
+                    include=["documents", "metadatas"],
+                )
+                docs = (results.get("documents") or [[]])[0]
+                metas = (results.get("metadatas") or [[]])[0]
+                if docs and metas:
+                    candidate_code = (metas[0] or {}).get("code") or ""
+                    candidate_code = candidate_code.strip().upper()
+                    if _looks_like_course_code(candidate_code) and candidate_code != normalized:
+                        contexts.append(docs[0])
+                        corrections[normalized] = candidate_code
+                        found = True
+            except Exception:
+                pass
+
         if not found:
             missing.append(normalized)
-    return contexts, missing
+    return contexts, missing, corrections
 
 
 def format_course_direct_response(doc):

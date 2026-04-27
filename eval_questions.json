@@ -95,13 +95,11 @@
       {"role": "user", "content": "Which courses should I take?"},
       {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which department are you in? (major) (e.g. CE, SE, EEE, IE, BME, ME, Nursing)"},
       {"role": "user", "content": "CE"},
-      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)"},
-      {"role": "user", "content": "2nd year spring"},
-      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which year did you start university? (e.g. 2023)"}
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which year did you enroll in university? (which year did you start university? e.g. 2023)\nPlease choose one of the options below."}
     ],
     "checks": [
-      {"type": "contains", "value": "Year 2 Spring Semester"},
-      {"type": "not_contains", "value": "Which year did you start university"}
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year and semester"}
     ]
   },
   {
@@ -159,7 +157,7 @@
     "history": [],
     "checks": [
       {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
-      {"type": "contains", "value": "Which year and semester"}
+      {"type": "contains", "value": "Which year did you enroll in university"}
     ]
   },
   {
@@ -223,7 +221,7 @@
       {"role": "user", "content": "what courses should i pick"},
       {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which department are you in? (major) (e.g. CE, SE, EEE, IE, BME, ME, Nursing)"},
       {"role": "user", "content": "eee"},
-      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)"}
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which year did you enroll in university? (which year did you start university? e.g. 2023)\nPlease choose one of the options below."}
     ],
     "checks": [
       {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
@@ -258,7 +256,7 @@
       {"role": "user", "content": "what courses should i pick this semester"},
       {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which department are you in? (major) (e.g. CE, SE, EEE, IE, BME, ME, Nursing)"},
       {"role": "user", "content": "eee"},
-      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which year and semester are you in, and which year did you start university? (e.g. 2nd year spring, started 2022)"}
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which year did you enroll in university? (which year did you start university? e.g. 2023)\nPlease choose one of the options below."}
     ],
     "checks": [
       {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
@@ -273,7 +271,7 @@
       {"role": "user", "content": "what courses should i pick this semester"},
       {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which department are you in? (major) (e.g. CE, SE, EEE, IE, BME, ME, Nursing)"},
       {"role": "user", "content": "eee"},
-      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which year and semester are you in, and which year did you start university? (e.g. 2nd year spring, started 2022)"}
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which year did you enroll in university? (which year did you start university? e.g. 2023)\nPlease choose one of the options below."}
     ],
     "checks": [
       {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
@@ -306,7 +304,7 @@
     "question": "Tell me the courses for third year spring",
     "history": [
       {"role": "user", "content": "I am in EEE department"},
-      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)"}
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which year did you enroll in university? (which year did you start university? e.g. 2023)\nPlease choose one of the options below."}
     ],
     "checks": [
       {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
@@ -555,6 +553,21 @@
     ]
   },
   {
+    "id": "GPA_RULE_ECTS_FOLLOWUP_WITH_FAILED_HISTORY",
+    "category": "regulations",
+    "question": "How many ECTS can I take?",
+    "history": [
+      {"role": "user", "content": "2nd year spring"},
+      {"role": "assistant", "content": "CE - Year 3 Fall Semester:\n\n- EEE 242: Digital Design\n- SE 302: Principles of Software Engineering\n- CE 323: Operating System Concepts\n- CE 315: Automata Theory and Formal Languages\n- MATH 250: Linear Algebra for Engineers (blocked now by failed prerequisite chain via MATH 153)\n\nIf you have any failed courses to retake, share their course codes (e.g. CE 201, MATH 153) and I will prioritize them in your plan."},
+      {"role": "user", "content": "I failed SE 115"}
+    ],
+    "checks": [
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains_any", "value": ["GPA", "CGPA"]},
+      {"type": "not_contains", "value": "ECTS-aware recovery schedule"}
+    ]
+  },
+  {
     "id": "GPA_RULE_190",
     "category": "regulations",
     "question": "If my GPA is below 2.00, what is my credit limit?",
@@ -691,6 +704,26 @@
       {"type": "contains", "value": "Suggested recovery order"},
       {"type": "contains", "value": "ECTS-aware recovery schedule"},
       {"type": "contains", "value": "Strict prerequisite sequencing is applied"}
+    ]
+  },
+  {
+    "id": "WEB_ERSAMUS_INFO",
+    "category": "web",
+    "question": "What can you tell me about the Erasmus",
+    "history": [],
+    "checks": [
+      {"type": "contains_any", "value": ["Erasmus", "exchange program", "mobility"]},
+      {"type": "not_contains", "value": "I don't have that information in the IEU database."}
+    ]
+  },
+  {
+    "id": "WEB_COORDINATORS",
+    "category": "web",
+    "question": "Who are the International Exchange Programs Coordinators",
+    "history": [],
+    "checks": [
+      {"type": "contains_any", "value": ["coordinator", "coordinators", "Exchange Program Coordinators"]},
+      {"type": "not_contains", "value": "I don't have that information in the IEU database."}
     ]
   }
 ]

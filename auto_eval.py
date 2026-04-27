@@ -20,6 +20,10 @@ def load_cases(path):
     return data
 
 
+def _safe_text(value):
+    return ("" if value is None else str(value)).encode("ascii", "backslashreplace").decode("ascii")
+
+
 def load_departments_from_curriculum(path="curriculum.json"):
     if not os.path.exists(path):
         return []
@@ -351,7 +355,7 @@ def auto_generate_cases(target_count=60):
                 "history": [],
                 "checks": [
                     {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
-                    {"type": "contains", "value": "Which year did you start university"}
+                    {"type": "contains", "value": "Which year did you enroll in university"}
                 ]
             })
             cases.append({
@@ -361,7 +365,7 @@ def auto_generate_cases(target_count=60):
                 "history": [],
                 "checks": [
                     {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
-                    {"type": "contains", "value": "Which year did you start university"}
+                    {"type": "contains", "value": "Which year did you enroll in university"}
                 ]
             })
 
@@ -506,7 +510,7 @@ def _install_mock_modules():
                 intent = "planning"
                 if any(k in q_text for k in ["graduation", "graduate", "mezun"]):
                     intent = "graduation"
-                elif any(k in q_text for k in ["gpa", "credit", "grade", "not ortalaması", "credit load"]):
+                elif any(k in q_text for k in ["gpa", "credit", "grade", "not ortalaması", "credit load", "how many ects", "ects can i take", "maximum ects", "max ects"]):
                     intent = "regulations"
                 elif any(k in q_text for k in ["course", "courses", "what should i take", "which courses", "hangi ders"]):
                     intent = "planning"
@@ -522,6 +526,16 @@ def _install_mock_modules():
 
             if "weather" in q_text:
                 return MockResponse("I don't have that information in the IEU database.")
+            if "=== ieu database context" in user_prompt.lower() and any(
+                k in q_text for k in ["erasmus", "exchange", "coordinator", "international"]
+            ):
+                if "coordinator" in q_text:
+                    return MockResponse(
+                        "The IEU website context points to the Exchange Program Coordinators and Erasmus / international exchange pages."
+                    )
+                return MockResponse(
+                    "The IEU website context includes Erasmus+ student mobility rules, agreements, forms, and exchange program information."
+                )
             if "graduation" in q_text or "graduate" in q_text:
                 return MockResponse("To graduate, you need 240 ECTS and at least 2.00 CGPA.")
             if "below 2.00" in q_text or "below 2" in q_text:
@@ -711,14 +725,14 @@ def print_failed_only(results):
         return
 
     for r in failed:
-        print(f"- {r.get('id')} [{r.get('category','uncategorized')}]")
+        print(f"- {_safe_text(r.get('id'))} [{_safe_text(r.get('category','uncategorized'))}]")
         if r.get("error"):
-            print(f"  Error: {r['error']}")
-        print(f"  Answer: {(r.get('answer') or '').replace(chr(10), ' | ')}")
+            print(f"  Error: {_safe_text(r['error'])}")
+        print(f"  Answer: {_safe_text((r.get('answer') or '').replace(chr(10), ' | '))}")
         for c in r.get("checks", []):
             if not c.get("ok"):
-                print(f"  Failed check: {c.get('description')}")
-        print(f"  Suggestion: {suggest_fix(r)}")
+                print(f"  Failed check: {_safe_text(c.get('description'))}")
+        print(f"  Suggestion: {_safe_text(suggest_fix(r))}")
 
 
 def write_reports(results, summary, mode, out_dir):

@@ -62574,5 +62574,5129 @@
         "name": "Principles of Scientific Writing and Presentation"
       }
     ]
+  },
+  {
+    "department": "VCD",
+    "program_name": "Visual Communication Design",
+    "entry_year": 2013,
+    "url": "https://ilt.ieu.edu.tr/en/curr",
+    "semesters": {
+      "1. Year Fall Semester": [
+        {
+          "code": "ENG 101",
+          "name": "Academic Skills in English I"
+        },
+        {
+          "code": "FFD 101",
+          "name": "Art and Design Studio 1"
+        },
+        {
+          "code": "FFD 121",
+          "name": "History of Art and Design 1"
+        },
+        {
+          "code": "IUE 100",
+          "name": "Orientation and Career Planning"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1013",
+          "name": "Second Foreign Languages I"
+        },
+        {
+          "code": "VCD 101",
+          "name": "Introduction to Design in Digital Media"
+        },
+        {
+          "code": "VCD 111",
+          "name": "Drawing Studio"
+        }
+      ],
+      "1. Year Spring Semester": [
+        {
+          "code": "ENG 102",
+          "name": "Academic Skills in English II"
+        },
+        {
+          "code": "FFD 102",
+          "name": "Art and Design Studio 2"
+        },
+        {
+          "code": "FFD 122",
+          "name": "History of Art and Design 2"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1024",
+          "name": "Second Foreign Languages II"
+        },
+        {
+          "code": "VCD 102",
+          "name": "Introduction to Visual Communication"
+        },
+        {
+          "code": "VCD 132",
+          "name": "Drawing Techniques for Print"
+        }
+      ],
+      "2. Year Fall Semester": [
+        {
+          "code": "SFL 201",
+          "name": "Second Foreign Languages III"
+        },
+        {
+          "code": "VCD 201",
+          "name": "Design Studio I"
+        },
+        {
+          "code": "VCD 203",
+          "name": "Typographic Design I"
+        },
+        {
+          "code": "VCD 205",
+          "name": "Computer Aided Graphic Design"
+        },
+        {
+          "code": "VCD 207",
+          "name": "Basic Photography"
+        },
+        {
+          "code": "VCD 211",
+          "name": "Drawing Studio II"
+        }
+      ],
+      "2. Year Spring Semester": [
+        {
+          "code": "SFL 202",
+          "name": "Second Foreign Languages IV"
+        },
+        {
+          "code": "VCD 202",
+          "name": "Design Studio II"
+        },
+        {
+          "code": "VCD 204",
+          "name": "Typographic Design II"
+        },
+        {
+          "code": "VCD 206",
+          "name": "Multimedia Applications in Design"
+        },
+        {
+          "code": "VCD 301",
+          "name": "History of Graphic Design"
+        },
+        {
+          "code": "VCD 340",
+          "name": "Design Semiotics"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Fall Semester": [
+        {
+          "code": "ELEC 001",
+          "name": "Elective Course I"
+        },
+        {
+          "code": "ELEC 002",
+          "name": "Elective Course II"
+        },
+        {
+          "code": "ELEC 003",
+          "name": "Elective Course III"
+        },
+        {
+          "code": "MMD 301",
+          "name": "Design Studio III"
+        },
+        {
+          "code": "TURK 100",
+          "name": "Turkish"
+        },
+        {
+          "code": "VCD 331",
+          "name": "Interaction Design Fundamentals"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Spring Semester": [
+        {
+          "code": "ELEC 004",
+          "name": "Elective Course IV"
+        },
+        {
+          "code": "ELEC 005",
+          "name": "Elective Course V"
+        },
+        {
+          "code": "ENG 310",
+          "name": "Essential Speaking Skills  in English"
+        },
+        {
+          "code": "HIST 100",
+          "name": "Principles of Atatürk and History of Revolution"
+        },
+        {
+          "code": "MMD 302",
+          "name": "Design Studio IV"
+        },
+        {
+          "code": "POOL 007",
+          "name": "GEC-Innovation and Entreprenuership"
+        },
+        {
+          "code": "VCDST 204",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Fall Semester": [
+        {
+          "code": "ELEC 006",
+          "name": "Elective Course VI"
+        },
+        {
+          "code": "ELEC 007",
+          "name": "Elective Course VII"
+        },
+        {
+          "code": "ENG 410",
+          "name": "English for Career Development"
+        },
+        {
+          "code": "FFD 451",
+          "name": "Applied Workshop"
+        },
+        {
+          "code": "MMD 401",
+          "name": "Design Studio V"
+        },
+        {
+          "code": "MMD 494",
+          "name": "Graduation Thesis"
+        },
+        {
+          "code": "VCDST 304",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Spring Semester": [
+        {
+          "code": "ELEC 008",
+          "name": "Elective Course VIII"
+        },
+        {
+          "code": "ELEC 009",
+          "name": "Elective Course IX"
+        },
+        {
+          "code": "ELEC 010",
+          "name": "Elective Course X"
+        },
+        {
+          "code": "ELEC 011",
+          "name": "Elective Course XI"
+        },
+        {
+          "code": "MMD 498",
+          "name": "Graduation Project"
+        },
+        {
+          "code": "POOL 003",
+          "name": "GEC-Social Sciences A: Economics"
+        }
+      ]
+    },
+    "electives": [
+      {
+        "code": "GD 303",
+        "name": "Editorial Design"
+      },
+      {
+        "code": "GD 304",
+        "name": "Packaging Design"
+      },
+      {
+        "code": "GD 350",
+        "name": "Advanced Typography"
+      },
+      {
+        "code": "GD 403",
+        "name": "Advertising Design and Art Direction"
+      },
+      {
+        "code": "GD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "GD 410",
+        "name": "Professional Practices at Communication Agency"
+      },
+      {
+        "code": "MMD 303",
+        "name": "Advanced Photography"
+      },
+      {
+        "code": "MMD 304",
+        "name": "Video Techniques and Production"
+      },
+      {
+        "code": "MMD 306",
+        "name": "Multimedia Design and Animation"
+      },
+      {
+        "code": "MMD 403",
+        "name": "Video Post Production"
+      },
+      {
+        "code": "MMD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "MMD 431",
+        "name": "Game Art and Design I"
+      },
+      {
+        "code": "MMD 432",
+        "name": "Game Art and Design II"
+      },
+      {
+        "code": "MMD 433",
+        "name": "Basic Game Development Concepts I"
+      },
+      {
+        "code": "MMD 434",
+        "name": "Basic Game Development Concepts II"
+      },
+      {
+        "code": "VCD 300",
+        "name": "Game Design"
+      },
+      {
+        "code": "VCD 302",
+        "name": "Analysis of Visual Culture"
+      },
+      {
+        "code": "VCD 308",
+        "name": "Visual Storytelling"
+      },
+      {
+        "code": "VCD 310",
+        "name": "Sound Design"
+      },
+      {
+        "code": "VCD 315",
+        "name": "Exhibition Design"
+      },
+      {
+        "code": "VCD 320",
+        "name": "Understanding Digital Media"
+      },
+      {
+        "code": "VCD 350",
+        "name": "Special Practice in Drawing"
+      },
+      {
+        "code": "VCD 400",
+        "name": "Interface Design"
+      },
+      {
+        "code": "VCD 410",
+        "name": "Advertising Photography"
+      },
+      {
+        "code": "VCD 421",
+        "name": "Digital Illustration"
+      },
+      {
+        "code": "VCD 424",
+        "name": "Web Design"
+      },
+      {
+        "code": "VCD 426",
+        "name": "Interactive Media Design"
+      },
+      {
+        "code": "VCD 428",
+        "name": "Digital Design in Motion"
+      },
+      {
+        "code": "VCD 430",
+        "name": "Comic Book Design"
+      },
+      {
+        "code": "VCD 436",
+        "name": "Introduction to Programming for Designers"
+      },
+      {
+        "code": "VCD 440",
+        "name": "Visual Reading, Writing and Interpretation"
+      },
+      {
+        "code": "VCD 450",
+        "name": "Information Design"
+      }
+    ]
+  },
+  {
+    "department": "VCD",
+    "program_name": "Visual Communication Design",
+    "entry_year": 2014,
+    "url": "https://ilt.ieu.edu.tr/en/curr",
+    "semesters": {
+      "1. Year Fall Semester": [
+        {
+          "code": "ENG 101",
+          "name": "Academic Skills in English I"
+        },
+        {
+          "code": "FFD 101",
+          "name": "Art and Design Studio 1"
+        },
+        {
+          "code": "FFD 121",
+          "name": "History of Art and Design 1"
+        },
+        {
+          "code": "IUE 100",
+          "name": "Orientation and Career Planning"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1013",
+          "name": "Second Foreign Languages I"
+        },
+        {
+          "code": "VCD 101",
+          "name": "Introduction to Design in Digital Media"
+        },
+        {
+          "code": "VCD 111",
+          "name": "Drawing Studio"
+        }
+      ],
+      "1. Year Spring Semester": [
+        {
+          "code": "ENG 102",
+          "name": "Academic Skills in English II"
+        },
+        {
+          "code": "FFD 102",
+          "name": "Art and Design Studio 2"
+        },
+        {
+          "code": "FFD 122",
+          "name": "History of Art and Design 2"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1024",
+          "name": "Second Foreign Languages II"
+        },
+        {
+          "code": "VCD 102",
+          "name": "Introduction to Visual Communication"
+        },
+        {
+          "code": "VCD 132",
+          "name": "Drawing Techniques for Print"
+        }
+      ],
+      "2. Year Fall Semester": [
+        {
+          "code": "SFL 201",
+          "name": "Second Foreign Languages III"
+        },
+        {
+          "code": "VCD 201",
+          "name": "Design Studio I"
+        },
+        {
+          "code": "VCD 203",
+          "name": "Typographic Design I"
+        },
+        {
+          "code": "VCD 205",
+          "name": "Computer Aided Graphic Design"
+        },
+        {
+          "code": "VCD 207",
+          "name": "Basic Photography"
+        },
+        {
+          "code": "VCD 211",
+          "name": "Drawing Studio II"
+        }
+      ],
+      "2. Year Spring Semester": [
+        {
+          "code": "SFL 202",
+          "name": "Second Foreign Languages IV"
+        },
+        {
+          "code": "VCD 202",
+          "name": "Design Studio II"
+        },
+        {
+          "code": "VCD 204",
+          "name": "Typographic Design II"
+        },
+        {
+          "code": "VCD 206",
+          "name": "Multimedia Applications in Design"
+        },
+        {
+          "code": "VCD 301",
+          "name": "History of Graphic Design"
+        },
+        {
+          "code": "VCD 340",
+          "name": "Design Semiotics"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Fall Semester": [
+        {
+          "code": "ELEC 001",
+          "name": "Elective Course I"
+        },
+        {
+          "code": "ELEC 002",
+          "name": "Elective Course II"
+        },
+        {
+          "code": "ELEC 003",
+          "name": "Elective Course III"
+        },
+        {
+          "code": "MMD 301",
+          "name": "Design Studio III"
+        },
+        {
+          "code": "TURK 100",
+          "name": "Turkish"
+        },
+        {
+          "code": "VCD 331",
+          "name": "Interaction Design Fundamentals"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Spring Semester": [
+        {
+          "code": "ELEC 004",
+          "name": "Elective Course IV"
+        },
+        {
+          "code": "ELEC 005",
+          "name": "Elective Course V"
+        },
+        {
+          "code": "ENG 310",
+          "name": "Essential Speaking Skills  in English"
+        },
+        {
+          "code": "HIST 100",
+          "name": "Principles of Atatürk and History of Revolution"
+        },
+        {
+          "code": "MMD 302",
+          "name": "Design Studio IV"
+        },
+        {
+          "code": "POOL 007",
+          "name": "GEC-Innovation and Entreprenuership"
+        },
+        {
+          "code": "VCDST 204",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Fall Semester": [
+        {
+          "code": "ELEC 006",
+          "name": "Elective Course VI"
+        },
+        {
+          "code": "ELEC 007",
+          "name": "Elective Course VII"
+        },
+        {
+          "code": "ENG 410",
+          "name": "English for Career Development"
+        },
+        {
+          "code": "FFD 451",
+          "name": "Applied Workshop"
+        },
+        {
+          "code": "MMD 401",
+          "name": "Design Studio V"
+        },
+        {
+          "code": "MMD 494",
+          "name": "Graduation Thesis"
+        },
+        {
+          "code": "VCDST 304",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Spring Semester": [
+        {
+          "code": "ELEC 008",
+          "name": "Elective Course VIII"
+        },
+        {
+          "code": "ELEC 009",
+          "name": "Elective Course IX"
+        },
+        {
+          "code": "ELEC 010",
+          "name": "Elective Course X"
+        },
+        {
+          "code": "ELEC 011",
+          "name": "Elective Course XI"
+        },
+        {
+          "code": "MMD 498",
+          "name": "Graduation Project"
+        },
+        {
+          "code": "POOL 003",
+          "name": "GEC-Social Sciences A: Economics"
+        }
+      ]
+    },
+    "electives": [
+      {
+        "code": "GD 303",
+        "name": "Editorial Design"
+      },
+      {
+        "code": "GD 304",
+        "name": "Packaging Design"
+      },
+      {
+        "code": "GD 350",
+        "name": "Advanced Typography"
+      },
+      {
+        "code": "GD 403",
+        "name": "Advertising Design and Art Direction"
+      },
+      {
+        "code": "GD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "GD 410",
+        "name": "Professional Practices at Communication Agency"
+      },
+      {
+        "code": "MMD 303",
+        "name": "Advanced Photography"
+      },
+      {
+        "code": "MMD 304",
+        "name": "Video Techniques and Production"
+      },
+      {
+        "code": "MMD 306",
+        "name": "Multimedia Design and Animation"
+      },
+      {
+        "code": "MMD 403",
+        "name": "Video Post Production"
+      },
+      {
+        "code": "MMD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "MMD 431",
+        "name": "Game Art and Design I"
+      },
+      {
+        "code": "MMD 432",
+        "name": "Game Art and Design II"
+      },
+      {
+        "code": "MMD 433",
+        "name": "Basic Game Development Concepts I"
+      },
+      {
+        "code": "MMD 434",
+        "name": "Basic Game Development Concepts II"
+      },
+      {
+        "code": "VCD 300",
+        "name": "Game Design"
+      },
+      {
+        "code": "VCD 302",
+        "name": "Analysis of Visual Culture"
+      },
+      {
+        "code": "VCD 308",
+        "name": "Visual Storytelling"
+      },
+      {
+        "code": "VCD 310",
+        "name": "Sound Design"
+      },
+      {
+        "code": "VCD 315",
+        "name": "Exhibition Design"
+      },
+      {
+        "code": "VCD 320",
+        "name": "Understanding Digital Media"
+      },
+      {
+        "code": "VCD 350",
+        "name": "Special Practice in Drawing"
+      },
+      {
+        "code": "VCD 400",
+        "name": "Interface Design"
+      },
+      {
+        "code": "VCD 410",
+        "name": "Advertising Photography"
+      },
+      {
+        "code": "VCD 421",
+        "name": "Digital Illustration"
+      },
+      {
+        "code": "VCD 424",
+        "name": "Web Design"
+      },
+      {
+        "code": "VCD 426",
+        "name": "Interactive Media Design"
+      },
+      {
+        "code": "VCD 428",
+        "name": "Digital Design in Motion"
+      },
+      {
+        "code": "VCD 430",
+        "name": "Comic Book Design"
+      },
+      {
+        "code": "VCD 436",
+        "name": "Introduction to Programming for Designers"
+      },
+      {
+        "code": "VCD 440",
+        "name": "Visual Reading, Writing and Interpretation"
+      },
+      {
+        "code": "VCD 450",
+        "name": "Information Design"
+      }
+    ]
+  },
+  {
+    "department": "VCD",
+    "program_name": "Visual Communication Design",
+    "entry_year": 2015,
+    "url": "https://ilt.ieu.edu.tr/en/curr",
+    "semesters": {
+      "1. Year Fall Semester": [
+        {
+          "code": "ENG 101",
+          "name": "Academic Skills in English I"
+        },
+        {
+          "code": "FFD 101",
+          "name": "Art and Design Studio 1"
+        },
+        {
+          "code": "FFD 121",
+          "name": "History of Art and Design 1"
+        },
+        {
+          "code": "IUE 100",
+          "name": "Orientation and Career Planning"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1013",
+          "name": "Second Foreign Languages I"
+        },
+        {
+          "code": "VCD 101",
+          "name": "Introduction to Design in Digital Media"
+        },
+        {
+          "code": "VCD 111",
+          "name": "Drawing Studio"
+        }
+      ],
+      "1. Year Spring Semester": [
+        {
+          "code": "ENG 102",
+          "name": "Academic Skills in English II"
+        },
+        {
+          "code": "FFD 102",
+          "name": "Art and Design Studio 2"
+        },
+        {
+          "code": "FFD 122",
+          "name": "History of Art and Design 2"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1024",
+          "name": "Second Foreign Languages II"
+        },
+        {
+          "code": "VCD 102",
+          "name": "Introduction to Visual Communication"
+        },
+        {
+          "code": "VCD 132",
+          "name": "Drawing Techniques for Print"
+        }
+      ],
+      "2. Year Fall Semester": [
+        {
+          "code": "SFL 201",
+          "name": "Second Foreign Languages III"
+        },
+        {
+          "code": "VCD 201",
+          "name": "Design Studio I"
+        },
+        {
+          "code": "VCD 203",
+          "name": "Typographic Design I"
+        },
+        {
+          "code": "VCD 205",
+          "name": "Computer Aided Graphic Design"
+        },
+        {
+          "code": "VCD 207",
+          "name": "Basic Photography"
+        },
+        {
+          "code": "VCD 211",
+          "name": "Drawing Studio II"
+        }
+      ],
+      "2. Year Spring Semester": [
+        {
+          "code": "SFL 202",
+          "name": "Second Foreign Languages IV"
+        },
+        {
+          "code": "VCD 202",
+          "name": "Design Studio II"
+        },
+        {
+          "code": "VCD 204",
+          "name": "Typographic Design II"
+        },
+        {
+          "code": "VCD 206",
+          "name": "Multimedia Applications in Design"
+        },
+        {
+          "code": "VCD 301",
+          "name": "History of Graphic Design"
+        },
+        {
+          "code": "VCD 340",
+          "name": "Design Semiotics"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Fall Semester": [
+        {
+          "code": "ELEC 001",
+          "name": "Elective Course I"
+        },
+        {
+          "code": "ELEC 002",
+          "name": "Elective Course II"
+        },
+        {
+          "code": "ELEC 003",
+          "name": "Elective Course III"
+        },
+        {
+          "code": "MMD 301",
+          "name": "Design Studio III"
+        },
+        {
+          "code": "TURK 100",
+          "name": "Turkish"
+        },
+        {
+          "code": "VCD 331",
+          "name": "Interaction Design Fundamentals"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Spring Semester": [
+        {
+          "code": "ELEC 004",
+          "name": "Elective Course IV"
+        },
+        {
+          "code": "ELEC 005",
+          "name": "Elective Course V"
+        },
+        {
+          "code": "ENG 310",
+          "name": "Essential Speaking Skills  in English"
+        },
+        {
+          "code": "HIST 100",
+          "name": "Principles of Atatürk and History of Revolution"
+        },
+        {
+          "code": "MMD 302",
+          "name": "Design Studio IV"
+        },
+        {
+          "code": "POOL 007",
+          "name": "GEC-Innovation and Entreprenuership"
+        },
+        {
+          "code": "VCDST 204",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Fall Semester": [
+        {
+          "code": "ELEC 006",
+          "name": "Elective Course VI"
+        },
+        {
+          "code": "ELEC 007",
+          "name": "Elective Course VII"
+        },
+        {
+          "code": "ENG 410",
+          "name": "English for Career Development"
+        },
+        {
+          "code": "FFD 451",
+          "name": "Applied Workshop"
+        },
+        {
+          "code": "MMD 401",
+          "name": "Design Studio V"
+        },
+        {
+          "code": "MMD 494",
+          "name": "Graduation Thesis"
+        },
+        {
+          "code": "VCDST 304",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Spring Semester": [
+        {
+          "code": "ELEC 008",
+          "name": "Elective Course VIII"
+        },
+        {
+          "code": "ELEC 009",
+          "name": "Elective Course IX"
+        },
+        {
+          "code": "ELEC 010",
+          "name": "Elective Course X"
+        },
+        {
+          "code": "ELEC 011",
+          "name": "Elective Course XI"
+        },
+        {
+          "code": "MMD 498",
+          "name": "Graduation Project"
+        },
+        {
+          "code": "POOL 003",
+          "name": "GEC-Social Sciences A: Economics"
+        }
+      ]
+    },
+    "electives": [
+      {
+        "code": "GD 303",
+        "name": "Editorial Design"
+      },
+      {
+        "code": "GD 304",
+        "name": "Packaging Design"
+      },
+      {
+        "code": "GD 350",
+        "name": "Advanced Typography"
+      },
+      {
+        "code": "GD 403",
+        "name": "Advertising Design and Art Direction"
+      },
+      {
+        "code": "GD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "GD 410",
+        "name": "Professional Practices at Communication Agency"
+      },
+      {
+        "code": "MMD 303",
+        "name": "Advanced Photography"
+      },
+      {
+        "code": "MMD 304",
+        "name": "Video Techniques and Production"
+      },
+      {
+        "code": "MMD 306",
+        "name": "Multimedia Design and Animation"
+      },
+      {
+        "code": "MMD 403",
+        "name": "Video Post Production"
+      },
+      {
+        "code": "MMD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "MMD 431",
+        "name": "Game Art and Design I"
+      },
+      {
+        "code": "MMD 432",
+        "name": "Game Art and Design II"
+      },
+      {
+        "code": "MMD 433",
+        "name": "Basic Game Development Concepts I"
+      },
+      {
+        "code": "MMD 434",
+        "name": "Basic Game Development Concepts II"
+      },
+      {
+        "code": "VCD 300",
+        "name": "Game Design"
+      },
+      {
+        "code": "VCD 302",
+        "name": "Analysis of Visual Culture"
+      },
+      {
+        "code": "VCD 308",
+        "name": "Visual Storytelling"
+      },
+      {
+        "code": "VCD 310",
+        "name": "Sound Design"
+      },
+      {
+        "code": "VCD 315",
+        "name": "Exhibition Design"
+      },
+      {
+        "code": "VCD 320",
+        "name": "Understanding Digital Media"
+      },
+      {
+        "code": "VCD 350",
+        "name": "Special Practice in Drawing"
+      },
+      {
+        "code": "VCD 400",
+        "name": "Interface Design"
+      },
+      {
+        "code": "VCD 410",
+        "name": "Advertising Photography"
+      },
+      {
+        "code": "VCD 421",
+        "name": "Digital Illustration"
+      },
+      {
+        "code": "VCD 424",
+        "name": "Web Design"
+      },
+      {
+        "code": "VCD 426",
+        "name": "Interactive Media Design"
+      },
+      {
+        "code": "VCD 428",
+        "name": "Digital Design in Motion"
+      },
+      {
+        "code": "VCD 430",
+        "name": "Comic Book Design"
+      },
+      {
+        "code": "VCD 436",
+        "name": "Introduction to Programming for Designers"
+      },
+      {
+        "code": "VCD 440",
+        "name": "Visual Reading, Writing and Interpretation"
+      },
+      {
+        "code": "VCD 450",
+        "name": "Information Design"
+      }
+    ]
+  },
+  {
+    "department": "VCD",
+    "program_name": "Visual Communication Design",
+    "entry_year": 2016,
+    "url": "https://ilt.ieu.edu.tr/en/curr",
+    "semesters": {
+      "1. Year Fall Semester": [
+        {
+          "code": "ENG 101",
+          "name": "Academic Skills in English I"
+        },
+        {
+          "code": "FFD 101",
+          "name": "Art and Design Studio 1"
+        },
+        {
+          "code": "FFD 121",
+          "name": "History of Art and Design 1"
+        },
+        {
+          "code": "IUE 100",
+          "name": "Orientation and Career Planning"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1013",
+          "name": "Second Foreign Languages I"
+        },
+        {
+          "code": "VCD 101",
+          "name": "Introduction to Design in Digital Media"
+        },
+        {
+          "code": "VCD 111",
+          "name": "Drawing Studio"
+        }
+      ],
+      "1. Year Spring Semester": [
+        {
+          "code": "ENG 102",
+          "name": "Academic Skills in English II"
+        },
+        {
+          "code": "FFD 102",
+          "name": "Art and Design Studio 2"
+        },
+        {
+          "code": "FFD 122",
+          "name": "History of Art and Design 2"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1024",
+          "name": "Second Foreign Languages II"
+        },
+        {
+          "code": "VCD 102",
+          "name": "Introduction to Visual Communication"
+        },
+        {
+          "code": "VCD 132",
+          "name": "Drawing Techniques for Print"
+        }
+      ],
+      "2. Year Fall Semester": [
+        {
+          "code": "SFL 201",
+          "name": "Second Foreign Languages III"
+        },
+        {
+          "code": "VCD 201",
+          "name": "Design Studio I"
+        },
+        {
+          "code": "VCD 203",
+          "name": "Typographic Design I"
+        },
+        {
+          "code": "VCD 205",
+          "name": "Computer Aided Graphic Design"
+        },
+        {
+          "code": "VCD 207",
+          "name": "Basic Photography"
+        },
+        {
+          "code": "VCD 211",
+          "name": "Drawing Studio II"
+        }
+      ],
+      "2. Year Spring Semester": [
+        {
+          "code": "SFL 202",
+          "name": "Second Foreign Languages IV"
+        },
+        {
+          "code": "VCD 202",
+          "name": "Design Studio II"
+        },
+        {
+          "code": "VCD 204",
+          "name": "Typographic Design II"
+        },
+        {
+          "code": "VCD 206",
+          "name": "Multimedia Applications in Design"
+        },
+        {
+          "code": "VCD 301",
+          "name": "History of Graphic Design"
+        },
+        {
+          "code": "VCD 340",
+          "name": "Design Semiotics"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Fall Semester": [
+        {
+          "code": "ELEC 001",
+          "name": "Elective Course I"
+        },
+        {
+          "code": "ELEC 002",
+          "name": "Elective Course II"
+        },
+        {
+          "code": "ELEC 003",
+          "name": "Elective Course III"
+        },
+        {
+          "code": "MMD 301",
+          "name": "Design Studio III"
+        },
+        {
+          "code": "TURK 100",
+          "name": "Turkish"
+        },
+        {
+          "code": "VCD 331",
+          "name": "Interaction Design Fundamentals"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Spring Semester": [
+        {
+          "code": "ELEC 004",
+          "name": "Elective Course IV"
+        },
+        {
+          "code": "ELEC 005",
+          "name": "Elective Course V"
+        },
+        {
+          "code": "ENG 310",
+          "name": "Essential Speaking Skills  in English"
+        },
+        {
+          "code": "HIST 100",
+          "name": "Principles of Atatürk and History of Revolution"
+        },
+        {
+          "code": "MMD 302",
+          "name": "Design Studio IV"
+        },
+        {
+          "code": "POOL 007",
+          "name": "GEC-Innovation and Entreprenuership"
+        },
+        {
+          "code": "VCDST 204",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Fall Semester": [
+        {
+          "code": "ELEC 006",
+          "name": "Elective Course VI"
+        },
+        {
+          "code": "ELEC 007",
+          "name": "Elective Course VII"
+        },
+        {
+          "code": "ENG 410",
+          "name": "English for Career Development"
+        },
+        {
+          "code": "FFD 451",
+          "name": "Applied Workshop"
+        },
+        {
+          "code": "MMD 401",
+          "name": "Design Studio V"
+        },
+        {
+          "code": "MMD 494",
+          "name": "Graduation Thesis"
+        },
+        {
+          "code": "VCDST 304",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Spring Semester": [
+        {
+          "code": "ELEC 008",
+          "name": "Elective Course VIII"
+        },
+        {
+          "code": "ELEC 009",
+          "name": "Elective Course IX"
+        },
+        {
+          "code": "ELEC 010",
+          "name": "Elective Course X"
+        },
+        {
+          "code": "ELEC 011",
+          "name": "Elective Course XI"
+        },
+        {
+          "code": "MMD 498",
+          "name": "Graduation Project"
+        },
+        {
+          "code": "POOL 003",
+          "name": "GEC-Social Sciences A: Economics"
+        }
+      ]
+    },
+    "electives": [
+      {
+        "code": "GD 303",
+        "name": "Editorial Design"
+      },
+      {
+        "code": "GD 304",
+        "name": "Packaging Design"
+      },
+      {
+        "code": "GD 350",
+        "name": "Advanced Typography"
+      },
+      {
+        "code": "GD 403",
+        "name": "Advertising Design and Art Direction"
+      },
+      {
+        "code": "GD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "GD 410",
+        "name": "Professional Practices at Communication Agency"
+      },
+      {
+        "code": "MMD 303",
+        "name": "Advanced Photography"
+      },
+      {
+        "code": "MMD 304",
+        "name": "Video Techniques and Production"
+      },
+      {
+        "code": "MMD 306",
+        "name": "Multimedia Design and Animation"
+      },
+      {
+        "code": "MMD 403",
+        "name": "Video Post Production"
+      },
+      {
+        "code": "MMD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "MMD 431",
+        "name": "Game Art and Design I"
+      },
+      {
+        "code": "MMD 432",
+        "name": "Game Art and Design II"
+      },
+      {
+        "code": "MMD 433",
+        "name": "Basic Game Development Concepts I"
+      },
+      {
+        "code": "MMD 434",
+        "name": "Basic Game Development Concepts II"
+      },
+      {
+        "code": "VCD 300",
+        "name": "Game Design"
+      },
+      {
+        "code": "VCD 302",
+        "name": "Analysis of Visual Culture"
+      },
+      {
+        "code": "VCD 308",
+        "name": "Visual Storytelling"
+      },
+      {
+        "code": "VCD 310",
+        "name": "Sound Design"
+      },
+      {
+        "code": "VCD 315",
+        "name": "Exhibition Design"
+      },
+      {
+        "code": "VCD 320",
+        "name": "Understanding Digital Media"
+      },
+      {
+        "code": "VCD 350",
+        "name": "Special Practice in Drawing"
+      },
+      {
+        "code": "VCD 400",
+        "name": "Interface Design"
+      },
+      {
+        "code": "VCD 410",
+        "name": "Advertising Photography"
+      },
+      {
+        "code": "VCD 421",
+        "name": "Digital Illustration"
+      },
+      {
+        "code": "VCD 424",
+        "name": "Web Design"
+      },
+      {
+        "code": "VCD 426",
+        "name": "Interactive Media Design"
+      },
+      {
+        "code": "VCD 428",
+        "name": "Digital Design in Motion"
+      },
+      {
+        "code": "VCD 430",
+        "name": "Comic Book Design"
+      },
+      {
+        "code": "VCD 436",
+        "name": "Introduction to Programming for Designers"
+      },
+      {
+        "code": "VCD 440",
+        "name": "Visual Reading, Writing and Interpretation"
+      },
+      {
+        "code": "VCD 450",
+        "name": "Information Design"
+      }
+    ]
+  },
+  {
+    "department": "VCD",
+    "program_name": "Visual Communication Design",
+    "entry_year": 2017,
+    "url": "https://ilt.ieu.edu.tr/en/curr",
+    "semesters": {
+      "1. Year Fall Semester": [
+        {
+          "code": "ENG 101",
+          "name": "Academic Skills in English I"
+        },
+        {
+          "code": "FFD 101",
+          "name": "Art and Design Studio 1"
+        },
+        {
+          "code": "FFD 121",
+          "name": "History of Art and Design 1"
+        },
+        {
+          "code": "IUE 100",
+          "name": "Orientation and Career Planning"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1013",
+          "name": "Second Foreign Languages I"
+        },
+        {
+          "code": "VCD 101",
+          "name": "Introduction to Design in Digital Media"
+        },
+        {
+          "code": "VCD 111",
+          "name": "Drawing Studio"
+        }
+      ],
+      "1. Year Spring Semester": [
+        {
+          "code": "ENG 102",
+          "name": "Academic Skills in English II"
+        },
+        {
+          "code": "FFD 102",
+          "name": "Art and Design Studio 2"
+        },
+        {
+          "code": "FFD 122",
+          "name": "History of Art and Design 2"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1024",
+          "name": "Second Foreign Languages II"
+        },
+        {
+          "code": "VCD 102",
+          "name": "Introduction to Visual Communication"
+        },
+        {
+          "code": "VCD 132",
+          "name": "Drawing Techniques for Print"
+        }
+      ],
+      "2. Year Fall Semester": [
+        {
+          "code": "SFL 201",
+          "name": "Second Foreign Languages III"
+        },
+        {
+          "code": "VCD 201",
+          "name": "Design Studio I"
+        },
+        {
+          "code": "VCD 203",
+          "name": "Typographic Design I"
+        },
+        {
+          "code": "VCD 205",
+          "name": "Computer Aided Graphic Design"
+        },
+        {
+          "code": "VCD 207",
+          "name": "Basic Photography"
+        },
+        {
+          "code": "VCD 211",
+          "name": "Drawing Studio II"
+        }
+      ],
+      "2. Year Spring Semester": [
+        {
+          "code": "SFL 202",
+          "name": "Second Foreign Languages IV"
+        },
+        {
+          "code": "VCD 202",
+          "name": "Design Studio II"
+        },
+        {
+          "code": "VCD 204",
+          "name": "Typographic Design II"
+        },
+        {
+          "code": "VCD 206",
+          "name": "Multimedia Applications in Design"
+        },
+        {
+          "code": "VCD 301",
+          "name": "History of Graphic Design"
+        },
+        {
+          "code": "VCD 340",
+          "name": "Design Semiotics"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Fall Semester": [
+        {
+          "code": "ELEC 001",
+          "name": "Elective Course I"
+        },
+        {
+          "code": "ELEC 002",
+          "name": "Elective Course II"
+        },
+        {
+          "code": "ELEC 003",
+          "name": "Elective Course III"
+        },
+        {
+          "code": "MMD 301",
+          "name": "Design Studio III"
+        },
+        {
+          "code": "TURK 100",
+          "name": "Turkish"
+        },
+        {
+          "code": "VCD 331",
+          "name": "Interaction Design Fundamentals"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Spring Semester": [
+        {
+          "code": "ELEC 004",
+          "name": "Elective Course IV"
+        },
+        {
+          "code": "ELEC 005",
+          "name": "Elective Course V"
+        },
+        {
+          "code": "ENG 310",
+          "name": "Essential Speaking Skills  in English"
+        },
+        {
+          "code": "HIST 100",
+          "name": "Principles of Atatürk and History of Revolution"
+        },
+        {
+          "code": "MMD 302",
+          "name": "Design Studio IV"
+        },
+        {
+          "code": "POOL 007",
+          "name": "GEC-Innovation and Entreprenuership"
+        },
+        {
+          "code": "VCDST 204",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Fall Semester": [
+        {
+          "code": "ELEC 006",
+          "name": "Elective Course VI"
+        },
+        {
+          "code": "ELEC 007",
+          "name": "Elective Course VII"
+        },
+        {
+          "code": "ENG 410",
+          "name": "English for Career Development"
+        },
+        {
+          "code": "FFD 451",
+          "name": "Applied Workshop"
+        },
+        {
+          "code": "MMD 401",
+          "name": "Design Studio V"
+        },
+        {
+          "code": "MMD 494",
+          "name": "Graduation Thesis"
+        },
+        {
+          "code": "VCDST 304",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Spring Semester": [
+        {
+          "code": "ELEC 008",
+          "name": "Elective Course VIII"
+        },
+        {
+          "code": "ELEC 009",
+          "name": "Elective Course IX"
+        },
+        {
+          "code": "ELEC 010",
+          "name": "Elective Course X"
+        },
+        {
+          "code": "ELEC 011",
+          "name": "Elective Course XI"
+        },
+        {
+          "code": "MMD 498",
+          "name": "Graduation Project"
+        },
+        {
+          "code": "POOL 003",
+          "name": "GEC-Social Sciences A: Economics"
+        }
+      ]
+    },
+    "electives": [
+      {
+        "code": "GD 303",
+        "name": "Editorial Design"
+      },
+      {
+        "code": "GD 304",
+        "name": "Packaging Design"
+      },
+      {
+        "code": "GD 350",
+        "name": "Advanced Typography"
+      },
+      {
+        "code": "GD 403",
+        "name": "Advertising Design and Art Direction"
+      },
+      {
+        "code": "GD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "GD 410",
+        "name": "Professional Practices at Communication Agency"
+      },
+      {
+        "code": "MMD 303",
+        "name": "Advanced Photography"
+      },
+      {
+        "code": "MMD 304",
+        "name": "Video Techniques and Production"
+      },
+      {
+        "code": "MMD 306",
+        "name": "Multimedia Design and Animation"
+      },
+      {
+        "code": "MMD 403",
+        "name": "Video Post Production"
+      },
+      {
+        "code": "MMD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "MMD 431",
+        "name": "Game Art and Design I"
+      },
+      {
+        "code": "MMD 432",
+        "name": "Game Art and Design II"
+      },
+      {
+        "code": "MMD 433",
+        "name": "Basic Game Development Concepts I"
+      },
+      {
+        "code": "MMD 434",
+        "name": "Basic Game Development Concepts II"
+      },
+      {
+        "code": "VCD 300",
+        "name": "Game Design"
+      },
+      {
+        "code": "VCD 302",
+        "name": "Analysis of Visual Culture"
+      },
+      {
+        "code": "VCD 308",
+        "name": "Visual Storytelling"
+      },
+      {
+        "code": "VCD 310",
+        "name": "Sound Design"
+      },
+      {
+        "code": "VCD 315",
+        "name": "Exhibition Design"
+      },
+      {
+        "code": "VCD 320",
+        "name": "Understanding Digital Media"
+      },
+      {
+        "code": "VCD 350",
+        "name": "Special Practice in Drawing"
+      },
+      {
+        "code": "VCD 400",
+        "name": "Interface Design"
+      },
+      {
+        "code": "VCD 410",
+        "name": "Advertising Photography"
+      },
+      {
+        "code": "VCD 421",
+        "name": "Digital Illustration"
+      },
+      {
+        "code": "VCD 424",
+        "name": "Web Design"
+      },
+      {
+        "code": "VCD 426",
+        "name": "Interactive Media Design"
+      },
+      {
+        "code": "VCD 428",
+        "name": "Digital Design in Motion"
+      },
+      {
+        "code": "VCD 430",
+        "name": "Comic Book Design"
+      },
+      {
+        "code": "VCD 436",
+        "name": "Introduction to Programming for Designers"
+      },
+      {
+        "code": "VCD 440",
+        "name": "Visual Reading, Writing and Interpretation"
+      },
+      {
+        "code": "VCD 450",
+        "name": "Information Design"
+      }
+    ]
+  },
+  {
+    "department": "VCD",
+    "program_name": "Visual Communication Design",
+    "entry_year": 2018,
+    "url": "https://ilt.ieu.edu.tr/en/curr",
+    "semesters": {
+      "1. Year Fall Semester": [
+        {
+          "code": "ENG 101",
+          "name": "Academic Skills in English I"
+        },
+        {
+          "code": "FFD 101",
+          "name": "Art and Design Studio 1"
+        },
+        {
+          "code": "FFD 121",
+          "name": "History of Art and Design 1"
+        },
+        {
+          "code": "IUE 100",
+          "name": "Orientation and Career Planning"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1013",
+          "name": "Second Foreign Languages I"
+        },
+        {
+          "code": "VCD 101",
+          "name": "Introduction to Design in Digital Media"
+        },
+        {
+          "code": "VCD 111",
+          "name": "Drawing Studio"
+        }
+      ],
+      "1. Year Spring Semester": [
+        {
+          "code": "ENG 102",
+          "name": "Academic Skills in English II"
+        },
+        {
+          "code": "FFD 102",
+          "name": "Art and Design Studio 2"
+        },
+        {
+          "code": "FFD 122",
+          "name": "History of Art and Design 2"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1024",
+          "name": "Second Foreign Languages II"
+        },
+        {
+          "code": "VCD 102",
+          "name": "Introduction to Visual Communication"
+        },
+        {
+          "code": "VCD 132",
+          "name": "Drawing Techniques for Print"
+        }
+      ],
+      "2. Year Fall Semester": [
+        {
+          "code": "SFL 201",
+          "name": "Second Foreign Languages III"
+        },
+        {
+          "code": "VCD 201",
+          "name": "Design Studio I"
+        },
+        {
+          "code": "VCD 203",
+          "name": "Typographic Design I"
+        },
+        {
+          "code": "VCD 205",
+          "name": "Computer Aided Graphic Design"
+        },
+        {
+          "code": "VCD 207",
+          "name": "Basic Photography"
+        },
+        {
+          "code": "VCD 211",
+          "name": "Drawing Studio II"
+        }
+      ],
+      "2. Year Spring Semester": [
+        {
+          "code": "SFL 202",
+          "name": "Second Foreign Languages IV"
+        },
+        {
+          "code": "VCD 202",
+          "name": "Design Studio II"
+        },
+        {
+          "code": "VCD 204",
+          "name": "Typographic Design II"
+        },
+        {
+          "code": "VCD 206",
+          "name": "Multimedia Applications in Design"
+        },
+        {
+          "code": "VCD 301",
+          "name": "History of Graphic Design"
+        },
+        {
+          "code": "VCD 340",
+          "name": "Design Semiotics"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Fall Semester": [
+        {
+          "code": "ELEC 001",
+          "name": "Elective Course I"
+        },
+        {
+          "code": "ELEC 002",
+          "name": "Elective Course II"
+        },
+        {
+          "code": "ELEC 003",
+          "name": "Elective Course III"
+        },
+        {
+          "code": "MMD 301",
+          "name": "Design Studio III"
+        },
+        {
+          "code": "TURK 100",
+          "name": "Turkish"
+        },
+        {
+          "code": "VCD 331",
+          "name": "Interaction Design Fundamentals"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Spring Semester": [
+        {
+          "code": "ELEC 004",
+          "name": "Elective Course IV"
+        },
+        {
+          "code": "ELEC 005",
+          "name": "Elective Course V"
+        },
+        {
+          "code": "ENG 310",
+          "name": "Essential Speaking Skills  in English"
+        },
+        {
+          "code": "HIST 100",
+          "name": "Principles of Atatürk and History of Revolution"
+        },
+        {
+          "code": "MMD 302",
+          "name": "Design Studio IV"
+        },
+        {
+          "code": "POOL 007",
+          "name": "GEC-Innovation and Entreprenuership"
+        },
+        {
+          "code": "VCDST 204",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Fall Semester": [
+        {
+          "code": "ELEC 006",
+          "name": "Elective Course VI"
+        },
+        {
+          "code": "ELEC 007",
+          "name": "Elective Course VII"
+        },
+        {
+          "code": "ENG 410",
+          "name": "English for Career Development"
+        },
+        {
+          "code": "FFD 451",
+          "name": "Applied Workshop"
+        },
+        {
+          "code": "MMD 401",
+          "name": "Design Studio V"
+        },
+        {
+          "code": "MMD 494",
+          "name": "Graduation Thesis"
+        },
+        {
+          "code": "VCDST 304",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Spring Semester": [
+        {
+          "code": "ELEC 008",
+          "name": "Elective Course VIII"
+        },
+        {
+          "code": "ELEC 009",
+          "name": "Elective Course IX"
+        },
+        {
+          "code": "ELEC 010",
+          "name": "Elective Course X"
+        },
+        {
+          "code": "ELEC 011",
+          "name": "Elective Course XI"
+        },
+        {
+          "code": "MMD 498",
+          "name": "Graduation Project"
+        },
+        {
+          "code": "POOL 003",
+          "name": "GEC-Social Sciences A: Economics"
+        }
+      ]
+    },
+    "electives": [
+      {
+        "code": "GD 303",
+        "name": "Editorial Design"
+      },
+      {
+        "code": "GD 304",
+        "name": "Packaging Design"
+      },
+      {
+        "code": "GD 350",
+        "name": "Advanced Typography"
+      },
+      {
+        "code": "GD 403",
+        "name": "Advertising Design and Art Direction"
+      },
+      {
+        "code": "GD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "GD 410",
+        "name": "Professional Practices at Communication Agency"
+      },
+      {
+        "code": "MMD 303",
+        "name": "Advanced Photography"
+      },
+      {
+        "code": "MMD 304",
+        "name": "Video Techniques and Production"
+      },
+      {
+        "code": "MMD 306",
+        "name": "Multimedia Design and Animation"
+      },
+      {
+        "code": "MMD 403",
+        "name": "Video Post Production"
+      },
+      {
+        "code": "MMD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "MMD 431",
+        "name": "Game Art and Design I"
+      },
+      {
+        "code": "MMD 432",
+        "name": "Game Art and Design II"
+      },
+      {
+        "code": "MMD 433",
+        "name": "Basic Game Development Concepts I"
+      },
+      {
+        "code": "MMD 434",
+        "name": "Basic Game Development Concepts II"
+      },
+      {
+        "code": "VCD 300",
+        "name": "Game Design"
+      },
+      {
+        "code": "VCD 302",
+        "name": "Analysis of Visual Culture"
+      },
+      {
+        "code": "VCD 308",
+        "name": "Visual Storytelling"
+      },
+      {
+        "code": "VCD 310",
+        "name": "Sound Design"
+      },
+      {
+        "code": "VCD 315",
+        "name": "Exhibition Design"
+      },
+      {
+        "code": "VCD 320",
+        "name": "Understanding Digital Media"
+      },
+      {
+        "code": "VCD 350",
+        "name": "Special Practice in Drawing"
+      },
+      {
+        "code": "VCD 400",
+        "name": "Interface Design"
+      },
+      {
+        "code": "VCD 410",
+        "name": "Advertising Photography"
+      },
+      {
+        "code": "VCD 421",
+        "name": "Digital Illustration"
+      },
+      {
+        "code": "VCD 424",
+        "name": "Web Design"
+      },
+      {
+        "code": "VCD 426",
+        "name": "Interactive Media Design"
+      },
+      {
+        "code": "VCD 428",
+        "name": "Digital Design in Motion"
+      },
+      {
+        "code": "VCD 430",
+        "name": "Comic Book Design"
+      },
+      {
+        "code": "VCD 436",
+        "name": "Introduction to Programming for Designers"
+      },
+      {
+        "code": "VCD 440",
+        "name": "Visual Reading, Writing and Interpretation"
+      },
+      {
+        "code": "VCD 450",
+        "name": "Information Design"
+      }
+    ]
+  },
+  {
+    "department": "VCD",
+    "program_name": "Visual Communication Design",
+    "entry_year": 2019,
+    "url": "https://ilt.ieu.edu.tr/en/curr",
+    "semesters": {
+      "1. Year Fall Semester": [
+        {
+          "code": "ENG 101",
+          "name": "Academic Skills in English I"
+        },
+        {
+          "code": "FFD 101",
+          "name": "Art and Design Studio 1"
+        },
+        {
+          "code": "FFD 121",
+          "name": "History of Art and Design 1"
+        },
+        {
+          "code": "IUE 100",
+          "name": "Orientation and Career Planning"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1013",
+          "name": "Second Foreign Languages I"
+        },
+        {
+          "code": "VCD 101",
+          "name": "Introduction to Design in Digital Media"
+        },
+        {
+          "code": "VCD 111",
+          "name": "Drawing Studio"
+        }
+      ],
+      "1. Year Spring Semester": [
+        {
+          "code": "ENG 102",
+          "name": "Academic Skills in English II"
+        },
+        {
+          "code": "FFD 102",
+          "name": "Art and Design Studio 2"
+        },
+        {
+          "code": "FFD 122",
+          "name": "History of Art and Design 2"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1024",
+          "name": "Second Foreign Languages II"
+        },
+        {
+          "code": "VCD 102",
+          "name": "Introduction to Visual Communication"
+        },
+        {
+          "code": "VCD 132",
+          "name": "Drawing Techniques for Print"
+        }
+      ],
+      "2. Year Fall Semester": [
+        {
+          "code": "SFL 201",
+          "name": "Second Foreign Languages III"
+        },
+        {
+          "code": "VCD 201",
+          "name": "Design Studio I"
+        },
+        {
+          "code": "VCD 203",
+          "name": "Typographic Design I"
+        },
+        {
+          "code": "VCD 205",
+          "name": "Computer Aided Graphic Design"
+        },
+        {
+          "code": "VCD 207",
+          "name": "Basic Photography"
+        },
+        {
+          "code": "VCD 211",
+          "name": "Drawing Studio II"
+        }
+      ],
+      "2. Year Spring Semester": [
+        {
+          "code": "SFL 202",
+          "name": "Second Foreign Languages IV"
+        },
+        {
+          "code": "VCD 202",
+          "name": "Design Studio II"
+        },
+        {
+          "code": "VCD 204",
+          "name": "Typographic Design II"
+        },
+        {
+          "code": "VCD 206",
+          "name": "Multimedia Applications in Design"
+        },
+        {
+          "code": "VCD 301",
+          "name": "History of Graphic Design"
+        },
+        {
+          "code": "VCD 340",
+          "name": "Design Semiotics"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Fall Semester": [
+        {
+          "code": "ELEC 001",
+          "name": "Elective Course I"
+        },
+        {
+          "code": "ELEC 002",
+          "name": "Elective Course II"
+        },
+        {
+          "code": "ELEC 003",
+          "name": "Elective Course III"
+        },
+        {
+          "code": "MMD 301",
+          "name": "Design Studio III"
+        },
+        {
+          "code": "TURK 100",
+          "name": "Turkish"
+        },
+        {
+          "code": "VCD 331",
+          "name": "Interaction Design Fundamentals"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Spring Semester": [
+        {
+          "code": "ELEC 004",
+          "name": "Elective Course IV"
+        },
+        {
+          "code": "ELEC 005",
+          "name": "Elective Course V"
+        },
+        {
+          "code": "ENG 310",
+          "name": "Essential Speaking Skills  in English"
+        },
+        {
+          "code": "HIST 100",
+          "name": "Principles of Atatürk and History of Revolution"
+        },
+        {
+          "code": "MMD 302",
+          "name": "Design Studio IV"
+        },
+        {
+          "code": "POOL 007",
+          "name": "GEC-Innovation and Entreprenuership"
+        },
+        {
+          "code": "VCDST 204",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Fall Semester": [
+        {
+          "code": "ELEC 006",
+          "name": "Elective Course VI"
+        },
+        {
+          "code": "ELEC 007",
+          "name": "Elective Course VII"
+        },
+        {
+          "code": "ENG 410",
+          "name": "English for Career Development"
+        },
+        {
+          "code": "FFD 451",
+          "name": "Applied Workshop"
+        },
+        {
+          "code": "MMD 401",
+          "name": "Design Studio V"
+        },
+        {
+          "code": "MMD 494",
+          "name": "Graduation Thesis"
+        },
+        {
+          "code": "VCDST 304",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Spring Semester": [
+        {
+          "code": "ELEC 008",
+          "name": "Elective Course VIII"
+        },
+        {
+          "code": "ELEC 009",
+          "name": "Elective Course IX"
+        },
+        {
+          "code": "ELEC 010",
+          "name": "Elective Course X"
+        },
+        {
+          "code": "ELEC 011",
+          "name": "Elective Course XI"
+        },
+        {
+          "code": "MMD 498",
+          "name": "Graduation Project"
+        },
+        {
+          "code": "POOL 003",
+          "name": "GEC-Social Sciences A: Economics"
+        }
+      ]
+    },
+    "electives": [
+      {
+        "code": "GD 303",
+        "name": "Editorial Design"
+      },
+      {
+        "code": "GD 304",
+        "name": "Packaging Design"
+      },
+      {
+        "code": "GD 350",
+        "name": "Advanced Typography"
+      },
+      {
+        "code": "GD 403",
+        "name": "Advertising Design and Art Direction"
+      },
+      {
+        "code": "GD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "GD 410",
+        "name": "Professional Practices at Communication Agency"
+      },
+      {
+        "code": "MMD 303",
+        "name": "Advanced Photography"
+      },
+      {
+        "code": "MMD 304",
+        "name": "Video Techniques and Production"
+      },
+      {
+        "code": "MMD 306",
+        "name": "Multimedia Design and Animation"
+      },
+      {
+        "code": "MMD 403",
+        "name": "Video Post Production"
+      },
+      {
+        "code": "MMD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "MMD 431",
+        "name": "Game Art and Design I"
+      },
+      {
+        "code": "MMD 432",
+        "name": "Game Art and Design II"
+      },
+      {
+        "code": "MMD 433",
+        "name": "Basic Game Development Concepts I"
+      },
+      {
+        "code": "MMD 434",
+        "name": "Basic Game Development Concepts II"
+      },
+      {
+        "code": "VCD 300",
+        "name": "Game Design"
+      },
+      {
+        "code": "VCD 302",
+        "name": "Analysis of Visual Culture"
+      },
+      {
+        "code": "VCD 308",
+        "name": "Visual Storytelling"
+      },
+      {
+        "code": "VCD 310",
+        "name": "Sound Design"
+      },
+      {
+        "code": "VCD 315",
+        "name": "Exhibition Design"
+      },
+      {
+        "code": "VCD 320",
+        "name": "Understanding Digital Media"
+      },
+      {
+        "code": "VCD 350",
+        "name": "Special Practice in Drawing"
+      },
+      {
+        "code": "VCD 400",
+        "name": "Interface Design"
+      },
+      {
+        "code": "VCD 410",
+        "name": "Advertising Photography"
+      },
+      {
+        "code": "VCD 421",
+        "name": "Digital Illustration"
+      },
+      {
+        "code": "VCD 424",
+        "name": "Web Design"
+      },
+      {
+        "code": "VCD 426",
+        "name": "Interactive Media Design"
+      },
+      {
+        "code": "VCD 428",
+        "name": "Digital Design in Motion"
+      },
+      {
+        "code": "VCD 430",
+        "name": "Comic Book Design"
+      },
+      {
+        "code": "VCD 436",
+        "name": "Introduction to Programming for Designers"
+      },
+      {
+        "code": "VCD 440",
+        "name": "Visual Reading, Writing and Interpretation"
+      },
+      {
+        "code": "VCD 450",
+        "name": "Information Design"
+      }
+    ]
+  },
+  {
+    "department": "VCD",
+    "program_name": "Visual Communication Design",
+    "entry_year": 2020,
+    "url": "https://ilt.ieu.edu.tr/en/curr",
+    "semesters": {
+      "1. Year Fall Semester": [
+        {
+          "code": "ENG 101",
+          "name": "Academic Skills in English I"
+        },
+        {
+          "code": "FFD 101",
+          "name": "Art and Design Studio 1"
+        },
+        {
+          "code": "FFD 121",
+          "name": "History of Art and Design 1"
+        },
+        {
+          "code": "IUE 100",
+          "name": "Orientation and Career Planning"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1013",
+          "name": "Second Foreign Languages I"
+        },
+        {
+          "code": "VCD 101",
+          "name": "Introduction to Design in Digital Media"
+        },
+        {
+          "code": "VCD 111",
+          "name": "Drawing Studio"
+        }
+      ],
+      "1. Year Spring Semester": [
+        {
+          "code": "ENG 102",
+          "name": "Academic Skills in English II"
+        },
+        {
+          "code": "FFD 102",
+          "name": "Art and Design Studio 2"
+        },
+        {
+          "code": "FFD 122",
+          "name": "History of Art and Design 2"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1024",
+          "name": "Second Foreign Languages II"
+        },
+        {
+          "code": "VCD 102",
+          "name": "Introduction to Visual Communication"
+        },
+        {
+          "code": "VCD 132",
+          "name": "Drawing Techniques for Print"
+        }
+      ],
+      "2. Year Fall Semester": [
+        {
+          "code": "SFL 201",
+          "name": "Second Foreign Languages III"
+        },
+        {
+          "code": "VCD 201",
+          "name": "Design Studio I"
+        },
+        {
+          "code": "VCD 203",
+          "name": "Typographic Design I"
+        },
+        {
+          "code": "VCD 205",
+          "name": "Computer Aided Graphic Design"
+        },
+        {
+          "code": "VCD 207",
+          "name": "Basic Photography"
+        },
+        {
+          "code": "VCD 211",
+          "name": "Drawing Studio II"
+        }
+      ],
+      "2. Year Spring Semester": [
+        {
+          "code": "SFL 202",
+          "name": "Second Foreign Languages IV"
+        },
+        {
+          "code": "VCD 202",
+          "name": "Design Studio II"
+        },
+        {
+          "code": "VCD 204",
+          "name": "Typographic Design II"
+        },
+        {
+          "code": "VCD 206",
+          "name": "Multimedia Applications in Design"
+        },
+        {
+          "code": "VCD 301",
+          "name": "History of Graphic Design"
+        },
+        {
+          "code": "VCD 340",
+          "name": "Design Semiotics"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Fall Semester": [
+        {
+          "code": "ELEC 001",
+          "name": "Elective Course I"
+        },
+        {
+          "code": "ELEC 002",
+          "name": "Elective Course II"
+        },
+        {
+          "code": "ELEC 003",
+          "name": "Elective Course III"
+        },
+        {
+          "code": "MMD 301",
+          "name": "Design Studio III"
+        },
+        {
+          "code": "TURK 100",
+          "name": "Turkish"
+        },
+        {
+          "code": "VCD 331",
+          "name": "Interaction Design Fundamentals"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Spring Semester": [
+        {
+          "code": "ELEC 004",
+          "name": "Elective Course IV"
+        },
+        {
+          "code": "ELEC 005",
+          "name": "Elective Course V"
+        },
+        {
+          "code": "ENG 310",
+          "name": "Essential Speaking Skills  in English"
+        },
+        {
+          "code": "HIST 100",
+          "name": "Principles of Atatürk and History of Revolution"
+        },
+        {
+          "code": "MMD 302",
+          "name": "Design Studio IV"
+        },
+        {
+          "code": "POOL 007",
+          "name": "GEC-Innovation and Entreprenuership"
+        },
+        {
+          "code": "VCDST 204",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Fall Semester": [
+        {
+          "code": "ELEC 006",
+          "name": "Elective Course VI"
+        },
+        {
+          "code": "ELEC 007",
+          "name": "Elective Course VII"
+        },
+        {
+          "code": "ENG 410",
+          "name": "English for Career Development"
+        },
+        {
+          "code": "FFD 451",
+          "name": "Applied Workshop"
+        },
+        {
+          "code": "MMD 401",
+          "name": "Design Studio V"
+        },
+        {
+          "code": "MMD 494",
+          "name": "Graduation Thesis"
+        },
+        {
+          "code": "VCDST 304",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Spring Semester": [
+        {
+          "code": "ELEC 008",
+          "name": "Elective Course VIII"
+        },
+        {
+          "code": "ELEC 009",
+          "name": "Elective Course IX"
+        },
+        {
+          "code": "ELEC 010",
+          "name": "Elective Course X"
+        },
+        {
+          "code": "ELEC 011",
+          "name": "Elective Course XI"
+        },
+        {
+          "code": "MMD 498",
+          "name": "Graduation Project"
+        },
+        {
+          "code": "POOL 003",
+          "name": "GEC-Social Sciences A: Economics"
+        }
+      ]
+    },
+    "electives": [
+      {
+        "code": "GD 303",
+        "name": "Editorial Design"
+      },
+      {
+        "code": "GD 304",
+        "name": "Packaging Design"
+      },
+      {
+        "code": "GD 350",
+        "name": "Advanced Typography"
+      },
+      {
+        "code": "GD 403",
+        "name": "Advertising Design and Art Direction"
+      },
+      {
+        "code": "GD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "GD 410",
+        "name": "Professional Practices at Communication Agency"
+      },
+      {
+        "code": "MMD 303",
+        "name": "Advanced Photography"
+      },
+      {
+        "code": "MMD 304",
+        "name": "Video Techniques and Production"
+      },
+      {
+        "code": "MMD 306",
+        "name": "Multimedia Design and Animation"
+      },
+      {
+        "code": "MMD 403",
+        "name": "Video Post Production"
+      },
+      {
+        "code": "MMD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "MMD 431",
+        "name": "Game Art and Design I"
+      },
+      {
+        "code": "MMD 432",
+        "name": "Game Art and Design II"
+      },
+      {
+        "code": "MMD 433",
+        "name": "Basic Game Development Concepts I"
+      },
+      {
+        "code": "MMD 434",
+        "name": "Basic Game Development Concepts II"
+      },
+      {
+        "code": "VCD 300",
+        "name": "Game Design"
+      },
+      {
+        "code": "VCD 302",
+        "name": "Analysis of Visual Culture"
+      },
+      {
+        "code": "VCD 308",
+        "name": "Visual Storytelling"
+      },
+      {
+        "code": "VCD 310",
+        "name": "Sound Design"
+      },
+      {
+        "code": "VCD 315",
+        "name": "Exhibition Design"
+      },
+      {
+        "code": "VCD 320",
+        "name": "Understanding Digital Media"
+      },
+      {
+        "code": "VCD 350",
+        "name": "Special Practice in Drawing"
+      },
+      {
+        "code": "VCD 400",
+        "name": "Interface Design"
+      },
+      {
+        "code": "VCD 410",
+        "name": "Advertising Photography"
+      },
+      {
+        "code": "VCD 421",
+        "name": "Digital Illustration"
+      },
+      {
+        "code": "VCD 424",
+        "name": "Web Design"
+      },
+      {
+        "code": "VCD 426",
+        "name": "Interactive Media Design"
+      },
+      {
+        "code": "VCD 428",
+        "name": "Digital Design in Motion"
+      },
+      {
+        "code": "VCD 430",
+        "name": "Comic Book Design"
+      },
+      {
+        "code": "VCD 436",
+        "name": "Introduction to Programming for Designers"
+      },
+      {
+        "code": "VCD 440",
+        "name": "Visual Reading, Writing and Interpretation"
+      },
+      {
+        "code": "VCD 450",
+        "name": "Information Design"
+      }
+    ]
+  },
+  {
+    "department": "VCD",
+    "program_name": "Visual Communication Design",
+    "entry_year": 2021,
+    "url": "https://ilt.ieu.edu.tr/en/curr",
+    "semesters": {
+      "1. Year Fall Semester": [
+        {
+          "code": "ENG 101",
+          "name": "Academic Skills in English I"
+        },
+        {
+          "code": "FFD 101",
+          "name": "Art and Design Studio 1"
+        },
+        {
+          "code": "FFD 121",
+          "name": "History of Art and Design 1"
+        },
+        {
+          "code": "IUE 100",
+          "name": "Orientation and Career Planning"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1013",
+          "name": "Second Foreign Languages I"
+        },
+        {
+          "code": "VCD 101",
+          "name": "Introduction to Design in Digital Media"
+        },
+        {
+          "code": "VCD 111",
+          "name": "Drawing Studio"
+        }
+      ],
+      "1. Year Spring Semester": [
+        {
+          "code": "ENG 102",
+          "name": "Academic Skills in English II"
+        },
+        {
+          "code": "FFD 102",
+          "name": "Art and Design Studio 2"
+        },
+        {
+          "code": "FFD 122",
+          "name": "History of Art and Design 2"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1024",
+          "name": "Second Foreign Languages II"
+        },
+        {
+          "code": "VCD 102",
+          "name": "Introduction to Visual Communication"
+        },
+        {
+          "code": "VCD 132",
+          "name": "Drawing Techniques for Print"
+        }
+      ],
+      "2. Year Fall Semester": [
+        {
+          "code": "SFL 201",
+          "name": "Second Foreign Languages III"
+        },
+        {
+          "code": "VCD 201",
+          "name": "Design Studio I"
+        },
+        {
+          "code": "VCD 203",
+          "name": "Typographic Design I"
+        },
+        {
+          "code": "VCD 205",
+          "name": "Computer Aided Graphic Design"
+        },
+        {
+          "code": "VCD 207",
+          "name": "Basic Photography"
+        },
+        {
+          "code": "VCD 211",
+          "name": "Drawing Studio II"
+        }
+      ],
+      "2. Year Spring Semester": [
+        {
+          "code": "SFL 202",
+          "name": "Second Foreign Languages IV"
+        },
+        {
+          "code": "VCD 202",
+          "name": "Design Studio II"
+        },
+        {
+          "code": "VCD 204",
+          "name": "Typographic Design II"
+        },
+        {
+          "code": "VCD 206",
+          "name": "Multimedia Applications in Design"
+        },
+        {
+          "code": "VCD 301",
+          "name": "History of Graphic Design"
+        },
+        {
+          "code": "VCD 340",
+          "name": "Design Semiotics"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Fall Semester": [
+        {
+          "code": "ELEC 001",
+          "name": "Elective Course I"
+        },
+        {
+          "code": "ELEC 002",
+          "name": "Elective Course II"
+        },
+        {
+          "code": "ELEC 003",
+          "name": "Elective Course III"
+        },
+        {
+          "code": "MMD 301",
+          "name": "Design Studio III"
+        },
+        {
+          "code": "TURK 100",
+          "name": "Turkish"
+        },
+        {
+          "code": "VCD 331",
+          "name": "Interaction Design Fundamentals"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Spring Semester": [
+        {
+          "code": "ELEC 004",
+          "name": "Elective Course IV"
+        },
+        {
+          "code": "ELEC 005",
+          "name": "Elective Course V"
+        },
+        {
+          "code": "ENG 310",
+          "name": "Essential Speaking Skills  in English"
+        },
+        {
+          "code": "HIST 100",
+          "name": "Principles of Atatürk and History of Revolution"
+        },
+        {
+          "code": "MMD 302",
+          "name": "Design Studio IV"
+        },
+        {
+          "code": "POOL 007",
+          "name": "GEC-Innovation and Entreprenuership"
+        },
+        {
+          "code": "VCDST 204",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Fall Semester": [
+        {
+          "code": "ELEC 006",
+          "name": "Elective Course VI"
+        },
+        {
+          "code": "ELEC 007",
+          "name": "Elective Course VII"
+        },
+        {
+          "code": "ENG 410",
+          "name": "English for Career Development"
+        },
+        {
+          "code": "FFD 451",
+          "name": "Applied Workshop"
+        },
+        {
+          "code": "MMD 401",
+          "name": "Design Studio V"
+        },
+        {
+          "code": "MMD 494",
+          "name": "Graduation Thesis"
+        },
+        {
+          "code": "VCDST 304",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Spring Semester": [
+        {
+          "code": "ELEC 008",
+          "name": "Elective Course VIII"
+        },
+        {
+          "code": "ELEC 009",
+          "name": "Elective Course IX"
+        },
+        {
+          "code": "ELEC 010",
+          "name": "Elective Course X"
+        },
+        {
+          "code": "ELEC 011",
+          "name": "Elective Course XI"
+        },
+        {
+          "code": "MMD 498",
+          "name": "Graduation Project"
+        },
+        {
+          "code": "POOL 003",
+          "name": "GEC-Social Sciences A: Economics"
+        }
+      ]
+    },
+    "electives": [
+      {
+        "code": "GD 303",
+        "name": "Editorial Design"
+      },
+      {
+        "code": "GD 304",
+        "name": "Packaging Design"
+      },
+      {
+        "code": "GD 350",
+        "name": "Advanced Typography"
+      },
+      {
+        "code": "GD 403",
+        "name": "Advertising Design and Art Direction"
+      },
+      {
+        "code": "GD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "GD 410",
+        "name": "Professional Practices at Communication Agency"
+      },
+      {
+        "code": "MMD 303",
+        "name": "Advanced Photography"
+      },
+      {
+        "code": "MMD 304",
+        "name": "Video Techniques and Production"
+      },
+      {
+        "code": "MMD 306",
+        "name": "Multimedia Design and Animation"
+      },
+      {
+        "code": "MMD 403",
+        "name": "Video Post Production"
+      },
+      {
+        "code": "MMD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "MMD 431",
+        "name": "Game Art and Design I"
+      },
+      {
+        "code": "MMD 432",
+        "name": "Game Art and Design II"
+      },
+      {
+        "code": "MMD 433",
+        "name": "Basic Game Development Concepts I"
+      },
+      {
+        "code": "MMD 434",
+        "name": "Basic Game Development Concepts II"
+      },
+      {
+        "code": "VCD 300",
+        "name": "Game Design"
+      },
+      {
+        "code": "VCD 302",
+        "name": "Analysis of Visual Culture"
+      },
+      {
+        "code": "VCD 308",
+        "name": "Visual Storytelling"
+      },
+      {
+        "code": "VCD 310",
+        "name": "Sound Design"
+      },
+      {
+        "code": "VCD 315",
+        "name": "Exhibition Design"
+      },
+      {
+        "code": "VCD 320",
+        "name": "Understanding Digital Media"
+      },
+      {
+        "code": "VCD 350",
+        "name": "Special Practice in Drawing"
+      },
+      {
+        "code": "VCD 400",
+        "name": "Interface Design"
+      },
+      {
+        "code": "VCD 410",
+        "name": "Advertising Photography"
+      },
+      {
+        "code": "VCD 421",
+        "name": "Digital Illustration"
+      },
+      {
+        "code": "VCD 424",
+        "name": "Web Design"
+      },
+      {
+        "code": "VCD 426",
+        "name": "Interactive Media Design"
+      },
+      {
+        "code": "VCD 428",
+        "name": "Digital Design in Motion"
+      },
+      {
+        "code": "VCD 430",
+        "name": "Comic Book Design"
+      },
+      {
+        "code": "VCD 436",
+        "name": "Introduction to Programming for Designers"
+      },
+      {
+        "code": "VCD 440",
+        "name": "Visual Reading, Writing and Interpretation"
+      },
+      {
+        "code": "VCD 450",
+        "name": "Information Design"
+      }
+    ]
+  },
+  {
+    "department": "VCD",
+    "program_name": "Visual Communication Design",
+    "entry_year": 2022,
+    "url": "https://ilt.ieu.edu.tr/en/curr",
+    "semesters": {
+      "1. Year Fall Semester": [
+        {
+          "code": "ENG 101",
+          "name": "Academic Skills in English I"
+        },
+        {
+          "code": "FFD 101",
+          "name": "Art and Design Studio 1"
+        },
+        {
+          "code": "FFD 121",
+          "name": "History of Art and Design 1"
+        },
+        {
+          "code": "IUE 100",
+          "name": "Orientation and Career Planning"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1013",
+          "name": "Second Foreign Languages I"
+        },
+        {
+          "code": "VCD 101",
+          "name": "Introduction to Design in Digital Media"
+        },
+        {
+          "code": "VCD 111",
+          "name": "Drawing Studio"
+        }
+      ],
+      "1. Year Spring Semester": [
+        {
+          "code": "ENG 102",
+          "name": "Academic Skills in English II"
+        },
+        {
+          "code": "FFD 102",
+          "name": "Art and Design Studio 2"
+        },
+        {
+          "code": "FFD 122",
+          "name": "History of Art and Design 2"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1024",
+          "name": "Second Foreign Languages II"
+        },
+        {
+          "code": "VCD 102",
+          "name": "Introduction to Visual Communication"
+        },
+        {
+          "code": "VCD 132",
+          "name": "Drawing Techniques for Print"
+        }
+      ],
+      "2. Year Fall Semester": [
+        {
+          "code": "SFL 201",
+          "name": "Second Foreign Languages III"
+        },
+        {
+          "code": "VCD 201",
+          "name": "Design Studio I"
+        },
+        {
+          "code": "VCD 203",
+          "name": "Typographic Design I"
+        },
+        {
+          "code": "VCD 205",
+          "name": "Computer Aided Graphic Design"
+        },
+        {
+          "code": "VCD 207",
+          "name": "Basic Photography"
+        },
+        {
+          "code": "VCD 211",
+          "name": "Drawing Studio II"
+        }
+      ],
+      "2. Year Spring Semester": [
+        {
+          "code": "SFL 202",
+          "name": "Second Foreign Languages IV"
+        },
+        {
+          "code": "VCD 202",
+          "name": "Design Studio II"
+        },
+        {
+          "code": "VCD 204",
+          "name": "Typographic Design II"
+        },
+        {
+          "code": "VCD 206",
+          "name": "Multimedia Applications in Design"
+        },
+        {
+          "code": "VCD 301",
+          "name": "History of Graphic Design"
+        },
+        {
+          "code": "VCD 340",
+          "name": "Design Semiotics"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Fall Semester": [
+        {
+          "code": "ELEC 001",
+          "name": "Elective Course I"
+        },
+        {
+          "code": "ELEC 002",
+          "name": "Elective Course II"
+        },
+        {
+          "code": "ELEC 003",
+          "name": "Elective Course III"
+        },
+        {
+          "code": "MMD 301",
+          "name": "Design Studio III"
+        },
+        {
+          "code": "TURK 100",
+          "name": "Turkish"
+        },
+        {
+          "code": "VCD 331",
+          "name": "Interaction Design Fundamentals"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Spring Semester": [
+        {
+          "code": "ELEC 004",
+          "name": "Elective Course IV"
+        },
+        {
+          "code": "ELEC 005",
+          "name": "Elective Course V"
+        },
+        {
+          "code": "ENG 310",
+          "name": "Essential Speaking Skills  in English"
+        },
+        {
+          "code": "HIST 100",
+          "name": "Principles of Atatürk and History of Revolution"
+        },
+        {
+          "code": "MMD 302",
+          "name": "Design Studio IV"
+        },
+        {
+          "code": "POOL 007",
+          "name": "GEC-Innovation and Entreprenuership"
+        },
+        {
+          "code": "VCDST 204",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Fall Semester": [
+        {
+          "code": "ELEC 006",
+          "name": "Elective Course VI"
+        },
+        {
+          "code": "ELEC 007",
+          "name": "Elective Course VII"
+        },
+        {
+          "code": "ENG 410",
+          "name": "English for Career Development"
+        },
+        {
+          "code": "FFD 451",
+          "name": "Applied Workshop"
+        },
+        {
+          "code": "MMD 401",
+          "name": "Design Studio V"
+        },
+        {
+          "code": "MMD 494",
+          "name": "Graduation Thesis"
+        },
+        {
+          "code": "VCDST 304",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Spring Semester": [
+        {
+          "code": "ELEC 008",
+          "name": "Elective Course VIII"
+        },
+        {
+          "code": "ELEC 009",
+          "name": "Elective Course IX"
+        },
+        {
+          "code": "ELEC 010",
+          "name": "Elective Course X"
+        },
+        {
+          "code": "ELEC 011",
+          "name": "Elective Course XI"
+        },
+        {
+          "code": "MMD 498",
+          "name": "Graduation Project"
+        },
+        {
+          "code": "POOL 003",
+          "name": "GEC-Social Sciences A: Economics"
+        }
+      ]
+    },
+    "electives": [
+      {
+        "code": "GD 303",
+        "name": "Editorial Design"
+      },
+      {
+        "code": "GD 304",
+        "name": "Packaging Design"
+      },
+      {
+        "code": "GD 350",
+        "name": "Advanced Typography"
+      },
+      {
+        "code": "GD 403",
+        "name": "Advertising Design and Art Direction"
+      },
+      {
+        "code": "GD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "GD 410",
+        "name": "Professional Practices at Communication Agency"
+      },
+      {
+        "code": "MMD 303",
+        "name": "Advanced Photography"
+      },
+      {
+        "code": "MMD 304",
+        "name": "Video Techniques and Production"
+      },
+      {
+        "code": "MMD 306",
+        "name": "Multimedia Design and Animation"
+      },
+      {
+        "code": "MMD 403",
+        "name": "Video Post Production"
+      },
+      {
+        "code": "MMD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "MMD 431",
+        "name": "Game Art and Design I"
+      },
+      {
+        "code": "MMD 432",
+        "name": "Game Art and Design II"
+      },
+      {
+        "code": "MMD 433",
+        "name": "Basic Game Development Concepts I"
+      },
+      {
+        "code": "MMD 434",
+        "name": "Basic Game Development Concepts II"
+      },
+      {
+        "code": "VCD 300",
+        "name": "Game Design"
+      },
+      {
+        "code": "VCD 302",
+        "name": "Analysis of Visual Culture"
+      },
+      {
+        "code": "VCD 308",
+        "name": "Visual Storytelling"
+      },
+      {
+        "code": "VCD 310",
+        "name": "Sound Design"
+      },
+      {
+        "code": "VCD 315",
+        "name": "Exhibition Design"
+      },
+      {
+        "code": "VCD 320",
+        "name": "Understanding Digital Media"
+      },
+      {
+        "code": "VCD 350",
+        "name": "Special Practice in Drawing"
+      },
+      {
+        "code": "VCD 400",
+        "name": "Interface Design"
+      },
+      {
+        "code": "VCD 410",
+        "name": "Advertising Photography"
+      },
+      {
+        "code": "VCD 421",
+        "name": "Digital Illustration"
+      },
+      {
+        "code": "VCD 424",
+        "name": "Web Design"
+      },
+      {
+        "code": "VCD 426",
+        "name": "Interactive Media Design"
+      },
+      {
+        "code": "VCD 428",
+        "name": "Digital Design in Motion"
+      },
+      {
+        "code": "VCD 430",
+        "name": "Comic Book Design"
+      },
+      {
+        "code": "VCD 436",
+        "name": "Introduction to Programming for Designers"
+      },
+      {
+        "code": "VCD 440",
+        "name": "Visual Reading, Writing and Interpretation"
+      },
+      {
+        "code": "VCD 450",
+        "name": "Information Design"
+      }
+    ]
+  },
+  {
+    "department": "VCD",
+    "program_name": "Visual Communication Design",
+    "entry_year": 2023,
+    "url": "https://ilt.ieu.edu.tr/en/curr",
+    "semesters": {
+      "1. Year Fall Semester": [
+        {
+          "code": "ENG 101",
+          "name": "Academic Skills in English I"
+        },
+        {
+          "code": "FFD 101",
+          "name": "Art and Design Studio 1"
+        },
+        {
+          "code": "FFD 121",
+          "name": "History of Art and Design 1"
+        },
+        {
+          "code": "IUE 100",
+          "name": "Orientation and Career Planning"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1013",
+          "name": "Second Foreign Languages I"
+        },
+        {
+          "code": "VCD 101",
+          "name": "Introduction to Design in Digital Media"
+        },
+        {
+          "code": "VCD 111",
+          "name": "Drawing Studio"
+        }
+      ],
+      "1. Year Spring Semester": [
+        {
+          "code": "ENG 102",
+          "name": "Academic Skills in English II"
+        },
+        {
+          "code": "FFD 102",
+          "name": "Art and Design Studio 2"
+        },
+        {
+          "code": "FFD 122",
+          "name": "History of Art and Design 2"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1024",
+          "name": "Second Foreign Languages II"
+        },
+        {
+          "code": "VCD 102",
+          "name": "Introduction to Visual Communication"
+        },
+        {
+          "code": "VCD 132",
+          "name": "Drawing Techniques for Print"
+        }
+      ],
+      "2. Year Fall Semester": [
+        {
+          "code": "SFL 201",
+          "name": "Second Foreign Languages III"
+        },
+        {
+          "code": "VCD 201",
+          "name": "Design Studio I"
+        },
+        {
+          "code": "VCD 203",
+          "name": "Typographic Design I"
+        },
+        {
+          "code": "VCD 205",
+          "name": "Computer Aided Graphic Design"
+        },
+        {
+          "code": "VCD 207",
+          "name": "Basic Photography"
+        },
+        {
+          "code": "VCD 211",
+          "name": "Drawing Studio II"
+        }
+      ],
+      "2. Year Spring Semester": [
+        {
+          "code": "SFL 202",
+          "name": "Second Foreign Languages IV"
+        },
+        {
+          "code": "VCD 202",
+          "name": "Design Studio II"
+        },
+        {
+          "code": "VCD 204",
+          "name": "Typographic Design II"
+        },
+        {
+          "code": "VCD 206",
+          "name": "Multimedia Applications in Design"
+        },
+        {
+          "code": "VCD 301",
+          "name": "History of Graphic Design"
+        },
+        {
+          "code": "VCD 340",
+          "name": "Design Semiotics"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Fall Semester": [
+        {
+          "code": "ELEC 001",
+          "name": "Elective Course I"
+        },
+        {
+          "code": "ELEC 002",
+          "name": "Elective Course II"
+        },
+        {
+          "code": "ELEC 003",
+          "name": "Elective Course III"
+        },
+        {
+          "code": "MMD 301",
+          "name": "Design Studio III"
+        },
+        {
+          "code": "TURK 100",
+          "name": "Turkish"
+        },
+        {
+          "code": "VCD 331",
+          "name": "Interaction Design Fundamentals"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Spring Semester": [
+        {
+          "code": "ELEC 004",
+          "name": "Elective Course IV"
+        },
+        {
+          "code": "ELEC 005",
+          "name": "Elective Course V"
+        },
+        {
+          "code": "ENG 310",
+          "name": "Essential Speaking Skills  in English"
+        },
+        {
+          "code": "HIST 100",
+          "name": "Principles of Atatürk and History of Revolution"
+        },
+        {
+          "code": "MMD 302",
+          "name": "Design Studio IV"
+        },
+        {
+          "code": "POOL 007",
+          "name": "GEC-Innovation and Entreprenuership"
+        },
+        {
+          "code": "VCDST 204",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Fall Semester": [
+        {
+          "code": "ELEC 006",
+          "name": "Elective Course VI"
+        },
+        {
+          "code": "ELEC 007",
+          "name": "Elective Course VII"
+        },
+        {
+          "code": "ENG 410",
+          "name": "English for Career Development"
+        },
+        {
+          "code": "FFD 451",
+          "name": "Applied Workshop"
+        },
+        {
+          "code": "MMD 401",
+          "name": "Design Studio V"
+        },
+        {
+          "code": "MMD 494",
+          "name": "Graduation Thesis"
+        },
+        {
+          "code": "VCDST 304",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Spring Semester": [
+        {
+          "code": "ELEC 008",
+          "name": "Elective Course VIII"
+        },
+        {
+          "code": "ELEC 009",
+          "name": "Elective Course IX"
+        },
+        {
+          "code": "ELEC 010",
+          "name": "Elective Course X"
+        },
+        {
+          "code": "ELEC 011",
+          "name": "Elective Course XI"
+        },
+        {
+          "code": "MMD 498",
+          "name": "Graduation Project"
+        },
+        {
+          "code": "POOL 003",
+          "name": "GEC-Social Sciences A: Economics"
+        }
+      ]
+    },
+    "electives": [
+      {
+        "code": "GD 303",
+        "name": "Editorial Design"
+      },
+      {
+        "code": "GD 304",
+        "name": "Packaging Design"
+      },
+      {
+        "code": "GD 350",
+        "name": "Advanced Typography"
+      },
+      {
+        "code": "GD 403",
+        "name": "Advertising Design and Art Direction"
+      },
+      {
+        "code": "GD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "GD 410",
+        "name": "Professional Practices at Communication Agency"
+      },
+      {
+        "code": "MMD 303",
+        "name": "Advanced Photography"
+      },
+      {
+        "code": "MMD 304",
+        "name": "Video Techniques and Production"
+      },
+      {
+        "code": "MMD 306",
+        "name": "Multimedia Design and Animation"
+      },
+      {
+        "code": "MMD 403",
+        "name": "Video Post Production"
+      },
+      {
+        "code": "MMD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "MMD 431",
+        "name": "Game Art and Design I"
+      },
+      {
+        "code": "MMD 432",
+        "name": "Game Art and Design II"
+      },
+      {
+        "code": "MMD 433",
+        "name": "Basic Game Development Concepts I"
+      },
+      {
+        "code": "MMD 434",
+        "name": "Basic Game Development Concepts II"
+      },
+      {
+        "code": "VCD 300",
+        "name": "Game Design"
+      },
+      {
+        "code": "VCD 302",
+        "name": "Analysis of Visual Culture"
+      },
+      {
+        "code": "VCD 308",
+        "name": "Visual Storytelling"
+      },
+      {
+        "code": "VCD 310",
+        "name": "Sound Design"
+      },
+      {
+        "code": "VCD 315",
+        "name": "Exhibition Design"
+      },
+      {
+        "code": "VCD 320",
+        "name": "Understanding Digital Media"
+      },
+      {
+        "code": "VCD 350",
+        "name": "Special Practice in Drawing"
+      },
+      {
+        "code": "VCD 400",
+        "name": "Interface Design"
+      },
+      {
+        "code": "VCD 410",
+        "name": "Advertising Photography"
+      },
+      {
+        "code": "VCD 421",
+        "name": "Digital Illustration"
+      },
+      {
+        "code": "VCD 424",
+        "name": "Web Design"
+      },
+      {
+        "code": "VCD 426",
+        "name": "Interactive Media Design"
+      },
+      {
+        "code": "VCD 428",
+        "name": "Digital Design in Motion"
+      },
+      {
+        "code": "VCD 430",
+        "name": "Comic Book Design"
+      },
+      {
+        "code": "VCD 436",
+        "name": "Introduction to Programming for Designers"
+      },
+      {
+        "code": "VCD 440",
+        "name": "Visual Reading, Writing and Interpretation"
+      },
+      {
+        "code": "VCD 450",
+        "name": "Information Design"
+      }
+    ]
+  },
+  {
+    "department": "VCD",
+    "program_name": "Visual Communication Design",
+    "entry_year": 2024,
+    "url": "https://ilt.ieu.edu.tr/en/curr",
+    "semesters": {
+      "1. Year Fall Semester": [
+        {
+          "code": "ENG 101",
+          "name": "Academic Skills in English I"
+        },
+        {
+          "code": "FFD 101",
+          "name": "Art and Design Studio 1"
+        },
+        {
+          "code": "FFD 121",
+          "name": "History of Art and Design 1"
+        },
+        {
+          "code": "IUE 100",
+          "name": "Orientation and Career Planning"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1013",
+          "name": "Second Foreign Languages I"
+        },
+        {
+          "code": "VCD 101",
+          "name": "Introduction to Design in Digital Media"
+        },
+        {
+          "code": "VCD 111",
+          "name": "Drawing Studio"
+        }
+      ],
+      "1. Year Spring Semester": [
+        {
+          "code": "ENG 102",
+          "name": "Academic Skills in English II"
+        },
+        {
+          "code": "FFD 102",
+          "name": "Art and Design Studio 2"
+        },
+        {
+          "code": "FFD 122",
+          "name": "History of Art and Design 2"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1024",
+          "name": "Second Foreign Languages II"
+        },
+        {
+          "code": "VCD 102",
+          "name": "Introduction to Visual Communication"
+        },
+        {
+          "code": "VCD 132",
+          "name": "Drawing Techniques for Print"
+        }
+      ],
+      "2. Year Fall Semester": [
+        {
+          "code": "SFL 201",
+          "name": "Second Foreign Languages III"
+        },
+        {
+          "code": "VCD 201",
+          "name": "Design Studio I"
+        },
+        {
+          "code": "VCD 203",
+          "name": "Typographic Design I"
+        },
+        {
+          "code": "VCD 205",
+          "name": "Computer Aided Graphic Design"
+        },
+        {
+          "code": "VCD 207",
+          "name": "Basic Photography"
+        },
+        {
+          "code": "VCD 211",
+          "name": "Drawing Studio II"
+        }
+      ],
+      "2. Year Spring Semester": [
+        {
+          "code": "SFL 202",
+          "name": "Second Foreign Languages IV"
+        },
+        {
+          "code": "VCD 202",
+          "name": "Design Studio II"
+        },
+        {
+          "code": "VCD 204",
+          "name": "Typographic Design II"
+        },
+        {
+          "code": "VCD 206",
+          "name": "Multimedia Applications in Design"
+        },
+        {
+          "code": "VCD 301",
+          "name": "History of Graphic Design"
+        },
+        {
+          "code": "VCD 340",
+          "name": "Design Semiotics"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Fall Semester": [
+        {
+          "code": "ELEC 001",
+          "name": "Elective Course I"
+        },
+        {
+          "code": "ELEC 002",
+          "name": "Elective Course II"
+        },
+        {
+          "code": "ELEC 003",
+          "name": "Elective Course III"
+        },
+        {
+          "code": "MMD 301",
+          "name": "Design Studio III"
+        },
+        {
+          "code": "TURK 100",
+          "name": "Turkish"
+        },
+        {
+          "code": "VCD 331",
+          "name": "Interaction Design Fundamentals"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Spring Semester": [
+        {
+          "code": "ELEC 004",
+          "name": "Elective Course IV"
+        },
+        {
+          "code": "ELEC 005",
+          "name": "Elective Course V"
+        },
+        {
+          "code": "ENG 310",
+          "name": "Essential Speaking Skills  in English"
+        },
+        {
+          "code": "HIST 100",
+          "name": "Principles of Atatürk and History of Revolution"
+        },
+        {
+          "code": "MMD 302",
+          "name": "Design Studio IV"
+        },
+        {
+          "code": "POOL 007",
+          "name": "GEC-Innovation and Entreprenuership"
+        },
+        {
+          "code": "VCDST 204",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Fall Semester": [
+        {
+          "code": "ELEC 006",
+          "name": "Elective Course VI"
+        },
+        {
+          "code": "ELEC 007",
+          "name": "Elective Course VII"
+        },
+        {
+          "code": "ENG 410",
+          "name": "English for Career Development"
+        },
+        {
+          "code": "FFD 451",
+          "name": "Applied Workshop"
+        },
+        {
+          "code": "MMD 401",
+          "name": "Design Studio V"
+        },
+        {
+          "code": "MMD 494",
+          "name": "Graduation Thesis"
+        },
+        {
+          "code": "VCDST 304",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Spring Semester": [
+        {
+          "code": "ELEC 008",
+          "name": "Elective Course VIII"
+        },
+        {
+          "code": "ELEC 009",
+          "name": "Elective Course IX"
+        },
+        {
+          "code": "ELEC 010",
+          "name": "Elective Course X"
+        },
+        {
+          "code": "ELEC 011",
+          "name": "Elective Course XI"
+        },
+        {
+          "code": "MMD 498",
+          "name": "Graduation Project"
+        },
+        {
+          "code": "POOL 003",
+          "name": "GEC-Social Sciences A: Economics"
+        }
+      ]
+    },
+    "electives": [
+      {
+        "code": "GD 303",
+        "name": "Editorial Design"
+      },
+      {
+        "code": "GD 304",
+        "name": "Packaging Design"
+      },
+      {
+        "code": "GD 350",
+        "name": "Advanced Typography"
+      },
+      {
+        "code": "GD 403",
+        "name": "Advertising Design and Art Direction"
+      },
+      {
+        "code": "GD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "GD 410",
+        "name": "Professional Practices at Communication Agency"
+      },
+      {
+        "code": "MMD 303",
+        "name": "Advanced Photography"
+      },
+      {
+        "code": "MMD 304",
+        "name": "Video Techniques and Production"
+      },
+      {
+        "code": "MMD 306",
+        "name": "Multimedia Design and Animation"
+      },
+      {
+        "code": "MMD 403",
+        "name": "Video Post Production"
+      },
+      {
+        "code": "MMD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "MMD 431",
+        "name": "Game Art and Design I"
+      },
+      {
+        "code": "MMD 432",
+        "name": "Game Art and Design II"
+      },
+      {
+        "code": "MMD 433",
+        "name": "Basic Game Development Concepts I"
+      },
+      {
+        "code": "MMD 434",
+        "name": "Basic Game Development Concepts II"
+      },
+      {
+        "code": "VCD 300",
+        "name": "Game Design"
+      },
+      {
+        "code": "VCD 302",
+        "name": "Analysis of Visual Culture"
+      },
+      {
+        "code": "VCD 308",
+        "name": "Visual Storytelling"
+      },
+      {
+        "code": "VCD 310",
+        "name": "Sound Design"
+      },
+      {
+        "code": "VCD 315",
+        "name": "Exhibition Design"
+      },
+      {
+        "code": "VCD 320",
+        "name": "Understanding Digital Media"
+      },
+      {
+        "code": "VCD 350",
+        "name": "Special Practice in Drawing"
+      },
+      {
+        "code": "VCD 400",
+        "name": "Interface Design"
+      },
+      {
+        "code": "VCD 410",
+        "name": "Advertising Photography"
+      },
+      {
+        "code": "VCD 421",
+        "name": "Digital Illustration"
+      },
+      {
+        "code": "VCD 424",
+        "name": "Web Design"
+      },
+      {
+        "code": "VCD 426",
+        "name": "Interactive Media Design"
+      },
+      {
+        "code": "VCD 428",
+        "name": "Digital Design in Motion"
+      },
+      {
+        "code": "VCD 430",
+        "name": "Comic Book Design"
+      },
+      {
+        "code": "VCD 436",
+        "name": "Introduction to Programming for Designers"
+      },
+      {
+        "code": "VCD 440",
+        "name": "Visual Reading, Writing and Interpretation"
+      },
+      {
+        "code": "VCD 450",
+        "name": "Information Design"
+      }
+    ]
+  },
+  {
+    "department": "VCD",
+    "program_name": "Visual Communication Design",
+    "entry_year": 2025,
+    "url": "https://ilt.ieu.edu.tr/en/curr",
+    "semesters": {
+      "1. Year Fall Semester": [
+        {
+          "code": "ENG 101",
+          "name": "Academic Skills in English I"
+        },
+        {
+          "code": "FFD 101",
+          "name": "Art and Design Studio 1"
+        },
+        {
+          "code": "FFD 121",
+          "name": "History of Art and Design 1"
+        },
+        {
+          "code": "IUE 100",
+          "name": "Orientation and Career Planning"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1013",
+          "name": "Second Foreign Languages I"
+        },
+        {
+          "code": "VCD 101",
+          "name": "Introduction to Design in Digital Media"
+        },
+        {
+          "code": "VCD 111",
+          "name": "Drawing Studio"
+        }
+      ],
+      "1. Year Spring Semester": [
+        {
+          "code": "ENG 102",
+          "name": "Academic Skills in English II"
+        },
+        {
+          "code": "FFD 102",
+          "name": "Art and Design Studio 2"
+        },
+        {
+          "code": "FFD 122",
+          "name": "History of Art and Design 2"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1024",
+          "name": "Second Foreign Languages II"
+        },
+        {
+          "code": "VCD 102",
+          "name": "Introduction to Visual Communication"
+        },
+        {
+          "code": "VCD 132",
+          "name": "Drawing Techniques for Print"
+        }
+      ],
+      "2. Year Fall Semester": [
+        {
+          "code": "SFL 201",
+          "name": "Second Foreign Languages III"
+        },
+        {
+          "code": "VCD 201",
+          "name": "Design Studio I"
+        },
+        {
+          "code": "VCD 203",
+          "name": "Typographic Design I"
+        },
+        {
+          "code": "VCD 205",
+          "name": "Computer Aided Graphic Design"
+        },
+        {
+          "code": "VCD 207",
+          "name": "Basic Photography"
+        },
+        {
+          "code": "VCD 211",
+          "name": "Drawing Studio II"
+        }
+      ],
+      "2. Year Spring Semester": [
+        {
+          "code": "SFL 202",
+          "name": "Second Foreign Languages IV"
+        },
+        {
+          "code": "VCD 202",
+          "name": "Design Studio II"
+        },
+        {
+          "code": "VCD 204",
+          "name": "Typographic Design II"
+        },
+        {
+          "code": "VCD 206",
+          "name": "Multimedia Applications in Design"
+        },
+        {
+          "code": "VCD 301",
+          "name": "History of Graphic Design"
+        },
+        {
+          "code": "VCD 340",
+          "name": "Design Semiotics"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Fall Semester": [
+        {
+          "code": "ELEC 001",
+          "name": "Elective Course I"
+        },
+        {
+          "code": "ELEC 002",
+          "name": "Elective Course II"
+        },
+        {
+          "code": "ELEC 003",
+          "name": "Elective Course III"
+        },
+        {
+          "code": "MMD 301",
+          "name": "Design Studio III"
+        },
+        {
+          "code": "TURK 100",
+          "name": "Turkish"
+        },
+        {
+          "code": "VCD 331",
+          "name": "Interaction Design Fundamentals"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Spring Semester": [
+        {
+          "code": "ELEC 004",
+          "name": "Elective Course IV"
+        },
+        {
+          "code": "ELEC 005",
+          "name": "Elective Course V"
+        },
+        {
+          "code": "ENG 310",
+          "name": "Essential Speaking Skills  in English"
+        },
+        {
+          "code": "HIST 100",
+          "name": "Principles of Atatürk and History of Revolution"
+        },
+        {
+          "code": "MMD 302",
+          "name": "Design Studio IV"
+        },
+        {
+          "code": "POOL 007",
+          "name": "GEC-Innovation and Entreprenuership"
+        },
+        {
+          "code": "VCDST 204",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Fall Semester": [
+        {
+          "code": "ELEC 006",
+          "name": "Elective Course VI"
+        },
+        {
+          "code": "ELEC 007",
+          "name": "Elective Course VII"
+        },
+        {
+          "code": "ENG 410",
+          "name": "English for Career Development"
+        },
+        {
+          "code": "FFD 451",
+          "name": "Applied Workshop"
+        },
+        {
+          "code": "MMD 401",
+          "name": "Design Studio V"
+        },
+        {
+          "code": "MMD 494",
+          "name": "Graduation Thesis"
+        },
+        {
+          "code": "VCDST 304",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Spring Semester": [
+        {
+          "code": "ELEC 008",
+          "name": "Elective Course VIII"
+        },
+        {
+          "code": "ELEC 009",
+          "name": "Elective Course IX"
+        },
+        {
+          "code": "ELEC 010",
+          "name": "Elective Course X"
+        },
+        {
+          "code": "ELEC 011",
+          "name": "Elective Course XI"
+        },
+        {
+          "code": "MMD 498",
+          "name": "Graduation Project"
+        },
+        {
+          "code": "POOL 003",
+          "name": "GEC-Social Sciences A: Economics"
+        }
+      ]
+    },
+    "electives": [
+      {
+        "code": "GD 303",
+        "name": "Editorial Design"
+      },
+      {
+        "code": "GD 304",
+        "name": "Packaging Design"
+      },
+      {
+        "code": "GD 350",
+        "name": "Advanced Typography"
+      },
+      {
+        "code": "GD 403",
+        "name": "Advertising Design and Art Direction"
+      },
+      {
+        "code": "GD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "GD 410",
+        "name": "Professional Practices at Communication Agency"
+      },
+      {
+        "code": "MMD 303",
+        "name": "Advanced Photography"
+      },
+      {
+        "code": "MMD 304",
+        "name": "Video Techniques and Production"
+      },
+      {
+        "code": "MMD 306",
+        "name": "Multimedia Design and Animation"
+      },
+      {
+        "code": "MMD 403",
+        "name": "Video Post Production"
+      },
+      {
+        "code": "MMD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "MMD 431",
+        "name": "Game Art and Design I"
+      },
+      {
+        "code": "MMD 432",
+        "name": "Game Art and Design II"
+      },
+      {
+        "code": "MMD 433",
+        "name": "Basic Game Development Concepts I"
+      },
+      {
+        "code": "MMD 434",
+        "name": "Basic Game Development Concepts II"
+      },
+      {
+        "code": "VCD 300",
+        "name": "Game Design"
+      },
+      {
+        "code": "VCD 302",
+        "name": "Analysis of Visual Culture"
+      },
+      {
+        "code": "VCD 308",
+        "name": "Visual Storytelling"
+      },
+      {
+        "code": "VCD 310",
+        "name": "Sound Design"
+      },
+      {
+        "code": "VCD 315",
+        "name": "Exhibition Design"
+      },
+      {
+        "code": "VCD 320",
+        "name": "Understanding Digital Media"
+      },
+      {
+        "code": "VCD 350",
+        "name": "Special Practice in Drawing"
+      },
+      {
+        "code": "VCD 400",
+        "name": "Interface Design"
+      },
+      {
+        "code": "VCD 410",
+        "name": "Advertising Photography"
+      },
+      {
+        "code": "VCD 421",
+        "name": "Digital Illustration"
+      },
+      {
+        "code": "VCD 424",
+        "name": "Web Design"
+      },
+      {
+        "code": "VCD 426",
+        "name": "Interactive Media Design"
+      },
+      {
+        "code": "VCD 428",
+        "name": "Digital Design in Motion"
+      },
+      {
+        "code": "VCD 430",
+        "name": "Comic Book Design"
+      },
+      {
+        "code": "VCD 436",
+        "name": "Introduction to Programming for Designers"
+      },
+      {
+        "code": "VCD 440",
+        "name": "Visual Reading, Writing and Interpretation"
+      },
+      {
+        "code": "VCD 450",
+        "name": "Information Design"
+      }
+    ]
+  },
+  {
+    "department": "VCD",
+    "program_name": "Visual Communication Design",
+    "entry_year": 2026,
+    "url": "https://ilt.ieu.edu.tr/en/curr",
+    "semesters": {
+      "1. Year Fall Semester": [
+        {
+          "code": "ENG 101",
+          "name": "Academic Skills in English I"
+        },
+        {
+          "code": "FFD 101",
+          "name": "Art and Design Studio 1"
+        },
+        {
+          "code": "FFD 121",
+          "name": "History of Art and Design 1"
+        },
+        {
+          "code": "IUE 100",
+          "name": "Orientation and Career Planning"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1013",
+          "name": "Second Foreign Languages I"
+        },
+        {
+          "code": "VCD 101",
+          "name": "Introduction to Design in Digital Media"
+        },
+        {
+          "code": "VCD 111",
+          "name": "Drawing Studio"
+        }
+      ],
+      "1. Year Spring Semester": [
+        {
+          "code": "ENG 102",
+          "name": "Academic Skills in English II"
+        },
+        {
+          "code": "FFD 102",
+          "name": "Art and Design Studio 2"
+        },
+        {
+          "code": "FFD 122",
+          "name": "History of Art and Design 2"
+        },
+        {
+          "code": "POOL 004",
+          "name": "GEC- Social Sciences B: Humanities and Social Sciences"
+        },
+        {
+          "code": "SFL 1024",
+          "name": "Second Foreign Languages II"
+        },
+        {
+          "code": "VCD 102",
+          "name": "Introduction to Visual Communication"
+        },
+        {
+          "code": "VCD 132",
+          "name": "Drawing Techniques for Print"
+        }
+      ],
+      "2. Year Fall Semester": [
+        {
+          "code": "SFL 201",
+          "name": "Second Foreign Languages III"
+        },
+        {
+          "code": "VCD 201",
+          "name": "Design Studio I"
+        },
+        {
+          "code": "VCD 203",
+          "name": "Typographic Design I"
+        },
+        {
+          "code": "VCD 205",
+          "name": "Computer Aided Graphic Design"
+        },
+        {
+          "code": "VCD 207",
+          "name": "Basic Photography"
+        },
+        {
+          "code": "VCD 211",
+          "name": "Drawing Studio II"
+        }
+      ],
+      "2. Year Spring Semester": [
+        {
+          "code": "SFL 202",
+          "name": "Second Foreign Languages IV"
+        },
+        {
+          "code": "VCD 202",
+          "name": "Design Studio II"
+        },
+        {
+          "code": "VCD 204",
+          "name": "Typographic Design II"
+        },
+        {
+          "code": "VCD 206",
+          "name": "Multimedia Applications in Design"
+        },
+        {
+          "code": "VCD 301",
+          "name": "History of Graphic Design"
+        },
+        {
+          "code": "VCD 340",
+          "name": "Design Semiotics"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Fall Semester": [
+        {
+          "code": "ELEC 001",
+          "name": "Elective Course I"
+        },
+        {
+          "code": "ELEC 002",
+          "name": "Elective Course II"
+        },
+        {
+          "code": "ELEC 003",
+          "name": "Elective Course III"
+        },
+        {
+          "code": "MMD 301",
+          "name": "Design Studio III"
+        },
+        {
+          "code": "TURK 100",
+          "name": "Turkish"
+        },
+        {
+          "code": "VCD 331",
+          "name": "Interaction Design Fundamentals"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 3. Year Spring Semester": [
+        {
+          "code": "ELEC 004",
+          "name": "Elective Course IV"
+        },
+        {
+          "code": "ELEC 005",
+          "name": "Elective Course V"
+        },
+        {
+          "code": "ENG 310",
+          "name": "Essential Speaking Skills  in English"
+        },
+        {
+          "code": "HIST 100",
+          "name": "Principles of Atatürk and History of Revolution"
+        },
+        {
+          "code": "MMD 302",
+          "name": "Design Studio IV"
+        },
+        {
+          "code": "POOL 007",
+          "name": "GEC-Innovation and Entreprenuership"
+        },
+        {
+          "code": "VCDST 204",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Fall Semester": [
+        {
+          "code": "ELEC 006",
+          "name": "Elective Course VI"
+        },
+        {
+          "code": "ELEC 007",
+          "name": "Elective Course VII"
+        },
+        {
+          "code": "ENG 410",
+          "name": "English for Career Development"
+        },
+        {
+          "code": "FFD 451",
+          "name": "Applied Workshop"
+        },
+        {
+          "code": "MMD 401",
+          "name": "Design Studio V"
+        },
+        {
+          "code": "MMD 494",
+          "name": "Graduation Thesis"
+        },
+        {
+          "code": "VCDST 304",
+          "name": "Summer Training (4 Weeks)"
+        }
+      ],
+      "MULTIMEDIA DESIGN SPECIALIZATION - 4. Year Spring Semester": [
+        {
+          "code": "ELEC 008",
+          "name": "Elective Course VIII"
+        },
+        {
+          "code": "ELEC 009",
+          "name": "Elective Course IX"
+        },
+        {
+          "code": "ELEC 010",
+          "name": "Elective Course X"
+        },
+        {
+          "code": "ELEC 011",
+          "name": "Elective Course XI"
+        },
+        {
+          "code": "MMD 498",
+          "name": "Graduation Project"
+        },
+        {
+          "code": "POOL 003",
+          "name": "GEC-Social Sciences A: Economics"
+        }
+      ]
+    },
+    "electives": [
+      {
+        "code": "GD 303",
+        "name": "Editorial Design"
+      },
+      {
+        "code": "GD 304",
+        "name": "Packaging Design"
+      },
+      {
+        "code": "GD 350",
+        "name": "Advanced Typography"
+      },
+      {
+        "code": "GD 403",
+        "name": "Advertising Design and Art Direction"
+      },
+      {
+        "code": "GD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "GD 410",
+        "name": "Professional Practices at Communication Agency"
+      },
+      {
+        "code": "MMD 303",
+        "name": "Advanced Photography"
+      },
+      {
+        "code": "MMD 304",
+        "name": "Video Techniques and Production"
+      },
+      {
+        "code": "MMD 306",
+        "name": "Multimedia Design and Animation"
+      },
+      {
+        "code": "MMD 403",
+        "name": "Video Post Production"
+      },
+      {
+        "code": "MMD 404",
+        "name": "Portfolio Design and Professional Practice"
+      },
+      {
+        "code": "MMD 431",
+        "name": "Game Art and Design I"
+      },
+      {
+        "code": "MMD 432",
+        "name": "Game Art and Design II"
+      },
+      {
+        "code": "MMD 433",
+        "name": "Basic Game Development Concepts I"
+      },
+      {
+        "code": "MMD 434",
+        "name": "Basic Game Development Concepts II"
+      },
+      {
+        "code": "VCD 300",
+        "name": "Game Design"
+      },
+      {
+        "code": "VCD 302",
+        "name": "Analysis of Visual Culture"
+      },
+      {
+        "code": "VCD 308",
+        "name": "Visual Storytelling"
+      },
+      {
+        "code": "VCD 310",
+        "name": "Sound Design"
+      },
+      {
+        "code": "VCD 315",
+        "name": "Exhibition Design"
+      },
+      {
+        "code": "VCD 320",
+        "name": "Understanding Digital Media"
+      },
+      {
+        "code": "VCD 350",
+        "name": "Special Practice in Drawing"
+      },
+      {
+        "code": "VCD 400",
+        "name": "Interface Design"
+      },
+      {
+        "code": "VCD 410",
+        "name": "Advertising Photography"
+      },
+      {
+        "code": "VCD 421",
+        "name": "Digital Illustration"
+      },
+      {
+        "code": "VCD 424",
+        "name": "Web Design"
+      },
+      {
+        "code": "VCD 426",
+        "name": "Interactive Media Design"
+      },
+      {
+        "code": "VCD 428",
+        "name": "Digital Design in Motion"
+      },
+      {
+        "code": "VCD 430",
+        "name": "Comic Book Design"
+      },
+      {
+        "code": "VCD 436",
+        "name": "Introduction to Programming for Designers"
+      },
+      {
+        "code": "VCD 440",
+        "name": "Visual Reading, Writing and Interpretation"
+      },
+      {
+        "code": "VCD 450",
+        "name": "Information Design"
+      }
+    ]
   }
 ]

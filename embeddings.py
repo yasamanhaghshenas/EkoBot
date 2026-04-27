@@ -36,3 +36,41 @@ class SimpleHashEmbeddingFunction:
 
     def embed_query(self, input):
         return self.__call__(input)
+
+
+class SentenceTransformerEmbeddingFunction:
+    def __init__(self, model_name="all-MiniLM-L6-v2"):
+        try:
+            from sentence_transformers import SentenceTransformer
+        except ImportError as exc:
+            raise RuntimeError(
+                "sentence-transformers is required for embeddings. "
+                "Install it with: pip install sentence-transformers"
+            ) from exc
+
+        self.model_name = model_name
+        # Keep the embedding model local. The project refreshes the vector
+        # store ahead of each semester, so runtime should not depend on live
+        # model downloads.
+        self.model = SentenceTransformer(model_name, local_files_only=True)
+
+    def name(self):
+        return f"sentence_transformer:{self.model_name}"
+
+    def _encode(self, texts):
+        return self.model.encode(
+            texts,
+            normalize_embeddings=True,
+            show_progress_bar=False,
+        ).tolist()
+
+    def __call__(self, input):
+        if isinstance(input, str):
+            return self._encode([input])
+        return self._encode(list(input))
+
+    def embed_documents(self, input):
+        return self.__call__(input)
+
+    def embed_query(self, input):
+        return self.__call__(input)

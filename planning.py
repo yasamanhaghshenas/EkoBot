@@ -12,8 +12,13 @@ from catalog import (
 from parsing import _dedupe_keep_order, normalize_department_code
 
 
-def _build_scoped_course_index(dept_code, start_year=None):
-    positions = get_curriculum_course_positions(dept_code, start_year=start_year)
+def _build_scoped_course_index(dept_code, start_year=None, program_name=None, curriculum_url=None):
+    positions = get_curriculum_course_positions(
+        dept_code,
+        start_year=start_year,
+        program_name=program_name,
+        curriculum_url=curriculum_url,
+    )
     candidate_codes = set(positions.keys())
     if not candidate_codes:
         return {}, positions
@@ -41,6 +46,7 @@ def _build_scoped_course_index(dept_code, start_year=None):
         prereq_codes = sorted(set([p for p in prereq_codes if p]))
 
         item_dept = normalize_department_code((item.get("department") or "").strip().upper())
+        item_program = (item.get("program_name") or "").strip()
         semester_raw = (_extract_field_from_course_text(text, "Semester") or "").strip().lower()
         offered_term = None
         if semester_raw.startswith("fall"):
@@ -55,6 +61,11 @@ def _build_scoped_course_index(dept_code, start_year=None):
             score += 100
         elif item_dept:
             score -= 100
+        if program_name:
+            if item_program and item_program.lower().strip() == program_name.lower().strip():
+                score += 100
+            elif item_program:
+                score -= 25
         if target_term and target_term in semester_raw:
             score += 10
         if "service" in course_type:
@@ -88,8 +99,13 @@ def _build_scoped_course_index(dept_code, start_year=None):
     return scoped_index, positions
 
 
-def get_scoped_prerequisite_maps(dept_code, start_year=None):
-    scoped_index, _ = _build_scoped_course_index(dept_code, start_year=start_year)
+def get_scoped_prerequisite_maps(dept_code, start_year=None, program_name=None, curriculum_url=None):
+    scoped_index, _ = _build_scoped_course_index(
+        dept_code,
+        start_year=start_year,
+        program_name=program_name,
+        curriculum_url=curriculum_url,
+    )
     prereq_map = {}
     for dep_code, meta in scoped_index.items():
         prereq_map[dep_code] = set(meta.get("prereqs") or set())
@@ -102,8 +118,13 @@ def get_scoped_prerequisite_maps(dept_code, start_year=None):
     return prereq_map, reverse_graph
 
 
-def get_scoped_offered_terms(dept_code, start_year=None):
-    scoped_index, _ = _build_scoped_course_index(dept_code, start_year=start_year)
+def get_scoped_offered_terms(dept_code, start_year=None, program_name=None, curriculum_url=None):
+    scoped_index, _ = _build_scoped_course_index(
+        dept_code,
+        start_year=start_year,
+        program_name=program_name,
+        curriculum_url=curriculum_url,
+    )
     return {
         code: meta.get("offered_term")
         for code, meta in scoped_index.items()
@@ -214,6 +235,8 @@ def get_blocked_dependency_chain(
     year,
     term,
     start_year=None,
+    program_name=None,
+    curriculum_url=None,
     reverse_graph=None,
     include_past=True,
 ):
@@ -221,11 +244,21 @@ def get_blocked_dependency_chain(
     if not failed:
         return []
 
-    positions = get_curriculum_course_positions(dept_code, start_year=start_year)
+    positions = get_curriculum_course_positions(
+        dept_code,
+        start_year=start_year,
+        program_name=program_name,
+        curriculum_url=curriculum_url,
+    )
     if not positions:
         return []
 
-    reverse_graph = reverse_graph or get_scoped_prerequisite_maps(dept_code, start_year=start_year)[1]
+    reverse_graph = reverse_graph or get_scoped_prerequisite_maps(
+        dept_code,
+        start_year=start_year,
+        program_name=program_name,
+        curriculum_url=curriculum_url,
+    )[1]
     if not reverse_graph:
         return []
 
@@ -275,9 +308,21 @@ def get_blocked_dependency_chain(
     return blocked
 
 
-def build_suggested_recovery_order(failed_courses, blocked_chain, dept_code, start_year=None):
+def build_suggested_recovery_order(
+    failed_courses,
+    blocked_chain,
+    dept_code,
+    start_year=None,
+    program_name=None,
+    curriculum_url=None,
+):
     failed = _dedupe_keep_order([_normalize_course_code(c) for c in (failed_courses or []) if _normalize_course_code(c)])
-    positions = get_curriculum_course_positions(dept_code, start_year=start_year)
+    positions = get_curriculum_course_positions(
+        dept_code,
+        start_year=start_year,
+        program_name=program_name,
+        curriculum_url=curriculum_url,
+    )
 
     order_items = []
     for code in failed:

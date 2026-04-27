@@ -2,8 +2,10 @@ import requests
 from bs4 import BeautifulSoup
 import json
 
-# All department curriculum URLs from Tina's research
-DEPARTMENTS = {
+from catalog import load_ieu_department_directory
+
+
+LEGACY_DEPARTMENTS = {
     "CE": "https://ects.ieu.edu.tr/new/akademik.php?section=ce.cs.ieu.edu.tr&sid=curr&lang=en",
     "SE": "https://ects.ieu.edu.tr/new/akademik.php?section=se.cs.ieu.edu.tr&sid=curr&lang=en",
     "EEE": "https://ects.ieu.edu.tr/new/akademik.php?section=ete.cs.ieu.edu.tr&sid=curr&lang=en",
@@ -16,6 +18,20 @@ DEPARTMENTS = {
     "MCE": "https://mce.ieu.edu.tr/en/curr",
     "FE": "https://dfe.ieu.edu.tr/en/curr",
 }
+
+
+def get_departments():
+    directory = load_ieu_department_directory()
+    if not directory:
+        return LEGACY_DEPARTMENTS
+
+    out = {}
+    for item in directory:
+        name = (item.get("canonical_department") or item.get("source_department") or "").strip()
+        url = (item.get("curriculum_url") or "").strip()
+        if name and url:
+            out[name] = url
+    return out
 
 def scrape_curriculum(dept_code, url):
     try:
@@ -118,7 +134,7 @@ def scrape_curriculum(dept_code, url):
 
 if __name__ == "__main__":
     results = []
-    for dept, url in DEPARTMENTS.items():
+    for dept, url in get_departments().items():
         print(f"Scraping curriculum for {dept}...")
         data = scrape_curriculum(dept, url)
         if data and data["semesters"]:
