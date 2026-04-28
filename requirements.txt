@@ -7,3 +7,5 @@ beautifulsoup4
 sentence-transformers
 pydantic
 python-multipart
+torch
+transformers

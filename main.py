@@ -15,9 +15,9 @@ app.add_middleware(
 )
 
 
-@app.on_event("startup")
-async def startup_event():
-    build_db_if_empty()
+# @app.on_event("startup")
+# async def startup_event():
+#     build_db_if_empty()
 
 class Message(BaseModel):
     role: str
