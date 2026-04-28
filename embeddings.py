@@ -40,24 +40,40 @@ class SimpleHashEmbeddingFunction:
 
 class SentenceTransformerEmbeddingFunction:
     def __init__(self, model_name="all-MiniLM-L6-v2"):
+        self.model_name = model_name
+        self._fallback = SimpleHashEmbeddingFunction()
+        self._using_fallback = False
+
         try:
             from sentence_transformers import SentenceTransformer
         except ImportError as exc:
-            raise RuntimeError(
-                "sentence-transformers is required for embeddings. "
-                "Install it with: pip install sentence-transformers"
-            ) from exc
+            print("WARNING: sentence-transformers is not installed; using local hash embeddings.")
+            self.model = None
+            self._using_fallback = True
+            return
 
-        self.model_name = model_name
-        # Keep the embedding model local. The project refreshes the vector
-        # store ahead of each semester, so runtime should not depend on live
-        # model downloads.
-        self.model = SentenceTransformer(model_name, local_files_only=True)
+        try:
+            # Keep the embedding model local. The project refreshes the vector
+            # store ahead of each semester, so runtime should not depend on live
+            # model downloads.
+            self.model = SentenceTransformer(model_name, local_files_only=True)
+        except Exception as exc:
+            print(
+                f"WARNING: Could not load sentence-transformers model '{model_name}' locally; "
+                "falling back to local hash embeddings."
+            )
+            self.model = None
+            self._using_fallback = True
+            self._fallback_error = exc
 
     def name(self):
+        if self._using_fallback:
+            return self._fallback.name()
         return f"sentence_transformer:{self.model_name}"
 
     def _encode(self, texts):
+        if self._using_fallback or self.model is None:
+            return self._fallback._embed_one(texts[0]) if isinstance(texts, list) and len(texts) == 1 else self._fallback(texts)
         return self.model.encode(
             texts,
             normalize_embeddings=True,
@@ -65,6 +81,8 @@ class SentenceTransformerEmbeddingFunction:
         ).tolist()
 
     def __call__(self, input):
+        if self._using_fallback or self.model is None:
+            return self._fallback(input)
         if isinstance(input, str):
             return self._encode([input])
         return self._encode(list(input))
