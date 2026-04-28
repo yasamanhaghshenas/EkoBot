@@ -59,16 +59,21 @@ from planning import (
 )
 from retrieval import format_course_direct_response, get_context_for_codes
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
+if not GROQ_API_KEY:
+    raise ValueError("GROQ_API_KEY environment variable is not set")
 
-if GROQ_API_KEY:
-    client_groq = Groq(api_key=GROQ_API_KEY)
-else:
-    client_groq = None
-    print("WARNING: GROQ_API_KEY is not set. LLM fallback disabled.")
+# Keep Groq requests bounded so the UI does not stay on the typing indicator
+# forever when the network is slow or unavailable.
+client_groq = Groq(api_key=GROQ_API_KEY, timeout=20.0, max_retries=0)
 
 client = chromadb.PersistentClient(path="./db")
-collection = client.get_or_create_collection("ieu_courses", embedding_function=SentenceTransformerEmbeddingFunction())
+try:
+    collection = client.get_or_create_collection("ieu_courses", embedding_function=SentenceTransformerEmbeddingFunction())
+    CHROMADB_READY = collection.count() > 0
+except Exception as e:
+    print(f"ChromaDB not ready: {e}")
+    CHROMADB_READY = False
 
 _REGULATIONS_CACHE = None
 

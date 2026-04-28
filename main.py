@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 import gemini
+from startup import build_db_if_empty
 
 app = FastAPI(title="EkoBot API")
 
@@ -12,6 +13,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+async def startup_event():
+    build_db_if_empty()
 
 class Message(BaseModel):
     role: str

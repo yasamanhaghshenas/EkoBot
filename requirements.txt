@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+groq
+chromadb
+requests
+beautifulsoup4
+sentence-transformers
+pydantic
+python-multipart
