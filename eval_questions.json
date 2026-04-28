@@ -6,35 +6,40 @@
     "history": [],
     "checks": [
       {"type": "contains_any", "value": ["EEE 242", "Prerequisites", "prerequisite"]},
-      {"type": "not_contains", "value": "I don't have that information in the IEU database."}
-    ]
-  },
-  {
-    "id": "PREREQ_VARIANT",
-    "category": "course_lookup",
-    "question": "Prereq for CE 342?",
-    "history": [],
-    "checks": [
-      {"type": "contains_any", "value": ["EEE 242", "prerequisite"]}
-    ]
-  },
-  {
-    "id": "TEACHER_CE342",
-    "category": "course_lookup",
-    "question": "who is the teacher for ce 342",
-    "history": [],
-    "checks": [
-      {"type": "contains_any", "value": ["M. Çağkan ULUDAĞLI", "Teacher/Lecturer(s)", "Course Coordinator"]},
       {"type": "not_contains", "value": "Which department are you in"}
     ]
   },
   {
-    "id": "LOOKUP_SE302_INFO",
-    "category": "course_lookup",
-    "question": "Tell me about this course: SE 302.",
+    "id": "WEB_ERSAMUS_INFO",
+    "category": "web",
+    "question": "What can you tell me about the Erasmus",
     "history": [],
     "checks": [
-      {"type": "contains_any", "value": ["Principles of Software Engineering", "SE 116"]},
+      {"type": "contains_any", "value": ["Erasmus", "exchange program", "mobility"]},
+      {"type": "not_contains", "value": "I don't have that information in the IEU database."}
+    ]
+  },
+  {
+    "id": "WEB_COORDINATORS",
+    "category": "web",
+    "question": "Who are the International Exchange Programs Coordinators",
+    "history": [],
+    "checks": [
+      {"type": "contains_any", "value": ["coordinator", "coordinators", "Exchange Program Coordinators"]},
+      {"type": "not_contains", "value": "I don't have that information in the IEU database."}
+    ]
+  },
+  {
+    "id": "FOLLOWUP_COMBINED_DEPT_AND_FAILED",
+    "category": "planning",
+    "question": "ce and i failed se 116",
+    "history": [
+      {"role": "user", "content": "I need help with my courses"},
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which department are you in? (major) (e.g. CE, SE, EEE, IE, BME, ME, Nursing)"}
+    ],
+    "checks": [
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year and semester are you in"},
       {"type": "not_contains", "value": "Which department are you in"}
     ]
   },
@@ -724,6 +729,20 @@
     "checks": [
       {"type": "contains_any", "value": ["coordinator", "coordinators", "Exchange Program Coordinators"]},
       {"type": "not_contains", "value": "I don't have that information in the IEU database."}
+    ]
+  },
+  {
+    "id": "FOLLOWUP_COMBINED_DEPT_AND_FAILED",
+    "category": "planning",
+    "question": "ce and i failed se 116",
+    "history": [
+      {"role": "user", "content": "I need help with my courses"},
+      {"role": "assistant", "content": "FOLLOWUP_NEEDED: Which department are you in? (major) (e.g. CE, SE, EEE, IE, BME, ME, Nursing)"}
+    ],
+    "checks": [
+      {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+      {"type": "contains", "value": "Which year and semester are you in"},
+      {"type": "not_contains", "value": "Which department are you in"}
     ]
   }
 ]

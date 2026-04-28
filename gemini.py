@@ -379,6 +379,26 @@ def extract_profile_from_history(history):
         # Department
         if not profile["department"]:
             profile["department"] = detect_department_from_context(content, history, strict=True)
+        # If the same message includes failed-course codes, strict detection can miss
+        # explicit short department replies (e.g. "ce and i failed se 116") because
+        # the message also contains course-code patterns. In that case, remove course
+        # codes and detect department from the remaining text.
+        if not profile["department"] and extract_failed_courses_from_context(content, [], None):
+            stripped = content
+            for code in extract_course_codes(content):
+                m = re.match(r"^([A-Z]{2,6})\s*(\d{3,4})$", code)
+                if not m:
+                    continue
+                stripped = re.sub(
+                    rf"\b{re.escape(m.group(1))}\s*{re.escape(m.group(2))}\b",
+                    " ",
+                    stripped,
+                    flags=re.IGNORECASE,
+                )
+            dept_from_stripped = detect_department(stripped)
+            if dept_from_stripped:
+                profile["department"] = normalize_department_code(dept_from_stripped)
+
         if profile["department"] and not profile["program_name"]:
             code_resolved = resolve_ieu_department(profile["department"], faculty_name=profile["faculty"])
             if code_resolved:
@@ -1469,6 +1489,14 @@ def ask(question, history=[], client_type=None):
             return profile_ack
 
     parsed = parse_request_slots(question, history, last_bot_q)
+    # If parser missed department but profiling extracted it from session history
+    # (including mixed messages like "ce and i failed se 116"), reuse that value
+    # so we do not ask department again.
+    if not parsed.get("department"):
+        profile_fallback = extract_profile_from_history(list(history or []) + [{"role": "user", "content": question}])
+        if profile_fallback.get("department"):
+            parsed["department"] = profile_fallback.get("department")
+
     full_question = parsed["analysis_question"]
     prefer_tr = _looks_turkish(full_question)
     history_with_current = list(history or []) + [{"role": "user", "content": question}]

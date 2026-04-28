@@ -34,16 +34,29 @@ def _build_scoped_course_index(dept_code, start_year=None, program_name=None, cu
         return {}, positions
 
     per_code_candidates = {}
+    empty_prereq_codes = set()
+    prereq_pattern = r"[Pp]re-?[Rr]equisite[s]?\s*(?:\([s]\))?\s*[:\-]?\s*(.+?)(?:\n|$)"
     for item in data:
         dep_code = _normalize_course_code(item.get("code"))
         if not dep_code or dep_code not in candidate_codes:
             continue
 
         text = item.get("text") or ""
-        prereq_lines = re.findall(r"^Prerequisites:\s*(.+)$", text, re.IGNORECASE | re.MULTILINE)
-        prereq_text = " ".join(prereq_lines)
-        prereq_codes = [_normalize_course_code(x) for x in re.findall(r"\b[A-Z]{2,6}\s*\d{3,4}\b", prereq_text)]
-        prereq_codes = sorted(set([p for p in prereq_codes if p]))
+        prereq_lines_primary = re.findall(r"^Prerequisites:\s*(.+)$", text, re.IGNORECASE | re.MULTILINE)
+        prereq_lines = prereq_lines_primary
+        if not prereq_lines:
+            # Second pass for alternate spellings such as "Prerequisite(s):" or "Pre-requisite:".
+            prereq_lines = re.findall(prereq_pattern, text, re.MULTILINE)
+
+        prereq_text = " ".join(prereq_lines).strip()
+        if re.fullmatch(r"(?i)(none|yok)\.?", prereq_text):
+            prereq_codes = []
+        else:
+            prereq_codes = [_normalize_course_code(x) for x in re.findall(r"\b[A-Z]{2,6}\s*\d{3,4}\b", prereq_text)]
+            prereq_codes = sorted(set([p for p in prereq_codes if p]))
+
+        if not prereq_codes:
+            empty_prereq_codes.add(dep_code)
 
         item_dept = normalize_department_code((item.get("department") or "").strip().upper())
         item_program = (item.get("program_name") or "").strip()
@@ -76,6 +89,12 @@ def _build_scoped_course_index(dept_code, start_year=None, program_name=None, cu
             "prereqs": prereq_codes,
             "offered_term": offered_term,
         })
+
+    if empty_prereq_codes:
+        preview = ", ".join(sorted(empty_prereq_codes)[:30])
+        if len(empty_prereq_codes) > 30:
+            preview += f", ... (+{len(empty_prereq_codes) - 30} more)"
+        print(f"  Parsed empty prerequisites for {len(empty_prereq_codes)} course(s): {preview}")
 
     scoped_index = {}
     for dep_code, candidates in per_code_candidates.items():
@@ -378,6 +397,7 @@ def _safe_alternative_courses_for_term(
     limit=8,
 ):
     try:
+        current_year = int(year)
         current_idx = _semester_sort_index(int(year), term)
     except Exception:
         return []
@@ -408,5 +428,12 @@ def _safe_alternative_courses_for_term(
             "index": idx,
         })
 
-    alternatives.sort(key=lambda x: (x["index"], x["code"]))
-    return alternatives[:limit]
+    safe_alternatives = [
+        c for c in alternatives
+        if c.get("year") is not None
+        and c["year"] <= current_year + 1
+        and c.get("code") != "FENG 498"
+    ]
+
+    safe_alternatives.sort(key=lambda x: (x["index"], x["code"]))
+    return safe_alternatives[:limit]
