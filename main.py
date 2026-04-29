@@ -43,18 +43,27 @@ def root():
 
 @app.post("/chat")
 async def chat(req: ChatRequest, request: Request):
-    history = [{"role": m.role, "content": m.content} for m in (req.history or [])]
+    try:
+        history = [{"role": m.role, "content": m.content} for m in (req.history or [])]
 
-    # Some clients include the current question in the history payload.
-    # The backend already receives it separately as `question`.
-    if history and history[-1].get("role") == "user":
-        if (history[-1].get("content") or "").strip() == (req.question or "").strip():
-            history = history[:-1]
-    client_type = (request.headers.get("X-Client-Type") or "").strip().lower()
-    result = gemini.ask_with_options(req.question, history, client_type=client_type)
+        # Some clients include the current question in the history payload.
+        # The backend already receives it separately as `question`.
+        if history and history[-1].get("role") == "user":
+            if (history[-1].get("content") or "").strip() == (req.question or "").strip():
+                history = history[:-1]
+        client_type = (request.headers.get("X-Client-Type") or "").strip().lower()
+        result = gemini.ask_with_options(req.question, history, client_type=client_type)
 
-    return ChatResponse(
-        answer=result.get("answer", ""),
-        is_followup=bool(result.get("is_followup", False)),
-        options=result.get("options"),
-    )
+        return ChatResponse(
+            answer=result.get("answer", ""),
+            is_followup=bool(result.get("is_followup", False)),
+            options=result.get("options"),
+        )
+    except Exception as e:
+        import traceback
+        print(f"CHAT ERROR: {e}")
+        print(traceback.format_exc())
+        return ChatResponse(
+            answer=f"Server error: {str(e)}", 
+            is_followup=False
+        )
