@@ -67,12 +67,14 @@ if not GROQ_API_KEY:
 # forever when the network is slow or unavailable.
 client_groq = Groq(api_key=GROQ_API_KEY, timeout=20.0, max_retries=0)
 
-client = chromadb.PersistentClient(path="./db")
 try:
-    collection = client.get_or_create_collection("ieu_courses", embedding_function=SentenceTransformerEmbeddingFunction())
+    client = chromadb.PersistentClient(path="./db")
+    collection = client.get_or_create_collection("ieu_courses")
     CHROMADB_READY = collection.count() > 0
+    print(f"ChromaDB ready with {collection.count()} documents")
 except Exception as e:
-    print(f"ChromaDB not ready: {e}")
+    print(f"ChromaDB init failed: {e}")
+    collection = None
     CHROMADB_READY = False
 
 _REGULATIONS_CACHE = None
@@ -827,12 +829,15 @@ def _build_semantic_query_texts(question, full_question, parsed, history, codes,
     return _dedupe_texts(queries)[:6]
 
 
-def _query_relevant_context(collection_obj, query_texts, n_results=3, max_docs=6):
+def _query_relevant_context(query_texts, n_results=3, max_docs=6):
     if not query_texts:
         return []
 
+    if collection is None:
+        return []
+
     try:
-        results = collection_obj.query(query_texts=query_texts, n_results=n_results)
+        results = collection.query(query_texts=query_texts, n_results=n_results)
     except Exception as e:
         print(f"  semantic context query error: {e}")
         return []
@@ -899,13 +904,16 @@ def _is_credit_load_question(text):
     ])
 
 
-def _get_regulations_from_db(collection_obj):
+def _get_regulations_from_db():
     global _REGULATIONS_CACHE
     if _REGULATIONS_CACHE is not None:
         return _REGULATIONS_CACHE
 
+    if collection is None:
+        return None
+
     try:
-        results = collection_obj.get(
+        results = collection.get(
             where={"doc_type": "regulations"},
             include=["documents"],
         )
@@ -923,9 +931,12 @@ def _get_regulations_from_db(collection_obj):
     return None
 
 
-def _query_web_info_context(collection_obj, question, max_docs=3):
+def _query_web_info_context(question, max_docs=3):
+    if collection is None:
+        return []
+
     try:
-        results = collection_obj.query(
+        results = collection.query(
             query_texts=[question],
             n_results=max_docs,
             where={"doc_type": "web_info"},
@@ -1126,7 +1137,10 @@ def _extract_max_ects_from_rule(rule_text):
 
 
 def _format_regulations_answer(question, history, gpa_value):
-    regs = _get_regulations_from_db(collection)
+    if collection is None:
+        return None
+
+    regs = _get_regulations_from_db()
     if not regs:
         return None
 
@@ -1526,7 +1540,7 @@ def ask(question, history=[], client_type=None):
     missing_codes = []
     corrections = {}
     if codes:
-        course_contexts, missing_codes, corrections = get_context_for_codes(collection, codes)
+        course_contexts, missing_codes, corrections = get_context_for_codes(codes)
         if course_contexts:
             ql = full_question.lower()
             if len(codes) == 1 and any(p in ql for p in ["tell me about", "more details", "details about", "information about", "what is ", "what about", "how about"]):
@@ -1580,7 +1594,7 @@ def ask(question, history=[], client_type=None):
     web_info_intent = (
         parsed["intent"] == "web_info" or is_web_info_question(full_question)
     ) and not (regulations_intent or planning_intent or graduation_intent or course_lookup_intent)
-    web_docs = _query_web_info_context(collection, full_question) if web_info_intent else []
+    web_docs = _query_web_info_context(full_question) if web_info_intent else []
 
     if web_docs:
         if web_info_intent and client_groq is None:
@@ -1837,7 +1851,7 @@ def ask(question, history=[], client_type=None):
     if regulations_intent or any(k in full_question.lower() for k in
         ["gpa", "credit", "grade", "kredi", "not", "ortalama",
          "how many", "can i take", "withdraw", "probation", "letter grade", "harf"]):
-        regs = _get_regulations_from_db(collection)
+        regs = _get_regulations_from_db()
         if regs:
             # Keep this compact; the LLM can still reason over deterministic outputs above.
             context_parts.append(json.dumps(regs.get("grading", {}), ensure_ascii=False))
@@ -1855,7 +1869,7 @@ def ask(question, history=[], client_type=None):
             failed_courses,
             gpa_value,
         )
-        context_parts = _query_relevant_context(collection, query_texts, n_results=3, max_docs=6)
+        context_parts = _query_relevant_context(query_texts, n_results=3, max_docs=6)
 
     if not context_parts:
         return (
