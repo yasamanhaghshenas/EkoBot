@@ -1651,7 +1651,7 @@ def ask(question, history=[], client_type=None):
         return _profiling_followup_message("dept", profile)
 
     if graduation_intent and dept:
-        grad_text = get_graduation_text(dept, collection=collection)
+        grad_text = get_graduation_text(dept)
         if not grad_text:
             return (
                 "I don't have graduation requirements for that department in my database yet. "
@@ -1829,7 +1829,7 @@ def ask(question, history=[], client_type=None):
     if (not graduation_intent) and dept and any(k in full_question.lower() for k in
                    ["graduate", "graduation", "finish", "complete",
                     "mezun", "bitir"]):
-        grad_text = get_graduation_text(dept, collection=collection)
+        grad_text = get_graduation_text(dept)
         if grad_text:
             context_parts.append(grad_text[:1000])
 
