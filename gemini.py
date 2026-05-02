@@ -4,7 +4,7 @@ import json
 import os
 import re
 
-from embeddings import SentenceTransformerEmbeddingFunction
+from embeddings import get_embedding_function
 from parsing import (
     VALID_DEPTS,
     _dedupe_keep_order,
@@ -69,7 +69,10 @@ client_groq = Groq(api_key=GROQ_API_KEY, timeout=20.0, max_retries=0)
 
 try:
     client = chromadb.PersistentClient(path="./db")
-    collection = client.get_or_create_collection("ieu_courses")
+    collection = client.get_or_create_collection(
+        "ieu_courses",
+        embedding_function=get_embedding_function()
+    )
     CHROMADB_READY = collection.count() > 0
     print(f"ChromaDB ready with {collection.count()} documents")
 except Exception as e:

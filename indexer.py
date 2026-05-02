@@ -1,7 +1,7 @@
 import chromadb
 import json
 import os
-from embeddings import SentenceTransformerEmbeddingFunction
+from embeddings import get_embedding_function
 
 
 def normalize_metadata(course):
@@ -22,7 +22,7 @@ def batched(seq, size):
 print("Setting up ChromaDB...")
 client = chromadb.PersistentClient(path="./db")
 COLLECTION_NAME = "ieu_courses"
-EMBEDDING_FUNCTION = SentenceTransformerEmbeddingFunction()
+EMBEDDING_FUNCTION = get_embedding_function()
 
 
 def get_collection():

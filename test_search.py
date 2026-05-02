@@ -1,10 +1,10 @@
 import chromadb
-from embeddings import SentenceTransformerEmbeddingFunction
+from embeddings import get_embedding_function
 
 client = chromadb.PersistentClient(path="./db")
 collection = client.get_or_create_collection(
     "ieu_courses",
-    embedding_function=SentenceTransformerEmbeddingFunction(),
+    embedding_function=get_embedding_function(),
 )
 
 # test what ChromaDB actually finds for your question
