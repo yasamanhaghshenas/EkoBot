@@ -1447,6 +1447,17 @@ def ask(question, history=[], client_type=None):
     if elective_followup:
         return elective_followup
 
+    if _is_credit_load_question(question):
+        gpa_value = extract_gpa_from_context(question, history)
+        if gpa_value is None:
+            gpa_value = _extract_loose_gpa_value(question, allow_integer=True)
+        if gpa_value is None:
+            return "FOLLOWUP_NEEDED: What is your CGPA/GPA (0.00-4.00)?"
+
+        regs_answer = _format_regulations_answer(question, history, gpa_value)
+        if regs_answer:
+            return regs_answer
+
     regs_followup = _maybe_regulations_followup(question, history)
     if regs_followup:
         return regs_followup

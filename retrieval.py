@@ -27,6 +27,25 @@ def get_context_for_codes(collection_or_codes, codes=None):
     for code in codes:
         normalized = _normalize_course_code(code) or code
         found = False
+
+        try:
+            results = chroma_collection.get(
+                where={"code": normalized},
+                include=["documents", "metadatas"],
+            )
+            docs = results.get("documents") or []
+            metas = results.get("metadatas") or []
+            if docs:
+                contexts.append(docs[0])
+                found = True
+                if metas:
+                    candidate_code = (metas[0] or {}).get("code") or ""
+                    candidate_code = candidate_code.strip().upper()
+                    if _looks_like_course_code(candidate_code) and candidate_code != normalized:
+                        corrections[normalized] = candidate_code
+        except Exception:
+            pass
+
         try:
             results = chroma_collection.query(
                 query_texts=[normalized],
