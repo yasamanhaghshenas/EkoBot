@@ -7,15 +7,28 @@ def _looks_like_course_code(value):
     return bool(re.match(r"^[A-Z]{2,6}\s\d{3,4}$", (value or "").strip()))
 
 
-def get_context_for_codes(collection, codes):
+def get_context_for_codes(collection_or_codes, codes=None):
     contexts = []
     missing = []
     corrections = {}
+
+    if codes is None:
+        codes = collection_or_codes
+        try:
+            from gemini import collection as chroma_collection
+        except Exception:
+            chroma_collection = None
+    else:
+        chroma_collection = collection_or_codes
+
+    if chroma_collection is None:
+        return contexts, [(_normalize_course_code(code) or code) for code in codes], corrections
+
     for code in codes:
         normalized = _normalize_course_code(code) or code
         found = False
         try:
-            results = collection.query(
+            results = chroma_collection.query(
                 query_texts=[normalized],
                 n_results=1,
                 where={"code": normalized},
@@ -30,7 +43,7 @@ def get_context_for_codes(collection, codes):
 
         if not found:
             try:
-                results = collection.query(
+                results = chroma_collection.query(
                     query_texts=[normalized],
                     n_results=1,
                     include=["documents", "metadatas"],

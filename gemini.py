@@ -1540,7 +1540,10 @@ def ask(question, history=[], client_type=None):
     missing_codes = []
     corrections = {}
     if codes:
-        course_contexts, missing_codes, corrections = get_context_for_codes(codes)
+        try:
+            course_contexts, missing_codes, corrections = get_context_for_codes(codes)
+        except TypeError:
+            course_contexts, missing_codes, corrections = get_context_for_codes(collection, codes)
         if course_contexts:
             ql = full_question.lower()
             if len(codes) == 1 and any(p in ql for p in ["tell me about", "more details", "details about", "information about", "what is ", "what about", "how about"]):
