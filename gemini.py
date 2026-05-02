@@ -1166,13 +1166,6 @@ def _extract_max_ects_from_rule(rule_text):
 
 
 def _format_regulations_answer(question, history, gpa_value):
-    if collection is None:
-        return None
-
-    regs = _get_regulations_from_db()
-    if not regs:
-        return None
-
     prefer_tr = _looks_turkish(question)
     t = (question or "").lower()
 
@@ -1185,18 +1178,7 @@ def _format_regulations_answer(question, history, gpa_value):
                 prefer_tr,
             )
 
-        rules = (regs.get("credit_load") or {}).get("rules_by_gpa") or {}
-        if gpa_value >= 2.5:
-            rule = rules.get("2.50_and_above") or ""
-        elif gpa_value >= 2.0:
-            rule = rules.get("2.00_to_2.49") or ""
-        else:
-            rule = rules.get("below_threshold") or ""
-
-        max_ects = _extract_max_ects_from_rule(rule)
-        if max_ects is None:
-            max_ects = get_credit_limit_by_gpa(gpa_value)
-
+        max_ects = get_credit_limit_by_gpa(gpa_value)
         lines = [
             _t(
                 f"With GPA {gpa_value:.2f}, your maximum course load is {max_ects} ECTS per semester.",
@@ -1204,9 +1186,28 @@ def _format_regulations_answer(question, history, gpa_value):
                 prefer_tr,
             )
         ]
-        if rule:
-            lines.append(_t(f"Rule: {rule}", f"Kural: {rule}", prefer_tr))
+
+        regs = _get_regulations_from_db() if collection is not None else None
+        if regs:
+            rules = (regs.get("credit_load") or {}).get("rules_by_gpa") or {}
+            if gpa_value >= 2.5:
+                rule = rules.get("2.50_and_above") or ""
+            elif gpa_value >= 2.0:
+                rule = rules.get("2.00_to_2.49") or ""
+            else:
+                rule = rules.get("below_threshold") or ""
+
+            if rule:
+                lines.append(_t(f"Rule: {rule}", f"Kural: {rule}", prefer_tr))
+
         return "\n".join(lines)
+
+    if collection is None:
+        return None
+
+    regs = _get_regulations_from_db()
+    if not regs:
+        return None
 
     # Graduation minima / academic standing
     if any(k in t for k in ["probation", "academic standing", "basari kosulu", "basari", "akademik"]):
