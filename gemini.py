@@ -351,7 +351,7 @@ def extract_profile_from_history(history):
     }
 
     # Scan history for extracted values
-    for msg in history:
+    for msg in reversed(history):
         if msg.get("role") != "user":
             continue
         content = msg.get("content", "")
@@ -700,6 +700,35 @@ def _looks_turkish(text):
 
 def _t(en_text, tr_text, prefer_tr):
     return tr_text if prefer_tr else en_text
+
+
+def _is_medicine_profile(profile=None, question=""):
+    parts = []
+    if profile:
+        parts.extend([
+            profile.get("faculty"),
+            profile.get("department"),
+            profile.get("program_name"),
+        ])
+    parts.append(question)
+    text = " ".join(part for part in parts if part).lower()
+    return any(k in text for k in ["faculty of medicine", "medicine", "tıp"])
+
+
+def _format_graduation_requirements_answer(question, profile=None):
+    prefer_tr = _looks_turkish(question)
+    if _is_medicine_profile(profile, question):
+        return _t(
+            "For the Faculty of Medicine, graduation requires completing all required theoretical and practical courses with at least DD/S, maintaining a CGPA of at least 2.00/4.00, and completing 360 ECTS.",
+            "Tıp Fakültesi için mezun olabilmek adına tüm kuramsal ve uygulamalı dersleri en az DD/S ile tamamlamanız, GANO'nuzun en az 2.00/4.00 olması ve 360 AKTS'yi tamamlamanız gerekir.",
+            prefer_tr,
+        )
+
+    return _t(
+        "For all IEU undergraduate programs except Medicine, graduation requires completing all required theoretical and practical courses with at least DD/S, maintaining a CGPA of at least 2.00/4.00, and completing 240 ECTS. Medicine is the exception and requires 360 ECTS.",
+        "Tıp Fakültesi dışındaki tüm IEU lisans programlarında mezun olabilmek için tüm kuramsal ve uygulamalı dersleri en az DD/S ile tamamlamanız, GANO'nuzun en az 2.00/4.00 olması ve 240 AKTS'yi tamamlamanız gerekir. Tıp Fakültesi istisnadır ve 360 AKTS ister.",
+        prefer_tr,
+    )
 
 
 def _extract_loose_gpa_value(text, allow_integer=False):
@@ -1323,6 +1352,29 @@ def is_greeting_or_small_talk(text):
     return False
 
 
+def is_help_question(text):
+    t = (text or "").lower().strip()
+    if not t:
+        return False
+
+    patterns = [
+        r"\bhow can you help me\b",
+        r"\bwhat can you do\b",
+        r"\bhow do you help\b",
+        r"\bwhat do you help with\b",
+        r"\bhow can i use you\b",
+    ]
+    return any(re.search(pattern, t) for pattern in patterns)
+
+
+def _help_response():
+    return (
+        "I can help with curriculum planning, semester course lists, graduation requirements, "
+        "prerequisites, GPA and credit rules, and IEU program info. If you want, ask me for a "
+        "specific year and semester like '1st year fall' or a course code like 'CE 470'."
+    )
+
+
 # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # MAIN ASK FUNCTION
 # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -1372,6 +1424,9 @@ def ask(question, history=[], client_type=None):
             if followup:
                 return followup
         return "Hi! How can I help you with IEU information today?"
+
+    if is_help_question(question):
+        return _help_response()
 
     if is_out_of_scope_question(question) and not is_web_info_question(question):
         return "I don't have that information in the IEU database."
@@ -1661,22 +1716,14 @@ def ask(question, history=[], client_type=None):
                     entry_year_note=retry_entry_year_note,
                 )
 
-    # Graduation requirement questions should not fall back to generic course search.
-    if graduation_intent and (not dept or not program_name):
-        if not faculty:
-            return _profiling_followup_message("faculty", profile)
-        return _profiling_followup_message("dept", profile)
-
-    if graduation_intent and dept:
-        grad_text = get_graduation_text(dept)
-        if not grad_text:
-            return (
-                "I don't have graduation requirements for that department in my database yet. "
-                "Please check the ECTS system directly."
-            )
-        if client_groq is None:
-            return grad_text[:2000]
-        context_parts.append(grad_text[:2000])
+    # Graduation questions should answer directly with the canonical rule.
+    if graduation_intent:
+        graduation_answer = _format_graduation_requirements_answer(full_question, profile)
+        if regulations_intent and _is_credit_load_question(full_question):
+            regs_answer = _format_regulations_answer(full_question, history, gpa_value)
+            if regs_answer:
+                graduation_answer += "\n\n" + regs_answer.replace("FOLLOWUP_NEEDED: ", "")
+        return graduation_answer
 
     # Deterministic regulations answers (works even without LLM).
     if regulations_intent and (not planning_intent) and (not graduation_intent) and (not web_info_intent):
@@ -1842,13 +1889,11 @@ def ask(question, history=[], client_type=None):
                     curr_text += f"\n- {e['code']}: {e['name']}"
             context_parts.append(curr_text)
 
-    # 4. graduation requirements if dept mentioned
+    # 4. graduation requirements if mentioned alongside another intent
     if (not graduation_intent) and dept and any(k in full_question.lower() for k in
                    ["graduate", "graduation", "finish", "complete",
                     "mezun", "bitir"]):
-        grad_text = get_graduation_text(dept)
-        if grad_text:
-            context_parts.append(grad_text[:1000])
+        context_parts.append(_format_graduation_requirements_answer(full_question, profile))
 
     # 5. regulations if GPA/credits/grades mentioned (allow mixed planning+rules questions)
     if regulations_intent or any(k in full_question.lower() for k in

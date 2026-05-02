@@ -616,6 +616,12 @@ def is_semester_question(text):
     if re.search(r"\b(what|show|list|tell)\b.*\b(my\s+)?(courses|dersler|dersleri)\b", t):
         return True
 
+    if re.search(
+        r"\b([1-6](?:st|nd|rd|th)?|first|second|third|fourth|fifth|sixth|forth)\s+year\s+(spring|fall|autumn|bahar|g[üu]z|guz)\b",
+        t,
+    ):
+        return True
+
     if re.search(r"\b(for|in)\b.*\b([1-6](st|nd|rd|th)?|first|second|third|fourth|fifth|sixth)\s+year\b", t):
         return True
 
@@ -703,6 +709,7 @@ def extract_year_and_term(text):
         "second": 2,
         "third": 3,
         "fourth": 4,
+        "forth": 4,
         "fifth": 5,
         "sixth": 6,
     }
@@ -724,7 +731,7 @@ def extract_year_and_term(text):
     if year is None:
         word_map = {
             "first": 1, "second": 2, "third": 3,
-            "fourth": 4, "fifth": 5, "sixth": 6,
+            "fourth": 4, "forth": 4, "fifth": 5, "sixth": 6,
             "birinci": 1, "ikinci": 2, "üçüncü": 3,
             "dördüncü": 4,
         }
@@ -769,7 +776,7 @@ def extract_year_only(text):
 
     word_map = {
         "first": 1, "second": 2, "third": 3,
-        "fourth": 4, "fifth": 5, "sixth": 6,
+        "fourth": 4, "forth": 4, "fifth": 5, "sixth": 6,
     }
     if t in word_map:
         return word_map[t]
