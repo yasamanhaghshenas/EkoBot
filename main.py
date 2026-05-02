@@ -2,10 +2,25 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
+from contextlib import asynccontextmanager
+import asyncio
 import gemini
 from startup import build_db_if_empty
 
-app = FastAPI(title="EkoBot API")
+
+async def run_startup():
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, build_db_if_empty)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # run indexing in background so server starts immediately
+    asyncio.create_task(run_startup())
+    yield
+
+
+app = FastAPI(title="EkoBot API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -13,11 +28,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-# @app.on_event("startup")
-# async def startup_event():
-#     build_db_if_empty()
 
 class Message(BaseModel):
     role: str
