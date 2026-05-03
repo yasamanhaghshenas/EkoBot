@@ -1586,7 +1586,20 @@ def ask(question, history=[], client_type=None):
             return _profiling_followup_message(question_type, profile) or next_question
         profile_ack = _format_profile_context_ack(profile)
         if profile_ack:
-            return profile_ack
+            # If there is a prior substantive user question that looks like a
+            # curriculum/planning/course lookup request, proceed to handle it
+            # instead of stopping at the profile acknowledgement.
+            anchor = get_latest_substantive_user_question(history or [])
+            if anchor and (
+                is_course_lookup_question(anchor)
+                or is_semester_question(anchor)
+                or _looks_like_curriculum_lookup(anchor)
+            ):
+                # fall through to main handling so the bot can answer the
+                # pending planning/course question now that profile is updated
+                pass
+            else:
+                return profile_ack
 
     parsed = parse_request_slots(question, history, last_bot_q)
     # If parser missed department but profiling extracted it from session history
