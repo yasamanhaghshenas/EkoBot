@@ -67,20 +67,25 @@ if not GROQ_API_KEY:
 # forever when the network is slow or unavailable.
 client_groq = Groq(api_key=GROQ_API_KEY, timeout=20.0, max_retries=0)
 
-try:
-    client = chromadb.PersistentClient(path="./db")
-    collection = client.get_or_create_collection(
-        "ieu_courses",
-        embedding_function=get_embedding_function()
-    )
-    print(f"ChromaDB collection count: {collection.count()}")
-    print(f"ChromaDB collection name: {collection.name}")
-    CHROMADB_READY = collection.count() > 0
-    print(f"ChromaDB ready with {collection.count()} documents")
-except Exception as e:
-    print(f"ChromaDB init failed: {e}")
-    collection = None
-    CHROMADB_READY = False
+client = chromadb.PersistentClient(path="./db")
+collection = None
+CHROMADB_READY = False
+
+
+def get_collection():
+    global collection, CHROMADB_READY
+    try:
+        col = client.get_or_create_collection(
+            "ieu_courses",
+            embedding_function=get_embedding_function()
+        )
+        if col.count() > 0:
+            collection = col
+            CHROMADB_READY = True
+        return col
+    except Exception as e:
+        print(f"ChromaDB error: {e}")
+        return collection
 
 _REGULATIONS_CACHE = None
 
@@ -867,11 +872,12 @@ def _query_relevant_context(query_texts, n_results=3, max_docs=6):
     if not query_texts:
         return []
 
-    if collection is None:
+    col = get_collection()
+    if col is None:
         return []
 
     try:
-        results = collection.query(query_texts=query_texts, n_results=n_results)
+        results = col.query(query_texts=query_texts, n_results=n_results)
     except Exception as e:
         print(f"  semantic context query error: {e}")
         return []
@@ -943,11 +949,12 @@ def _get_regulations_from_db():
     if _REGULATIONS_CACHE is not None:
         return _REGULATIONS_CACHE
 
-    if collection is None:
+    col = get_collection()
+    if col is None:
         return None
 
     try:
-        results = collection.get(
+        results = col.get(
             where={"doc_type": "regulations"},
             include=["documents"],
         )
@@ -966,11 +973,12 @@ def _get_regulations_from_db():
 
 
 def _query_web_info_context(question, max_docs=3):
-    if collection is None:
+    col = get_collection()
+    if col is None:
         return []
 
     try:
-        results = collection.query(
+        results = col.query(
             query_texts=[question],
             n_results=max_docs,
             where={"doc_type": "web_info"},
@@ -1192,7 +1200,7 @@ def _format_regulations_answer(question, history, gpa_value):
             )
         ]
 
-        regs = _get_regulations_from_db() if collection is not None else None
+        regs = _get_regulations_from_db()
         if regs:
             rules = (regs.get("credit_load") or {}).get("rules_by_gpa") or {}
             if gpa_value >= 2.5:
@@ -1207,7 +1215,8 @@ def _format_regulations_answer(question, history, gpa_value):
 
         return "\n".join(lines)
 
-    if collection is None:
+    col = get_collection()
+    if col is None:
         return None
 
     regs = _get_regulations_from_db()
@@ -1613,9 +1622,10 @@ def ask(question, history=[], client_type=None):
     corrections = {}
     if codes:
         try:
-            course_contexts, missing_codes, corrections = get_context_for_codes(codes)
-        except TypeError:
-            course_contexts, missing_codes, corrections = get_context_for_codes(collection, codes)
+            course_contexts, missing_codes, corrections = get_context_for_codes(get_collection(), codes)
+        except Exception:
+            course_contexts, missing_codes, corrections = [], [], {}
+
         if course_contexts:
             ql = full_question.lower()
             if len(codes) == 1 and any(p in ql for p in ["tell me about", "more details", "details about", "information about", "what is ", "what about", "how about"]):
