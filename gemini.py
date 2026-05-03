@@ -73,6 +73,8 @@ try:
         "ieu_courses",
         embedding_function=get_embedding_function()
     )
+    print(f"ChromaDB collection count: {collection.count()}")
+    print(f"ChromaDB collection name: {collection.name}")
     CHROMADB_READY = collection.count() > 0
     print(f"ChromaDB ready with {collection.count()} documents")
 except Exception as e:
