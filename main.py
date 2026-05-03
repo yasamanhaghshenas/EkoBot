@@ -8,15 +8,12 @@ import gemini
 from startup import build_db_if_empty
 
 
-async def run_startup():
-    loop = asyncio.get_event_loop()
-    await loop.run_in_executor(None, build_db_if_empty)
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # run indexing in background so server starts immediately
-    asyncio.create_task(run_startup())
+    # Run indexing synchronously before accepting any requests
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, build_db_if_empty)
+    print("=== Server ready to accept requests ===")
     yield
 
 

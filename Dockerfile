@@ -5,9 +5,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN python -c "from chromadb.utils import embedding_functions; \
-    ef = embedding_functions.SentenceTransformerEmbeddingFunction(\
-    model_name='all-MiniLM-L6-v2'); print('Model ready!')"
+RUN python -c "import chromadb; client = chromadb.Client(); collection = client.create_collection('test'); collection.add(documents=['test'], ids=['1']); collection.query(query_texts=['test'], n_results=1); print('Model pre-downloaded!'); client.delete_collection('test')"
 
 COPY . .
 
