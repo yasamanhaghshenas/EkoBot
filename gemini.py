@@ -1626,6 +1626,23 @@ def ask(question, history=[], client_type=None):
         except Exception:
             course_contexts, missing_codes, corrections = [], [], {}
 
+        # deduplicate course contexts by Course Code to avoid repeats
+        try:
+            seen_codes = set()
+            unique_contexts = []
+            for ctx in course_contexts:
+                match = re.search(r'Course Code: ([A-Z]{2,5} \d{3})', ctx)
+                if match:
+                    code = match.group(1)
+                    if code not in seen_codes:
+                        seen_codes.add(code)
+                        unique_contexts.append(ctx)
+                else:
+                    unique_contexts.append(ctx)
+            course_contexts = unique_contexts
+        except Exception:
+            pass
+
         if course_contexts:
             ql = full_question.lower()
             if len(codes) == 1 and any(p in ql for p in ["tell me about", "more details", "details about", "information about", "what is ", "what about", "how about"]):

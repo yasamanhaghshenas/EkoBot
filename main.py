@@ -1,5 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List, Optional
 from contextlib import asynccontextmanager
@@ -18,6 +20,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="EkoBot API", lifespan=lifespan)
+
+# Mount website folder so the UI can be served from the Space URL
+app.mount("/website", StaticFiles(directory="website"), name="website")
+
+
+@app.get("/ui")
+async def serve_ui():
+    return FileResponse("website/index.html")
 
 app.add_middleware(
     CORSMiddleware,
