@@ -5,7 +5,7 @@ from embeddings import get_embedding_function
 
 def build_db_if_empty():
     print("Checking ChromaDB...")
-    client = chromadb.PersistentClient(path="./db")
+    client = chromadb.PersistentClient(path="/data/db")
 
     try:
         existing = client.get_collection(

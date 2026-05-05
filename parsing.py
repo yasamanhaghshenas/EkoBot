@@ -572,11 +572,55 @@ def wants_both_semesters(text):
 # ─────────────────────────────────────────────
 
 def is_graduation_question(text):
-    keywords = [
+    """
+    Detect if a question is about graduation requirements.
+    Uses scoring approach: multiple matching cues increase confidence.
+    """
+    t = (text or "").lower()
+    
+    # Strong graduation keywords — presence alone is usually sufficient
+    strong_keywords = [
         "graduation", "graduate", "how to graduate", "requirements to graduate",
-        "mezuniyet", "mezun", "mezun olmak", "gerekli", "şart",
+        "mezuniyet", "mezun olmak", "mezun olabilmek",
     ]
-    return any(k in text.lower() for k in keywords)
+    if any(k in t for k in strong_keywords):
+        return True
+    
+    # Weak/contextual keywords — need multiple or combination with cues
+    weak_keywords = [
+        "mezun",     # Can appear in other contexts
+        "gerekli",   # "required" / "necessary"
+        "şart",      # "condition" / "requirement"
+        "şartlar",   # "conditions"
+    ]
+    
+    # Cues asking for a count or requirement
+    credit_cues = re.search(r"\bhow many\s+(ects|credits|kredi|akts)\b", t)
+    turkish_credit_cues = re.search(r"\b(kac|kaç)\s+(akts|ects|kredi)\b", t)
+    requirement_cues = re.search(r"\brequire\b|\bneed\b|\bneed to\b", t)
+    
+    # Pattern: "how many credits/ECTS [to/for/needed] [graduate/graduation/mezuniyet]"
+    graduation_ects_pattern = re.search(
+        r"(how many|kac|kaç)\s+(ects|credits|kredi|akts)\b.*\b(to|for|för|için)\b.*(graduat|mezun)",
+        t
+    )
+    
+    if graduation_ects_pattern:
+        return True
+    
+    # Multiple weak cues together suggest graduation question
+    weak_count = sum(1 for k in weak_keywords if k in t)
+    has_credit_cue = bool(credit_cues or turkish_credit_cues)
+    
+    # If asking about credits/ECTS AND has weak graduation keywords, likely graduation
+    if has_credit_cue and weak_count >= 2:
+        return True
+    
+    # If asking about credits/ECTS AND has requirement language, likely graduation
+    if has_credit_cue and requirement_cues:
+        return True
+    
+    return False
 
 
 def is_semester_question(text):

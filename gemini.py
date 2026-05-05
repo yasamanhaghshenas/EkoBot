@@ -67,7 +67,7 @@ if not GROQ_API_KEY:
 # forever when the network is slow or unavailable.
 client_groq = Groq(api_key=GROQ_API_KEY, timeout=20.0, max_retries=0)
 
-client = chromadb.PersistentClient(path="./db")
+client = chromadb.PersistentClient(path="/data/db")
 collection = None
 CHROMADB_READY = False
 
@@ -938,6 +938,13 @@ def _build_conversation_snapshot(question, parsed, history, codes, failed_course
 
 def _is_credit_load_question(text):
     t = (text or "").lower()
+    # Don't treat graduation-related questions as credit-load questions.
+    try:
+        if is_graduation_question(text):
+            return False
+    except Exception:
+        pass
+
     return any(k in t for k in [
         "how many credits", "credits can i take", "credit limit", "credit load", "ects",
         "kredi", "ne kadar kredi", "kac kredi", "kaأ§ kredi",
@@ -1614,6 +1621,18 @@ def ask(question, history=[], client_type=None):
     prefer_tr = _looks_turkish(full_question)
     history_with_current = list(history or []) + [{"role": "user", "content": question}]
     profile = extract_profile_from_history(history_with_current)
+
+    # Debug: print intent detector decisions to help troubleshooting misclassifications
+    try:
+        print(
+            f"DEBUG intents: parsed_intent={parsed.get('intent')!r}, "
+            f"is_graduation={is_graduation_question(full_question)}, "
+            f"is_semester={is_semester_question(full_question)}, "
+            f"is_course_lookup={is_course_lookup_question(full_question)}, "
+            f"is_credit_load={_is_credit_load_question(full_question)}"
+        )
+    except Exception:
+        pass
 
     # â”€â”€ gather ALL potentially relevant context â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     context_parts = []
