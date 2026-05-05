@@ -5,26 +5,34 @@ from embeddings import get_embedding_function
 
 def build_db_if_empty():
     print("Checking ChromaDB...")
-    client = chromadb.PersistentClient(path="/data/db")
+    import shutil
+    db_path = "/data/db"
 
+    # Test if existing db is healthy before indexing.
     try:
-        existing = client.get_collection(
-            "ieu_courses",
-            embedding_function=get_embedding_function()
-        )
-        count = existing.count()
+        client = chromadb.PersistentClient(path=db_path)
+        col = client.get_collection("ieu_courses")
+        count = col.count()
         if count > 0:
             print(f"ChromaDB already has {count} docs. Skipping.")
             return
-    except:
+    except Exception as e:
+        print(f"ChromaDB corrupted or empty: {e}")
+        print("Deleting corrupted db and rebuilding...")
+        try:
+            shutil.rmtree(db_path)
+            print("Deleted corrupted db.")
+        except Exception:
+            pass
+
+    # Rebuild from scratch.
+    client = chromadb.PersistentClient(path=db_path)
+    try:
+        client.delete_collection("ieu_courses")
+    except Exception:
         pass
 
     try:
-        try:
-            client.delete_collection("ieu_courses")
-        except:
-            pass
-
         collection = client.create_collection(
             "ieu_courses",
             embedding_function=get_embedding_function()
