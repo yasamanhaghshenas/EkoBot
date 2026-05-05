@@ -71,11 +71,34 @@ client_groq = Groq(api_key=GROQ_API_KEY, timeout=20.0, max_retries=0)
 client = None
 collection = None
 CHROMADB_READY = False
-DB_PATH = "/data/db"
+
+
+def _pick_db_path():
+    preferred = os.environ.get("CHROMA_DB_PATH", "/data/db")
+    candidates = []
+    for p in [preferred, "/tmp/ekobot_db"]:
+        if p not in candidates:
+            candidates.append(p)
+
+    for path in candidates:
+        try:
+            os.makedirs(path, exist_ok=True)
+            probe = os.path.join(path, ".write_test")
+            with open(probe, "w", encoding="utf-8") as f:
+                f.write("ok")
+            os.remove(probe)
+            return path
+        except Exception as e:
+            print(f"DB path not writable ({path}): {e}")
+
+    return preferred
+
+
+DB_PATH = _pick_db_path()
 
 
 def get_collection():
-    global client, collection, CHROMADB_READY
+    global client, collection, CHROMADB_READY, DB_PATH
     try:
         if client is None:
             client = chromadb.PersistentClient(path=DB_PATH)
@@ -93,16 +116,21 @@ def get_collection():
         print(f"ChromaDB error: {err_text}")
 
         # Recover from known SQLite/chroma corruption instead of crashing app startup.
-        if "database disk image is malformed" in err_text.lower():
-            print("Detected corrupted ChromaDB at /data/db. Rebuilding...")
+        lower_err = err_text.lower()
+        if (
+            "database disk image is malformed" in lower_err
+            or "readonly" in lower_err
+            or "tenant" in lower_err
+        ):
+            print(f"Detected problematic ChromaDB state at {DB_PATH}. Rebuilding...")
             try:
                 client = None
                 collection = None
                 CHROMADB_READY = False
                 shutil.rmtree(DB_PATH)
-                print("Deleted corrupted /data/db")
+                print(f"Deleted corrupted {DB_PATH}")
             except Exception as cleanup_error:
-                print(f"Failed to delete corrupted /data/db: {cleanup_error}")
+                print(f"Failed to delete corrupted {DB_PATH}: {cleanup_error}")
 
             try:
                 client = chromadb.PersistentClient(path=DB_PATH)
@@ -116,6 +144,23 @@ def get_collection():
                 return col
             except Exception as recreate_error:
                 print(f"ChromaDB recovery failed: {recreate_error}")
+
+                # Final fallback for environments where /data is read-only.
+                if DB_PATH != "/tmp/ekobot_db":
+                    try:
+                        DB_PATH = "/tmp/ekobot_db"
+                        os.makedirs(DB_PATH, exist_ok=True)
+                        client = chromadb.PersistentClient(path=DB_PATH)
+                        col = client.get_or_create_collection(
+                            "ieu_courses",
+                            embedding_function=get_embedding_function()
+                        )
+                        collection = col
+                        CHROMADB_READY = col.count() > 0
+                        print("ChromaDB switched to /tmp/ekobot_db fallback")
+                        return col
+                    except Exception as fallback_error:
+                        print(f"ChromaDB fallback recovery failed: {fallback_error}")
 
         return collection
 

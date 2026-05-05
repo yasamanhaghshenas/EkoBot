@@ -3,10 +3,32 @@ import json
 import chromadb
 from embeddings import get_embedding_function
 
+
+def _pick_db_path():
+    preferred = os.environ.get("CHROMA_DB_PATH", "/data/db")
+    candidates = []
+    for p in [preferred, "/tmp/ekobot_db"]:
+        if p not in candidates:
+            candidates.append(p)
+
+    for path in candidates:
+        try:
+            os.makedirs(path, exist_ok=True)
+            probe = os.path.join(path, ".write_test")
+            with open(probe, "w", encoding="utf-8") as f:
+                f.write("ok")
+            os.remove(probe)
+            return path
+        except Exception as e:
+            print(f"DB path not writable ({path}): {e}")
+
+    return preferred
+
 def build_db_if_empty():
     print("Checking ChromaDB...")
     import shutil
-    db_path = "/data/db"
+    db_path = _pick_db_path()
+    print(f"Using ChromaDB path: {db_path}")
 
     # Test if existing db is healthy before indexing.
     try:
@@ -17,16 +39,31 @@ def build_db_if_empty():
             print(f"ChromaDB already has {count} docs. Skipping.")
             return
     except Exception as e:
-        print(f"ChromaDB corrupted or empty: {e}")
-        print("Deleting corrupted db and rebuilding...")
-        try:
-            shutil.rmtree(db_path)
-            print("Deleted corrupted db.")
-        except Exception:
-            pass
+        err_text = str(e)
+        print(f"ChromaDB corrupted or empty: {err_text}")
+
+        # Missing collection is normal for first run; don't delete folder for that case.
+        if "does not exist" in err_text.lower():
+            print("Collection does not exist yet. Building new index.")
+        else:
+            print("Deleting corrupted db and rebuilding...")
+            try:
+                shutil.rmtree(db_path)
+                print("Deleted corrupted db.")
+            except Exception:
+                pass
 
     # Rebuild from scratch.
-    client = chromadb.PersistentClient(path=db_path)
+    try:
+        client = chromadb.PersistentClient(path=db_path)
+    except Exception as e:
+        print(f"Primary DB init failed at {db_path}: {e}")
+        fallback = "/tmp/ekobot_db"
+        os.makedirs(fallback, exist_ok=True)
+        client = chromadb.PersistentClient(path=fallback)
+        db_path = fallback
+        print(f"Switched ChromaDB path to fallback: {db_path}")
+
     try:
         client.delete_collection("ieu_courses")
     except Exception:
