@@ -83,6 +83,7 @@ def build_db_if_empty():
         batch_docs = []
         batch_ids = []
         batch_meta = []
+        corruption_detected = False
 
         for i, course in enumerate(courses):
             batch_docs.append(course["text"])
@@ -93,22 +94,104 @@ def build_db_if_empty():
             })
 
             if len(batch_docs) == 50:
-                collection.add(
-                    documents=batch_docs,
-                    ids=batch_ids,
-                    metadatas=batch_meta
-                )
-                print(f"  Indexed {i+1}/{len(courses)}")
+                try:
+                    collection.add(
+                        documents=batch_docs,
+                        ids=batch_ids,
+                        metadatas=batch_meta
+                    )
+                    print(f"  Indexed {i+1}/{len(courses)}")
+                except Exception as batch_err:
+                    err_text = str(batch_err)
+                    print(f"Batch add failed at {i+1}/{len(courses)}: {err_text}")
+
+                    if (
+                        "database disk image is malformed" in err_text.lower()
+                        or "readonly" in err_text.lower()
+                    ):
+                        print("Detected DB corruption during indexing. Switching to fallback DB...")
+                        corruption_detected = True
+                        try:
+                            client = None
+                            collection = None
+                            shutil.rmtree(db_path)
+                            print(f"Deleted corrupted {db_path}")
+                        except Exception:
+                            pass
+
+                        fallback = "/tmp/ekobot_db"
+                        os.makedirs(fallback, exist_ok=True)
+                        try:
+                            client = chromadb.PersistentClient(path=fallback)
+                            client.delete_collection("ieu_courses")
+                        except Exception:
+                            pass
+
+                        collection = client.create_collection(
+                            "ieu_courses",
+                            embedding_function=get_embedding_function()
+                        )
+                        db_path = fallback
+                        print(f"Switched to {db_path}. Retrying batch...")
+
+                        try:
+                            collection.add(
+                                documents=batch_docs,
+                                ids=batch_ids,
+                                metadatas=batch_meta
+                            )
+                            print(f"  Indexed {i+1}/{len(courses)} (recovered)")
+                        except Exception as retry_err:
+                            print(f"Retry failed: {retry_err}")
+                    else:
+                        raise
+
                 batch_docs = []
                 batch_ids = []
                 batch_meta = []
 
         if batch_docs:
-            collection.add(
-                documents=batch_docs,
-                ids=batch_ids,
-                metadatas=batch_meta
-            )
+            try:
+                collection.add(
+                    documents=batch_docs,
+                    ids=batch_ids,
+                    metadatas=batch_meta
+                )
+            except Exception as final_batch_err:
+                err_text = str(final_batch_err)
+                print(f"Final batch failed: {err_text}")
+
+                if (
+                    "database disk image is malformed" in err_text.lower()
+                    or "readonly" in err_text.lower()
+                ) and not corruption_detected:
+                    print("Detected DB corruption on final batch. Switching to fallback...")
+                    try:
+                        shutil.rmtree(db_path)
+                    except Exception:
+                        pass
+
+                    fallback = "/tmp/ekobot_db"
+                    os.makedirs(fallback, exist_ok=True)
+                    try:
+                        client = chromadb.PersistentClient(path=fallback)
+                        client.delete_collection("ieu_courses")
+                    except Exception:
+                        pass
+
+                    collection = client.create_collection(
+                        "ieu_courses",
+                        embedding_function=get_embedding_function()
+                    )
+
+                    collection.add(
+                        documents=batch_docs,
+                        ids=batch_ids,
+                        metadatas=batch_meta
+                    )
+                    print(f"Final batch indexed after fallback")
+                else:
+                    raise
 
         print(f"=== Done! {len(courses)} courses indexed ===")
 
