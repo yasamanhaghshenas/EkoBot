@@ -3,6 +3,7 @@ import chromadb
 import json
 import os
 import re
+import shutil
 
 from embeddings import get_embedding_function
 from parsing import (
@@ -67,14 +68,18 @@ if not GROQ_API_KEY:
 # forever when the network is slow or unavailable.
 client_groq = Groq(api_key=GROQ_API_KEY, timeout=20.0, max_retries=0)
 
-client = chromadb.PersistentClient(path="/data/db")
+client = None
 collection = None
 CHROMADB_READY = False
+DB_PATH = "/data/db"
 
 
 def get_collection():
-    global collection, CHROMADB_READY
+    global client, collection, CHROMADB_READY
     try:
+        if client is None:
+            client = chromadb.PersistentClient(path=DB_PATH)
+
         col = client.get_or_create_collection(
             "ieu_courses",
             embedding_function=get_embedding_function()
@@ -84,7 +89,34 @@ def get_collection():
             CHROMADB_READY = True
         return col
     except Exception as e:
-        print(f"ChromaDB error: {e}")
+        err_text = str(e)
+        print(f"ChromaDB error: {err_text}")
+
+        # Recover from known SQLite/chroma corruption instead of crashing app startup.
+        if "database disk image is malformed" in err_text.lower():
+            print("Detected corrupted ChromaDB at /data/db. Rebuilding...")
+            try:
+                client = None
+                collection = None
+                CHROMADB_READY = False
+                shutil.rmtree(DB_PATH)
+                print("Deleted corrupted /data/db")
+            except Exception as cleanup_error:
+                print(f"Failed to delete corrupted /data/db: {cleanup_error}")
+
+            try:
+                client = chromadb.PersistentClient(path=DB_PATH)
+                col = client.get_or_create_collection(
+                    "ieu_courses",
+                    embedding_function=get_embedding_function()
+                )
+                collection = col
+                CHROMADB_READY = col.count() > 0
+                print("ChromaDB reinitialized after corruption recovery")
+                return col
+            except Exception as recreate_error:
+                print(f"ChromaDB recovery failed: {recreate_error}")
+
         return collection
 
 _REGULATIONS_CACHE = None
