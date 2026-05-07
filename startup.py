@@ -5,24 +5,26 @@ from embeddings import get_embedding_function
 
 
 def _pick_db_path():
-    preferred = os.environ.get("CHROMA_DB_PATH", "/data/db")
-    candidates = []
-    for p in [preferred, "/tmp/ekobot_db"]:
-        if p not in candidates:
-            candidates.append(p)
+    env_path = os.environ.get("CHROMA_DB_PATH")
+    if env_path:
+        print(f"Using env path: {env_path}")
+        return env_path
 
-    for path in candidates:
-        try:
-            os.makedirs(path, exist_ok=True)
-            probe = os.path.join(path, ".write_test")
-            with open(probe, "w", encoding="utf-8") as f:
-                f.write("ok")
-            os.remove(probe)
-            return path
-        except Exception as e:
-            print(f"DB path not writable ({path}): {e}")
-
-    return preferred
+    data_path = "/data/db"
+    print(f"Checking if /data/db is writable...")
+    try:
+        os.makedirs(data_path, exist_ok=True)
+        test_file = os.path.join(data_path, ".write_test")
+        with open(test_file, "w") as f:
+            f.write("test")
+        os.remove(test_file)
+        print(f"SUCCESS: Using persistent path: {data_path}")
+        return data_path
+    except Exception as e:
+        print(f"FAILED /data/db not writable: {e}")
+        fallback = "/tmp/ekobot_db"
+        print(f"Falling back to: {fallback}")
+        return fallback
 
 def build_db_if_empty():
     print("Checking ChromaDB...")
