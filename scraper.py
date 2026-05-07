@@ -70,11 +70,39 @@ def scrape_course(course, verify_ssl=True):
                 if col1.isdigit() and col2:
                     text += f"Week {col1}: {col2}\n"
 
+        # evaluation/grading table extraction
+        evaluation_text = ""
+        eval_table = soup.find("table", {"id": "evaluation_table1"})
+        if eval_table:
+            for row in eval_table.find_all("tr"):
+                cells = row.find_all(["td", "th"])
+                if len(cells) >= 3:
+                    activity = cells[0].get_text(strip=True)
+                    number = cells[1].get_text(strip=True)
+                    weight = cells[2].get_text(strip=True)
+                    
+                    # skip header rows and total row
+                    skip_keywords = ["Semester Activities", "Number", "Weighting", 
+                                   "Total", "Toplam", "Dönem İçi", "Dönem Sonu",
+                                   "Weighting of"]
+                    if any(k in activity for k in skip_keywords):
+                        continue
+                    
+                    # skip rows where both number and weight are "-"
+                    if number == "-" and weight == "-":
+                        continue
+                    
+                    if activity and len(activity) > 2:
+                        evaluation_text += f"{activity}: {number} time(s), {weight}% weight\n"
+
+        if evaluation_text:
+            text += f"\nEvaluation System:\n{evaluation_text}"
         # special prerequisite extraction (nested table structure)
         # special prerequisite extraction - handles both TR and EN pages
         prereq = "None"
         for row in soup.find_all("tr"):
-            row_text = row.get_text(separator=" ", strip=True)
+            row_text = row.get_text(separator
+            =" ", strip=True)
             if "Ön-Koşul" in row_text or "Prerequisite" in row_text:
                 raw = row.get_text(separator=" ", strip=True)
        
