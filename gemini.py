@@ -353,7 +353,25 @@ STRICT RULES:
     like to know more?' and user says 'yes' â€” answer more about
     SE 350, do not search for something new.
 
-Always be specific and helpful â€” do not just say you don't have the information."""
+Always be specific and helpful â€” do not just say you don't have the information.
+
+EVALUATION/GRADING SYSTEM RULE:
+- When a student asks about grading, evaluation system, exam weights,
+  or how they will be graded in a course, IN BOTH TURKISH AND ENGLISH look for the
+  'Evaluation System:' section in the context and present it clearly.
+- Format it as a table or list showing each activity, number of times,
+  and percentage weight.
+- Example format:
+  CE 342 Grading System:
+  - Laboratory: 1 time, 15%
+  - Quizzes: 4 times, 10%
+  - Project: 1 time, 5%
+  - Midterm: 1 time, 30%
+  - Final Exam: 1 time, 40%
+- Keywords that indicate grading questions: 'grading', 'evaluation',
+  'exam weight', 'how am I graded', 'assessment', 'midterm percentage',
+  'final percentage', 'not sistemi', 'değerlendirme', 'sınav ağırlığı'
+"""
     if mobile_rule:
         system_prompt += mobile_rule
 
