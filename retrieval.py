@@ -89,6 +89,26 @@ def format_course_direct_response(doc):
         m = re.search(rf"^{re.escape(label)}:\s*(.+)$", doc, re.IGNORECASE | re.MULTILINE)
         return m.group(1).strip() if m else None
 
+    def extract_evaluation_lines():
+        match = re.search(r"^Evaluation System:\s*(.+?)(?:\n(?:Prerequisites|Course Code|Department|$):|\Z)", doc, re.IGNORECASE | re.DOTALL | re.MULTILINE)
+        if not match:
+            return []
+
+        section = match.group(1)
+        lines = []
+        for raw_line in section.splitlines():
+            line = raw_line.strip()
+            if not line:
+                continue
+            if line.lower().startswith("evaluation system:"):
+                continue
+            if line.startswith("Prerequisites:"):
+                continue
+            if "time(s)" not in line and "% weight" not in line:
+                continue
+            lines.append(line)
+        return lines
+
     code = pick("Course Code") or "Unknown"
     name = pick("Course Name") or "Unknown"
     dept = pick("Department") or "Unknown"
@@ -115,5 +135,10 @@ def format_course_direct_response(doc):
         lines.append(f"Prerequisites: {prereq}")
     if desc:
         lines.append(f"Description: {desc}")
+
+    evaluation_lines = extract_evaluation_lines()
+    if evaluation_lines:
+        lines.append("Evaluation System:")
+        lines.extend(f"- {line}" for line in evaluation_lines)
 
     return "\n".join(lines)
