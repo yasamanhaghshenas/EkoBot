@@ -74,24 +74,7 @@ CHROMADB_READY = False
 
 
 def _pick_db_path():
-    preferred = os.environ.get("CHROMA_DB_PATH", "/data/db")
-    candidates = []
-    for p in [preferred, "/tmp/ekobot_db"]:
-        if p not in candidates:
-            candidates.append(p)
-
-    for path in candidates:
-        try:
-            os.makedirs(path, exist_ok=True)
-            probe = os.path.join(path, ".write_test")
-            with open(probe, "w", encoding="utf-8") as f:
-                f.write("ok")
-            os.remove(probe)
-            return path
-        except Exception as e:
-            print(f"DB path not writable ({path}): {e}")
-
-    return preferred
+    return "/tmp/ekobot_db"
 
 
 DB_PATH = _pick_db_path()
