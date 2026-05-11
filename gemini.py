@@ -276,7 +276,12 @@ STRICT RULES:
     like to know more?' and user says 'yes' â€” answer more about
     SE 350, do not search for something new.
 
-Always be specific and helpful â€” do not just say you don't have the information."""
+Always be specific and helpful â€” do not just say you don't have the information.
+10. EVALUATION/GRADING SYSTEM RULE: If the student asks about grading, assessment, evaluation method,
+    exam weights, or how they will be graded in a course, extract and clearly present the
+    Evaluation System section from the course data (e.g., Midterm 40%, Final 60%, etc.).
+    Present grading breakdown as a clear list if available.
+"""
     if mobile_rule:
         system_prompt += mobile_rule
 
@@ -719,6 +724,80 @@ def _dedupe_texts(items):
         seen.add(key)
         out.append(text)
     return out
+
+
+def _get_curriculum_courses_robust(
+    dept,
+    year,
+    term,
+    start_year=None,
+    program_name=None,
+    curriculum_url=None,
+    faculty=None,
+):
+    """
+    Robust curriculum lookup that retries with normalized/fallback selectors.
+    This avoids false "no curriculum data" responses when one selector is noisy.
+    """
+    attempts = []
+    seen = set()
+
+    def add_attempt(d, sy, pn, cu):
+        d_norm = normalize_department_code(d) if d else None
+        if not d_norm:
+            return
+        key = (
+            d_norm,
+            int(sy) if sy is not None else None,
+            (pn or "").strip() or None,
+            (cu or "").strip() or None,
+        )
+        if key in seen:
+            return
+        seen.add(key)
+        attempts.append(key)
+
+    add_attempt(dept, start_year, program_name, curriculum_url)
+    add_attempt(dept, start_year, None, None)
+
+    if start_year is not None:
+        add_attempt(dept, None, program_name, curriculum_url)
+        add_attempt(dept, None, None, None)
+
+    if program_name:
+        resolved = resolve_ieu_department(program_name, faculty_name=faculty)
+        if not resolved:
+            resolved = resolve_ieu_department(program_name)
+        if resolved:
+            add_attempt(
+                resolved.get("department_code") or dept,
+                start_year,
+                resolved.get("program_name") or program_name,
+                resolved.get("curriculum_url") or curriculum_url,
+            )
+            add_attempt(resolved.get("department_code") or dept, start_year, None, None)
+            if start_year is not None:
+                add_attempt(
+                    resolved.get("department_code") or dept,
+                    None,
+                    resolved.get("program_name") or program_name,
+                    resolved.get("curriculum_url") or curriculum_url,
+                )
+                add_attempt(resolved.get("department_code") or dept, None, None, None)
+
+    for d_norm, sy, pn, cu in attempts:
+        courses = get_curriculum_courses(
+            d_norm,
+            year,
+            term,
+            start_year=sy,
+            program_name=pn,
+            curriculum_url=cu,
+        )
+        if courses:
+            return courses
+
+    return []
 
 
 def _extract_recent_course_codes_from_history(history, limit=12):
@@ -1653,21 +1732,23 @@ def ask(question, history=[], client_type=None):
         if not start_year and has_multiple_curriculum_variants(dept, program_name=program_name):
             return _curriculum_entry_year_followup()
 
-        fall_courses = get_curriculum_courses(
+        fall_courses = _get_curriculum_courses_robust(
             dept,
             year,
             "Fall",
             start_year=start_year,
             program_name=program_name,
             curriculum_url=curriculum_url,
+            faculty=faculty,
         )
-        spring_courses = get_curriculum_courses(
+        spring_courses = _get_curriculum_courses_robust(
             dept,
             year,
             "Spring",
             start_year=start_year,
             program_name=program_name,
             curriculum_url=curriculum_url,
+            faculty=faculty,
         )
 
         parts = []
@@ -1708,13 +1789,14 @@ def ask(question, history=[], client_type=None):
 
     # Deterministic semester answer once dept + year + term are known.
     if (not graduation_intent) and (planning_intent or last_bot_q in ["year_term", "start_year"]) and dept and year and term:
-        courses = get_curriculum_courses(
+        courses = _get_curriculum_courses_robust(
             dept,
             year,
             term,
             start_year=start_year,
             program_name=program_name,
             curriculum_url=curriculum_url,
+            faculty=faculty,
         )
         if not courses:
             if last_bot_q in ["year_term", "start_year"]:
@@ -1731,13 +1813,14 @@ def ask(question, history=[], client_type=None):
                     program_name=program_name,
                     curriculum_url=curriculum_url,
                 )
-                courses = get_curriculum_courses(
+                courses = _get_curriculum_courses_robust(
                     dept,
                     year,
                     term,
                     start_year=start_year,
                     program_name=program_name,
                     curriculum_url=curriculum_url,
+                    faculty=faculty,
                 )
         if not courses:
             return (

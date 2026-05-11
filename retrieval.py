@@ -84,4 +84,15 @@ def format_course_direct_response(doc):
     if desc:
         lines.append(f"Description: {desc}")
 
+    # Extract and format Evaluation System
+    eval_match = re.search(r"^Evaluation System:\s*\n([\s\S]*?)(?=\n\n|\nPrerequisites:|$)", doc, re.MULTILINE)
+    if eval_match:
+        eval_text = eval_match.group(1).strip()
+        eval_lines = [line.strip() for line in eval_text.split("\n") if line.strip()]
+        eval_lines = [line for line in eval_lines if not line.startswith("time(s)") and "%" in line]
+        if eval_lines:
+            lines.append("\nEvaluation System:")
+            for line in eval_lines:
+                lines.append(f"  - {line}")
+
     return "\n".join(lines)
