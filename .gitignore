@@ -2,5 +2,13 @@ __pycache__/
 db/
 *.pyc
 .env
-courses.json
-course_codes_full.json".history/" 
+# Track course data file
+# courses.json should be tracked in the repo; do not ignore it.
+course_codes_full.json
+.history/
+.venv/
+.vscode/
+*.sqlite3
+*.db
+.DS_Store
+.pytest_cache/
