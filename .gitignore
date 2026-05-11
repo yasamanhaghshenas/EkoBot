@@ -12,3 +12,5 @@ course_codes_full.json
 *.db
 .DS_Store
 .pytest_cache/
+*.xlsx
+*.xls
