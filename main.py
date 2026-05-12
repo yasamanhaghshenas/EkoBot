@@ -1,8 +1,11 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List, Optional
 import gemini
+import os
 
 app = FastAPI(title="EkoBot API")
 
@@ -33,6 +36,10 @@ class ChatResponse(BaseModel):
 
 @app.get("/")
 def root():
+    # Serve the website index.html if it exists, otherwise return API status
+    website_path = os.path.join(os.path.dirname(__file__), "website", "index.html")
+    if os.path.exists(website_path):
+        return FileResponse(website_path, media_type="text/html")
     return {"message": "EkoBot is running!"}
 
 @app.post("/chat")
