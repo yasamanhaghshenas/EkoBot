@@ -69,6 +69,21 @@ def format_course_direct_response(doc):
     desc = pick("Course Description") or pick("Course Aim")
 
     lines = [f"{code} - {name}", f"Department: {dept}"]
+    
+    # Extract and format Evaluation System FIRST (prioritize to avoid truncation)
+    # Fixed regex: use (?:(?=\nPrerequisites:)|\Z) to capture all lines until Prerequisites or end
+    eval_match = re.search(r"^Evaluation System:\s*\n(.*?)(?:(?=\nPrerequisites:)|\Z)", doc, re.MULTILINE | re.DOTALL)
+    eval_section = []
+    if eval_match:
+        eval_text = eval_match.group(1).strip()
+        eval_lines = [line.strip() for line in eval_text.split("\n") if line.strip()]
+        eval_lines = [line for line in eval_lines if not line.startswith("time(s)") and "%" in line]
+        if eval_lines:
+            eval_section.append("Evaluation System:")
+            for line in eval_lines:
+                eval_section.append(f"  - {line}")
+    
+    # Add basic course info
     if semester:
         lines.append(f"Semester: {semester}")
     if credits:
@@ -81,18 +96,14 @@ def format_course_direct_response(doc):
         lines.append(f"Course Coordinator: {coordinator}")
     if prereq:
         lines.append(f"Prerequisites: {prereq}")
+    
+    # Add evaluation system early (before long description)
+    if eval_section:
+        lines.append("")
+        lines.extend(eval_section)
+        lines.append("")
+    
     if desc:
         lines.append(f"Description: {desc}")
-
-    # Extract and format Evaluation System
-    eval_match = re.search(r"^Evaluation System:\s*\n([\s\S]*?)(?=\n\n|\nPrerequisites:|$)", doc, re.MULTILINE)
-    if eval_match:
-        eval_text = eval_match.group(1).strip()
-        eval_lines = [line.strip() for line in eval_text.split("\n") if line.strip()]
-        eval_lines = [line for line in eval_lines if not line.startswith("time(s)") and "%" in line]
-        if eval_lines:
-            lines.append("\nEvaluation System:")
-            for line in eval_lines:
-                lines.append(f"  - {line}")
 
     return "\n".join(lines)
