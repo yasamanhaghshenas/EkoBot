@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+chromadb
+groq
+sentence-transformers
+pydantic
+requests
+beautifulsoup4
+numpy
+torch
