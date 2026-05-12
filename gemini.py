@@ -236,9 +236,9 @@ def call_llm(question, context_docs, history, client_type=None):
         return "The language model is unavailable right now. Please try again later."
 
     context = "\n\n---\n\n".join(context_docs)
-    # truncate context to avoid token limit (max ~8000 chars)
-    if len(context) > 8000:
-        context = context[:8000] + "\n...[truncated]"
+    # truncate context to avoid token limit (increased to 15000 to preserve evaluation system)
+    if len(context) > 15000:
+        context = context[:15000] + "\n...[truncated]"
     print(f"  Calling LLM with {len(context_docs)} context doc(s)...")
 
     client_type_norm = (client_type or "").strip().lower()
@@ -1914,13 +1914,13 @@ def ask(question, history=[], client_type=None):
         )
 
     # â”€â”€ ask LLM to reason over ALL context â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    # truncate to avoid token limit
+    # truncate to avoid token limit (increased to 15000 to preserve evaluation system)
     if conversation_snapshot:
         context_parts.insert(0, conversation_snapshot)
 
     combined = "\n\n---\n\n".join(context_parts)
-    if len(combined) > 8000:
-        combined = combined[:8000]
+    if len(combined) > 15000:
+        combined = combined[:15000]
 
     return call_llm(full_question, [combined], history, client_type=client_type)
 
