@@ -1,4 +1,5 @@
-﻿from groq import Groq
+from groq import Groq
+import google.generativeai as genai
 import chromadb
 import json
 import os
@@ -68,6 +69,14 @@ else:
     client_groq = None
     print("WARNING: GROQ_API_KEY is not set. LLM fallback disabled.")
 
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+    gemini_model = genai.GenerativeModel("gemini-1.5-flash")
+else:
+    gemini_model = None
+    print("WARNING: GEMINI_API_KEY is not set.")
+
 client = chromadb.PersistentClient(path="./db")
 collection = client.get_or_create_collection("ieu_courses", embedding_function=SentenceTransformerEmbeddingFunction())
 
@@ -84,6 +93,51 @@ def _extract_json_object(text):
         return json.loads(match.group(0))
     except Exception:
         return None
+
+
+def _get_curriculum_url_for_start_year(resolved_dept, start_year):
+    """
+    Pick the correct curriculum URL from resolved_dept based on start_year.
+    If start_year is provided, searches curriculum.json for a matching entry_year.
+    Falls back to the default curriculum_url if no match found.
+    """
+    if not resolved_dept or start_year is None:
+        return (resolved_dept.get("curriculum_url") or "").strip() or None
+    
+    # Try to find the correct URL in curriculum.json for this start_year
+    try:
+        import json, os
+        start_year_int = int(start_year)
+        
+        if os.path.exists("curriculum.json"):
+            with open("curriculum.json", "r", encoding="utf-8") as f:
+                curriculum = json.load(f)
+            
+            dept_code = (resolved_dept.get("department_code") or resolved_dept.get("department") or "").strip().upper()
+            program_name = resolved_dept.get("program_name") or resolved_dept.get("label") or ""
+            
+            for item in curriculum:
+                try:
+                    if int(item.get("entry_year") or 0) == start_year_int:
+                        # Check if department matches
+                        item_dept = (item.get("department") or "").strip().upper()
+                        if item_dept != dept_code:
+                            continue
+                        # Check if program name matches (roughly)
+                        item_program = (item.get("program_name") or "").strip().lower()
+                        if item_program and program_name and item_program != program_name.lower():
+                            continue
+                        # Found a match - return its URL
+                        url = (item.get("url") or item.get("curriculum_url") or "").strip()
+                        if url:
+                            return url
+                except (ValueError, TypeError):
+                    continue
+    except Exception:
+        pass
+    
+    # Fall back to default
+    return (resolved_dept.get("curriculum_url") or "").strip() or None
 
 
 def parse_request_slots(question, history, last_bot_q):
@@ -121,6 +175,11 @@ def parse_request_slots(question, history, last_bot_q):
         result["department"] = dept
 
     year, term = extract_year_and_term(analysis_question)
+    # If still missing, try individual extractors (for replies like "4th spring" without "year")
+    if not year:
+        year = extract_year_only(analysis_question)
+    if not term:
+        term = extract_term_only(analysis_question)
     if not year or not term:
         h_year, h_term = extract_year_and_term_from_history(history)
         year = year or h_year
@@ -155,6 +214,11 @@ def parse_request_slots(question, history, last_bot_q):
         bool(is_web_info_question(analysis_question)),
     ])
 
+    heuristic_department = result["department"]
+    heuristic_year = result["year"]
+    heuristic_term = result["term"]
+    heuristic_start_year = result["start_year"]
+
     needs_help = (
         result["intent"] in ["planning", "graduation"] and not result["department"]
     ) or (
@@ -176,6 +240,10 @@ Rules:
 Return JSON with exactly these keys:
 intent, department, year, term, start_year, confidence
 
+Important:
+- `year` is the student's year of study and must be 1-6.
+- `start_year` is the enrollment year, such as 2020.
+
 Current user message: {question}
 Latest substantive user question: {anchor_question or "null"}
 Last bot question type: {last_bot_q or "null"}
@@ -196,22 +264,28 @@ Conversation history (recent): {json.dumps(history[-12:], ensure_ascii=False)}
                     result["intent"] = intent
 
                 parsed_dept = normalize_department_code(parsed.get("department"))
-                if parsed_dept and parsed_dept in VALID_DEPTS + ["HEM"]:
+                if parsed_dept and parsed_dept in VALID_DEPTS + ["HEM"] and not heuristic_department:
                     result["department"] = parsed_dept
 
                 if parsed.get("year") is not None:
                     try:
-                        result["year"] = int(parsed.get("year"))
+                        parsed_year = int(parsed.get("year"))
+                        # Study year must be 1-6. Ignore enrollment years like 2020
+                        # that can leak in from the follow-up context.
+                        if 1 <= parsed_year <= 6 and heuristic_year is None:
+                            result["year"] = parsed_year
                     except Exception:
                         pass
 
                 parsed_term = _normalize_term_value(parsed.get("term"))
-                if parsed_term:
+                if parsed_term and not heuristic_term:
                     result["term"] = parsed_term
 
                 if parsed.get("start_year") is not None:
                     try:
-                        result["start_year"] = int(parsed.get("start_year"))
+                        parsed_start_year = int(parsed.get("start_year"))
+                        if heuristic_start_year is None:
+                            result["start_year"] = parsed_start_year
                     except Exception:
                         pass
         except Exception as e:
@@ -223,7 +297,7 @@ Conversation history (recent): {json.dumps(history[-12:], ensure_ascii=False)}
         resolved_dept = resolve_ieu_department(result["department"])
         if resolved_dept:
             result["program_name"] = (resolved_dept.get("program_name") or resolved_dept.get("label") or "").strip() or None
-            result["curriculum_url"] = (resolved_dept.get("curriculum_url") or "").strip() or None
+            result["curriculum_url"] = _get_curriculum_url_for_start_year(resolved_dept, result.get("start_year"))
     result["term"] = _normalize_term_value(result["term"])
     return result
 
@@ -307,11 +381,16 @@ Always be specific and helpful â€” do not just say you don't have the infor
     })
 
     try:
-        response = client_groq.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=messages,
-        )
-        return response.choices[0].message.content
+        if gemini_model:
+            full_prompt = "\n\n".join([m["content"] for m in messages])
+            response = gemini_model.generate_content(full_prompt)
+            return response.text
+        elif client_groq:
+            response = client_groq.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=messages,
+            )
+            return response.choices[0].message.content
     except Exception:
         return "The language model is unavailable right now. Please try again later."
 
@@ -380,7 +459,7 @@ def extract_profile_from_history(history):
             if not profile["faculty"]:
                 profile["faculty"] = (resolved_dept.get("faculty_label") or resolved_dept.get("faculty_sheet") or "").strip() or None
             if not profile["curriculum_url"]:
-                profile["curriculum_url"] = (resolved_dept.get("curriculum_url") or "").strip() or None
+                profile["curriculum_url"] = _get_curriculum_url_for_start_year(resolved_dept, profile.get("start_year"))
 
         # Department
         if not profile["department"]:
@@ -392,7 +471,7 @@ def extract_profile_from_history(history):
                 if not profile["faculty"]:
                     profile["faculty"] = (code_resolved.get("faculty_label") or code_resolved.get("faculty_sheet") or "").strip() or None
                 if not profile["curriculum_url"]:
-                    profile["curriculum_url"] = (code_resolved.get("curriculum_url") or "").strip() or None
+                    profile["curriculum_url"] = _get_curriculum_url_for_start_year(code_resolved, profile.get("start_year"))
 
         # Year and term
         if not profile["year"] or not profile["term"]:
@@ -421,6 +500,12 @@ def extract_profile_from_history(history):
         # Failed courses
         if not profile["failed_courses"]:
             profile["failed_courses"] = extract_failed_courses_from_context(content, history, None)
+
+    # Refine curriculum_url based on start_year if we have both
+    if profile["start_year"] and profile["department"]:
+        resolved_dept = resolve_ieu_department(profile["department"], faculty_name=profile["faculty"])
+        if resolved_dept:
+            profile["curriculum_url"] = _get_curriculum_url_for_start_year(resolved_dept, profile["start_year"])
 
     return profile
 
@@ -590,19 +675,43 @@ def _maybe_elective_followup(question, history):
 
     dept, _, _ = latest_plan
     profile = extract_profile_from_history(history)
-    electives = get_electives(
+    elective_lines = _format_elective_option_lines(
         dept,
         start_year=profile.get("start_year"),
         program_name=profile.get("program_name"),
         curriculum_url=profile.get("curriculum_url"),
     )
-    if not electives:
+    if not elective_lines:
         return "I don't have elective options for that department in the IEU database."
 
+    return "\n".join(elective_lines)
+
+
+def _format_elective_option_lines(dept, start_year=None, program_name=None, curriculum_url=None, limit=20):
+    electives = get_electives(
+        dept,
+        start_year=start_year,
+        program_name=program_name,
+        curriculum_url=curriculum_url,
+    )
+    if not electives:
+        return []
+
     lines = [f"Available electives for {dept}:"]
-    for item in electives[:20]:
-        lines.append(f"- {item['code']}: {item['name']}")
-    return "\n".join(lines)
+    for item in electives[:limit]:
+        code = (item.get("code") or "").strip()
+        name = (item.get("name") or "").strip()
+        if code and name:
+            lines.append(f"- {code}: {name}")
+        elif code:
+            lines.append(f"- {code}")
+        elif name:
+            lines.append(f"- {name}")
+
+    if len(electives) > limit:
+        lines.append(f"- ...and {len(electives) - limit} more elective option(s).")
+
+    return lines
 
 
 def _format_profile_context_ack(profile):
@@ -1390,6 +1499,41 @@ def _looks_like_curriculum_lookup(text):
     return any(cue in t for cue in curriculum_cues)
 
 
+def _looks_like_curriculum_followup(text):
+    """
+    Detect short semester follow-ups like "what about 3rd fall".
+    These should be handled deterministically, not routed to the LLM fallback.
+    """
+    q = (text or "").strip().lower()
+    if not q:
+        return False
+    if is_course_lookup_question(text) or is_graduation_question(text) or is_regulations_question(text):
+        return False
+
+    year = extract_year_only(text)
+    if not year:
+        year, _ = extract_year_and_term(text)
+    term = extract_term_only(text)
+    if not term:
+        _, term = extract_year_and_term(text)
+    if not year or not term:
+        return False
+
+    if re.fullmatch(
+        r"(?:what about|how about|and|also|for|in)?\s*(?:the\s+)?(?:[1-6](?:st|nd|rd|th)?|first|second|third|fourth|fifth|sixth)(?:\s+year)?\s+(?:fall|spring)\s*[\?\.\!]*",
+        q,
+    ):
+        return True
+
+    if q.startswith(("what about ", "how about ", "and ", "also ", "for ", "in ")):
+        return True
+
+    if len(q.split()) <= 4:
+        return True
+
+    return False
+
+
 def ask(question, history=[], client_type=None):
     # Some eval harnesses redirect stdout to non-UTF8 files on Windows.
     # Keep debug logging ASCII-only to avoid encode errors.
@@ -1596,6 +1740,13 @@ def ask(question, history=[], client_type=None):
     program_name = profile.get("program_name")
     curriculum_url = profile.get("curriculum_url")
     faculty = profile.get("faculty")
+    if dept and start_year:
+        resolved = resolve_ieu_department(dept, faculty_name=faculty)
+        if resolved:
+            for row in (resolved.get("rows") or []):
+                if row.get("entry_year") == start_year:
+                    curriculum_url = row.get("curriculum_url") or curriculum_url
+                    break
     entry_year_note = _maybe_entry_year_note(dept, start_year, prefer_tr, program_name=program_name, curriculum_url=curriculum_url)
     conversation_snapshot = _build_conversation_snapshot(
         question,
@@ -1617,9 +1768,12 @@ def ask(question, history=[], client_type=None):
     regulations_intent = (
         parsed["intent"] == "regulations" or is_regulations_question(full_question)
     )
+    curriculum_followup_intent = _looks_like_curriculum_followup(question)
+
     planning_intent = (
         parsed["intent"] == "planning"
         or is_semester_question(full_question)
+        or curriculum_followup_intent
         or ((year and term) and planning_keywords)
         or planning_keywords
     ) and not course_lookup_intent
@@ -1865,22 +2019,15 @@ def ask(question, history=[], client_type=None):
         if courses:
             elec_count = sum(1 for c in courses
                            if c.get("code", "").startswith("ELEC"))
-            regular = [f"- {c['code']}: {c['name']}"
-                      for c in courses
-                      if not c.get("code", "").startswith("ELEC")]
+            regular = [
+                f"- {c['code']}" if (c.get("code") or "").strip().startswith("ELEC")
+                else f"- {c['code']}: {c['name']}"
+                for c in courses
+            ]
             curr_text = (f"{dept} Year {year} {term} Semester courses:\n"
                         + "\n".join(regular))
             if elec_count:
-                curr_text += (f"\n\nPlus {elec_count} elective slot(s). "
-                             f"Available electives for {dept}:")
-                electives = get_electives(
-                    dept,
-                    start_year=start_year,
-                    program_name=program_name,
-                    curriculum_url=curriculum_url,
-                )
-                for e in electives[:20]:
-                    curr_text += f"\n- {e['code']}: {e['name']}"
+                curr_text += f"\n\nPlus {elec_count} elective slot(s)."
             context_parts.append(curr_text)
 
     # 4. graduation requirements if dept mentioned
@@ -1996,17 +2143,18 @@ def _format_semester_courses(
     for c in courses:
         code = c.get("code", "").strip()
         name = c.get("name", "").strip()
-        if not code.startswith("ELEC"):
-            if code in blocked_by_code:
-                lines.append(
-                    f"- {code}: {name} (blocked now by failed prerequisite chain via {blocked_by_code[code]})"
-                )
-            else:
-                lines.append(f"- {code}: {name}")
+        if code.startswith("ELEC"):
+            lines.append(f"- {code}")
+        elif code in blocked_by_code:
+            lines.append(
+                f"- {code}: {name} (blocked now by failed prerequisite chain via {blocked_by_code[code]})"
+            )
+        else:
+            lines.append(f"- {code}: {name}")
 
     if elec_count > 0:
         lines.append(f"\nYou also have {elec_count} elective slot(s) this semester.")
-        lines.append("Would you like to see what courses you can choose for those slots?")
+        lines.append("If you want the elective options, ask me and I'll list them.")
 
     if failed_courses:
         current_codes = {(c.get("code") or "").strip().upper() for c in courses}
