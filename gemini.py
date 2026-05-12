@@ -5,6 +5,7 @@ import os
 import re
 
 from embeddings import SentenceTransformerEmbeddingFunction
+from grading_helpers import is_grading_question, extract_grading_only_response
 from parsing import (
     VALID_DEPTS,
     _dedupe_keep_order,
@@ -1637,6 +1638,13 @@ def ask(question, history=[], client_type=None):
 
     if course_lookup_intent and not planning_intent and not graduation_intent and not regulations_intent:
         if course_contexts:
+            # Check if this is a grading-specific question - return ONLY evaluation system
+            if is_grading_question(full_question):
+                grading_response = extract_grading_only_response(course_contexts)
+                if grading_response:
+                    return grading_response
+            
+            # Otherwise return full course information
             formatted = [format_course_direct_response(doc) for doc in course_contexts]
             correction_note = _format_course_correction_note(corrections, _looks_turkish(full_question))
             if correction_note:
