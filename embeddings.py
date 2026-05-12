@@ -50,15 +50,26 @@ class SentenceTransformerEmbeddingFunction:
             ) from exc
 
         self.model_name = model_name
+        self.model = None
+        self.fallback = SimpleHashEmbeddingFunction()
+        
         # Keep the embedding model local. The project refreshes the vector
         # store ahead of each semester, so runtime should not depend on live
         # model downloads.
-        self.model = SentenceTransformer(model_name)
+        try:
+            self.model = SentenceTransformer(model_name)
+        except Exception as e:
+            print(f"⚠ Warning: Could not download sentence-transformers model '{model_name}': {e}")
+            print("  Falling back to SimpleHashEmbeddingFunction")
+            self.model = None
 
     def name(self):
         return f"sentence_transformer:{self.model_name}"
 
     def _encode(self, texts):
+        if self.model is None:
+            # Use fallback if model failed to load
+            return self.fallback._encode(texts)
         return self.model.encode(
             texts,
             normalize_embeddings=True,
