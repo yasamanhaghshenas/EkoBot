@@ -10,6 +10,9 @@ class SimpleHashEmbeddingFunction:
     def name(self):
         return "simple_hash_embedding_v1"
 
+    def _encode(self, texts):
+        return [self._embed_one(text) for text in texts]
+
     def _embed_one(self, text):
         vec = [0.0] * self.dim
         tokens = re.findall(r"[a-z0-9_]+", (text or "").lower())
@@ -59,8 +62,8 @@ class SentenceTransformerEmbeddingFunction:
         try:
             self.model = SentenceTransformer(model_name)
         except Exception as e:
-            print(f"⚠ Warning: Could not download sentence-transformers model '{model_name}': {e}")
-            print("  Falling back to SimpleHashEmbeddingFunction")
+            print(f"[WARN] Could not load sentence-transformers model '{model_name}': {e}")
+            print("[WARN] Falling back to SimpleHashEmbeddingFunction")
             self.model = None
 
     def name(self):

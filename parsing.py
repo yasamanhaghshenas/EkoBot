@@ -411,10 +411,68 @@ def get_last_bot_question_type(history):
     the user's next short reply like 'ce' or '2nd year spring'.
     Returns: 'faculty', 'dept', 'year_term', 'start_year', 'failed_courses', or None
     """
+    last_assistant = None
     for msg in reversed(history[-12:]):
         if msg.get("role") != "assistant":
             continue
-        content = msg.get("content", "").lower()
+        last_assistant = msg.get("content", "")
+        break
+
+    if not last_assistant:
+        return None
+
+    content = last_assistant.lower()
+    content_norm = _normalize_chatty_text(last_assistant)
+    if any(phrase in content_norm for phrase in [
+        "hangi fakulte",
+        "hangi fakülte",
+        "hangi okul",
+        "fakulte",
+        "fakülte",
+    ]):
+        return "faculty"
+    if any(phrase in content_norm for phrase in [
+        "hangi bolum",
+        "hangi bölüm",
+        "bolumunuz",
+        "bölümünüz",
+        "bolumde",
+        "bölümde",
+    ]):
+        return "dept"
+    if any(phrase in content_norm for phrase in [
+        "universiteye hangi yil",
+        "universiteye hangi yıl",
+        "hangi yil girdiniz",
+        "hangi yıl girdiniz",
+        "hangi yilda kayit",
+        "hangi yılda kayıt",
+        "kayit yiliniz",
+        "kayıt yılınız",
+        "kayit yili",
+        "kayıt yılı",
+    ]):
+        return "start_year"
+    if any(phrase in content_norm for phrase in [
+        "hangi sinif",
+        "hangi sınıf",
+        "kacinci sinif",
+        "kaçıncı sınıf",
+        "yil ve donem",
+        "yıl ve dönem",
+        "hangi donem",
+        "hangi dönem",
+    ]):
+        return "year_term"
+    if any(phrase in content_norm for phrase in [
+        "basarisiz ders",
+        "başarısız ders",
+        "kaldigin ders",
+        "kaldığın ders",
+        "ders kod",
+    ]):
+        return "failed_courses"
+    if True:
         if (
             "which faculty" in content
             or "what faculty" in content
@@ -481,6 +539,84 @@ def get_last_bot_question_type(history):
     return None
 
 
+def _normalize_chatty_text(text):
+    t = (text or "").strip().casefold()
+    if not t:
+        return ""
+    # Collapse stretched-out chat text like "hiiii" or "helloooo".
+    t = re.sub(r"([a-z])\1{2,}", r"\1", t)
+    t = re.sub(r"\s+", " ", t)
+    return t
+
+
+def _looks_like_greeting_or_small_talk(text):
+    t = _normalize_chatty_text(text)
+    if not t:
+        return False
+
+    words = re.findall(r"[a-z0-9']+", t)
+    if not words:
+        return False
+
+    raw_lower = (text or "").casefold()
+    has_repeated_letters = bool(re.search(r"([a-z])\1{2,}", raw_lower))
+
+    greeting_words = {
+        "hi", "hello", "hey", "greetings", "merhaba", "selam", "sup", "yo",
+        "hiya", "hai", "hewwo", "helo", "slm", "naber", "tamam", "tmm",
+    }
+    greeting_phrases = {
+        "good morning",
+        "good afternoon",
+        "good evening",
+        "how are you",
+        "what's up",
+        "whats up",
+        "what s up",
+        "hi there",
+        "hello there",
+        "hey there",
+        "ne haber",
+        "boş ver",
+        "bos ver",
+        "neyse",
+        "iyiyim",
+    }
+    filler_words = {
+        "lol", "lmao", "haha", "ok", "okay", "k", "kk", "bruh", "bro",
+        "ugh", "hmm", "umm", "idk", "tmm",
+    }
+    frustrated_phrases = {
+        "you are useless",
+        "you're useless",
+        "this is stupid",
+        "whatever",
+        "nevermind",
+        "nvm",
+        "forget it",
+        "saçma",
+        "sacma",
+        "işe yaramaz",
+        "ise yaramaz",
+        "salak",
+    }
+    keyboard_mash_patterns = [r"asdf", r"asdfjkl", r"qwerty", r"zxcvbn"]
+    phrase = " ".join(words)
+    if phrase in greeting_phrases:
+        return True
+    if has_repeated_letters and len(words) <= 3 and any(word in greeting_words or word in filler_words for word in words):
+        return True
+    if len(words) <= 3 and any(word in filler_words for word in words):
+        return True
+    if len(words) <= 4 and any(re.fullmatch(pattern, phrase) for pattern in keyboard_mash_patterns):
+        return True
+    if any(cue in raw_lower for cue in frustrated_phrases):
+        return True
+    if len(words) <= 3 and any(word in greeting_words for word in words):
+        return True
+    return False
+
+
 def _is_likely_followup_reply(text):
     """
     Heuristic for short follow-up replies such as department code,
@@ -489,9 +625,12 @@ def _is_likely_followup_reply(text):
     if not text:
         return False
 
-    t = text.strip()
+    t = _normalize_chatty_text(text)
     if not t:
         return False
+
+    if _looks_like_greeting_or_small_talk(t):
+        return True
 
     # Substantive questions should stay as anchors even if they mention a year/term.
     if is_semester_question(t) or is_graduation_question(t) or is_regulations_question(t):
@@ -514,6 +653,44 @@ def _is_likely_followup_reply(text):
         return True
 
     if extract_starting_year(t):
+        return True
+
+    followup_cues = [
+        "what about",
+        "how about",
+        "what if",
+        "and what",
+        "then what",
+        "so what",
+        "what now",
+        "same question",
+        "same one",
+        "boş ver",
+        "bos ver",
+        "neyse",
+    ]
+    if any(cue in t for cue in followup_cues):
+        return True
+
+    correction_cues = [
+        "i meant",
+        "meant",
+        "just kidding",
+        "joking",
+        "jk",
+        "j/k",
+        "sorry",
+        "instead",
+        "no wait",
+        "wait no",
+        "correction",
+        "i mean",
+        "meant to say",
+        "boş ver",
+        "bos ver",
+        "neyse",
+    ]
+    if any(cue in t for cue in correction_cues):
         return True
 
     return False

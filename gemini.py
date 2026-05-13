@@ -307,8 +307,13 @@ Conversation history (recent): {json.dumps(history[-12:], ensure_ascii=False)}
 # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def call_llm(question, context_docs, history, client_type=None):
-    if client_groq is None:
-        return "The language model is unavailable right now. Please try again later."
+    prefer_tr = _looks_turkish(question)
+    if client_groq is None and gemini_model is None:
+        return _t(
+            "The language model is unavailable right now. Please try again later.",
+            "Dil modeli su anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.",
+            prefer_tr,
+        )
 
     context = "\n\n---\n\n".join(context_docs)
     # truncate context to avoid token limit (increased to 15000 to preserve evaluation system)
@@ -338,6 +343,8 @@ STRICT RULES:
 4. If multiple courses are asked about, answer each one separately with a clear label.
 5. If a course code looks like a typo, mention the correction.
 6. Always reply in the same language the student used (Turkish or English).
+   If the student writes in Turkish, always respond in Turkish. If they write in English, respond in English.
+   Match the student's language exactly.
 7. Be concise, friendly, and direct â€” like a helpful academic advisor.
 8. For direct course code requests (e.g. 'tell me about CE 326'), treat it as a direct lookup.
     Do NOT argue with the code prefix or claim it "should" belong to another department.
@@ -391,22 +398,40 @@ Always be specific and helpful â€” do not just say you don't have the infor
                 messages=messages,
             )
             return response.choices[0].message.content
-    except Exception:
-        return "The language model is unavailable right now. Please try again later."
+    except Exception as e:
+        print(f"LLM error: {e}")
+        return _t(
+            "The language model is unavailable right now. Please try again later.",
+            "Dil modeli su anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.",
+            prefer_tr,
+        )
 
 
 # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # CONVERSATION STATE & PROFILING HELPERS
 # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-def _curriculum_entry_year_followup(clarify_invalid_reply=False):
+def _curriculum_entry_year_followup(clarify_invalid_reply=False, prefer_tr=False):
     lines = [
-        "FOLLOWUP_NEEDED: Which year did you enroll in university? "
-        "(which year did you start university? e.g. 2023)",
+        _t(
+            "FOLLOWUP_NEEDED: Which year did you enroll in university? "
+            "(which year did you start university? e.g. 2023)",
+            "FOLLOWUP_NEEDED: Üniversiteye hangi yılda kayıt oldunuz? "
+            "(üniversiteye hangi yıl başladınız? örn. 2023)",
+            prefer_tr,
+        ),
     ]
     if clarify_invalid_reply:
-        lines.append("I still need your enrollment year, not your current year and semester.")
-    lines.append("Please choose one of the options below.")
+        lines.append(_t(
+            "I still need your enrollment year, not your current year and semester.",
+            "Hâlâ kayıt yılınıza ihtiyacım var, şu anki yıl ve döneminize değil.",
+            prefer_tr,
+        ))
+    lines.append(_t(
+        "Please choose one of the options below.",
+        "Lütfen aşağıdaki seçeneklerden birini seçin.",
+        prefer_tr,
+    ))
     return "\n".join(lines)
 
 
@@ -510,7 +535,7 @@ def extract_profile_from_history(history):
     return profile
 
 
-def get_next_profiling_question(profile, question_lower, require_curriculum_details=True):
+def get_next_profiling_question(profile, question_lower, require_curriculum_details=True, prefer_tr=False):
     """
     Determine which profiling question should be asked next.
     Returns: (question_string, next_question_type) or (None, None) if profiling complete
@@ -518,17 +543,28 @@ def get_next_profiling_question(profile, question_lower, require_curriculum_deta
     # Required: faculty first
     if not profile["faculty"]:
         return (
-            "Hi! ًں‘‹ I'm EkoBot, your IEU academic assistant.\n\n"
-            "To help you find the right courses and graduation requirements, I need to understand your situation.\n\n"
-            "Which faculty are you in? Please choose one of the options below.",
+            _t(
+                "Hi! I'm EkoBot, your IEU academic assistant.\n\n"
+                "To help you find the right courses and graduation requirements, I need to understand your situation.\n\n"
+                "Which faculty are you in? Please choose one of the options below.",
+                "Merhaba! Ben EkoBot, IEU akademik asistanınızım.\n\n"
+                "Doğru dersleri ve mezuniyet koşullarını bulmanıza yardımcı olmak için durumunuzu anlamam gerekiyor.\n\n"
+                "Hangi fakültedesiniz? Lütfen aşağıdaki seçeneklerden birini seçin.",
+                prefer_tr,
+            ),
             "faculty",
         )
 
     # Required: department next
     if not profile["department"] or not profile["program_name"]:
         return (
-            "Got it!\n\n"
-            f"Which department are you in under {profile.get('faculty') or 'your faculty'}? Please choose one of the options below.",
+            _t(
+                "Got it!\n\n"
+                f"Which department are you in under {profile.get('faculty') or 'your faculty'}? Please choose one of the options below.",
+                "Anladım!\n\n"
+                f"{profile.get('faculty') or 'fakülteniz'} altındaki bölümünüz hangisi? Lütfen aşağıdaki seçeneklerden birini seçin.",
+                prefer_tr,
+            ),
             "dept",
         )
 
@@ -540,18 +576,22 @@ def get_next_profiling_question(profile, question_lower, require_curriculum_deta
             program_name=profile.get("program_name"),
         ):
             return (
-                "Which year did you enroll in university? "
-                "(which year did you start university? e.g. 2023)\n"
-                "Please choose one of the options below.",
+                _curriculum_entry_year_followup(prefer_tr=prefer_tr),
                 "start_year",
             )
 
         # Required: year and semester
         if not profile["year"] or not profile["term"]:
             return (
-                "Got it! ًں‘چ\n\n"
-                "What year and semester are you currently in?\n"
-                "(e.g., '2nd year spring', 'third year fall', etc.)",
+                _t(
+                    "Got it!\n\n"
+                    "What year and semester are you currently in?\n"
+                    "(e.g., '2nd year spring', 'third year fall', etc.)",
+                    "Anladım!\n\n"
+                    "Hangi sınıftasınız ve hangi dönemdесiniz?\n"
+                    "(örn. '2. sınıf bahar', '3. sınıf güz' vb.)",
+                    prefer_tr,
+                ),
                 "year_term",
             )
 
@@ -565,28 +605,44 @@ def _requires_curriculum_details(question, history):
     return not is_graduation_question(anchor_text)
 
 
-def _profiling_followup_message(question_type, profile=None):
+def _profiling_followup_message(question_type, profile=None, prefer_tr=False):
     if question_type == "faculty":
-        return "FOLLOWUP_NEEDED: Which faculty are you in? Please choose one of the options below."
+        return _t(
+            "FOLLOWUP_NEEDED: Which faculty are you in? Please choose one of the options below.",
+            "FOLLOWUP_NEEDED: Hangi fakültedesiniz? Lütfen aşağıdaki seçeneklerden birini seçin.",
+            prefer_tr,
+        )
     if question_type == "dept":
         faculty = (profile or {}).get("faculty")
         if faculty:
-            return f"FOLLOWUP_NEEDED: Which department are you in under {faculty}? Please choose one of the options below."
-        return "FOLLOWUP_NEEDED: Which department are you in? Please choose one of the options below."
+            return _t(
+                f"FOLLOWUP_NEEDED: Which department are you in under {faculty}? Please choose one of the options below.",
+                f"FOLLOWUP_NEEDED: {faculty} altındaki bölümünüz hangisi? Lütfen aşağıdaki seçeneklerden birini seçin.",
+                prefer_tr,
+            )
+        return _t(
+            "FOLLOWUP_NEEDED: Which department are you in? Please choose one of the options below.",
+            "FOLLOWUP_NEEDED: Hangi bölümdesiniz? Lütfen aşağıdaki seçeneklerden birini seçin.",
+            prefer_tr,
+        )
     if question_type == "year_term":
-        return "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)"
+        return _t(
+            "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)",
+            "FOLLOWUP_NEEDED: Hangi sınıftasınız ve hangi dönemdесiniz? (örn. 2. sınıf bahar)",
+            prefer_tr,
+        )
     if question_type == "start_year":
-        return _curriculum_entry_year_followup()
+        return _curriculum_entry_year_followup(prefer_tr=prefer_tr)
     return None
 
 
-def _profiling_followup_options(question_type, profile):
+def _profiling_followup_options(question_type, profile, prefer_tr=False):
     if question_type == "faculty":
-        return get_ieu_faculty_options()
+        return get_ieu_faculty_options(prefer_tr=prefer_tr)
     if question_type == "dept":
         faculty = (profile or {}).get("faculty")
         if faculty:
-            return get_ieu_department_options(faculty)
+            return get_ieu_department_options(faculty, prefer_tr=prefer_tr)
     if question_type == "start_year":
         profile = profile or {}
         dept = profile.get("department")
@@ -611,16 +667,29 @@ def ask_with_options(question, history=None, client_type=None):
     answer = ask(question, history, client_type=client_type)
     is_followup = answer.startswith("FOLLOWUP_NEEDED:")
     clean_answer = answer.replace("FOLLOWUP_NEEDED:", "").strip() if is_followup else answer
+    prefer_tr = _looks_turkish(clean_answer) or _looks_turkish(question)
 
     options = None
     if is_followup:
         history_with_current = list(history or []) + [{"role": "user", "content": question}]
         profile = extract_profile_from_history(history_with_current)
         lowered = clean_answer.lower()
-        if "which faculty" in lowered:
-            options = _profiling_followup_options("faculty", profile)
-        elif "which department" in lowered:
-            options = _profiling_followup_options("dept", profile)
+        if any(phrase in lowered for phrase in [
+            "which faculty",
+            "hangi fakulte",
+            "hangi fakülte",
+            "hangi okul",
+            "which school",
+        ]):
+            options = _profiling_followup_options("faculty", profile, prefer_tr=prefer_tr)
+        elif any(phrase in lowered for phrase in [
+            "which department",
+            "hangi bolum",
+            "hangi bölüm",
+            "bolumunuz",
+            "bölümünüz",
+        ]):
+            options = _profiling_followup_options("dept", profile, prefer_tr=prefer_tr)
         elif any(
             phrase in lowered
             for phrase in [
@@ -629,9 +698,15 @@ def ask_with_options(question, history=None, client_type=None):
                 "entry year",
                 "starting year",
                 "curriculum version",
+                "hangi yil",
+                "hangi yıl",
+                "hangi yilda kayit",
+                "hangi yılda kayıt",
+                "universiteye hangi yil",
+                "universiteye hangi yıl",
             ]
         ):
-            options = _profiling_followup_options("start_year", profile)
+            options = _profiling_followup_options("start_year", profile, prefer_tr=prefer_tr)
 
     return {
         "answer": clean_answer,
@@ -682,7 +757,11 @@ def _maybe_elective_followup(question, history):
         curriculum_url=profile.get("curriculum_url"),
     )
     if not elective_lines:
-        return "I don't have elective options for that department in the IEU database."
+        return _t(
+            "I don't have elective options for that department in the IEU database.",
+            "O bölüm için IEU veritabanında seçmeli ders seçenekleri bulamıyorum.",
+            _looks_turkish(question),
+        )
 
     return "\n".join(elective_lines)
 
@@ -714,7 +793,7 @@ def _format_elective_option_lines(dept, start_year=None, program_name=None, curr
     return lines
 
 
-def _format_profile_context_ack(profile):
+def _format_profile_context_ack(profile, prefer_tr=False):
     if not profile:
         return None
 
@@ -747,10 +826,14 @@ def _format_profile_context_ack(profile):
     if not parts:
         return None
 
-    return (
+    return _t(
         "Got it - I've noted your profile: "
         + ", ".join(parts)
-        + ". I'll keep that in mind for future course planning."
+        + ". I'll keep that in mind for future course planning.",
+        "Tamam - profilinizi not ettim: "
+        + ", ".join(parts)
+        + ". Bunu sonraki ders planlamasında aklımda tutacağım.",
+        prefer_tr,
     )
 
 
@@ -760,6 +843,11 @@ def _looks_like_profile_update_only(question, history, last_bot_q, profile=None)
 
     q = (question or "").strip().lower()
     if not q:
+        return False
+
+    if _looks_like_contextual_followup(question):
+        return False
+    if _looks_like_curriculum_followup(question) or _looks_like_invalid_curriculum_term(question):
         return False
 
     if "?" in q:
@@ -781,13 +869,28 @@ def _looks_like_profile_update_only(question, history, last_bot_q, profile=None)
 
 
 def _looks_turkish(text):
-    t = text or ""
-    tl = t.lower()
-    return any(w in tl for w in ["kredi", "ders", "not", "ortalama", "gano", "bahar", "guz", "mezun", "kural", "yonetmelik"])
+    t = (text or "").casefold()
+    return any(w in t for w in [
+        "kredi", "ders", "not", "ortalama", "gano", "bahar", "guz", "mezun",
+        "kural", "yonetmelik", "merhaba", "selam", "slm", "naber", "nasilsin",
+        "nasılsın", "tamam", "tmm", "boş", "bos", "neyse", "iyiyim", "hocam",
+        "abi", "abla", "kanka", "hangi", "universite", "üniversite", "fakulte",
+        "fakülte", "bolum", "bölüm", "sinif", "sınıf", "donem", "dönem",
+    ])
 
 
 def _t(en_text, tr_text, prefer_tr):
     return tr_text if prefer_tr else en_text
+
+
+def _normalize_chatty_text(text):
+    t = (text or "").strip().lower()
+    if not t:
+        return ""
+    # Collapse stretched-out chat text like "hiiii" or "helloooo".
+    t = re.sub(r"([a-z])\1{2,}", r"\1", t)
+    t = re.sub(r"\s+", " ", t)
+    return t
 
 
 def _extract_loose_gpa_value(text, allow_integer=False):
@@ -1190,6 +1293,8 @@ def _format_web_info_answer(question, docs, max_docs=2):
     if not docs:
         return None
 
+    prefer_tr = _looks_turkish(question)
+
     stopwords = {
         "a", "an", "and", "are", "as", "at", "be", "can", "do", "does", "for",
         "from", "how", "i", "is", "it", "me", "my", "of", "on", "or", "please",
@@ -1219,13 +1324,13 @@ def _format_web_info_answer(question, docs, max_docs=2):
     for _, _, meta, body_lines in sorted(scored_docs, key=lambda item: (-item[0], item[1])):
         lines = []
         if meta["title"]:
-            lines.append(f"Title: {meta['title']}")
+            lines.append(_t(f"Title: {meta['title']}", f"Baslik: {meta['title']}", prefer_tr))
         if meta["category"]:
-            lines.append(f"Category: {meta['category']}")
+            lines.append(_t(f"Category: {meta['category']}", f"Kategori: {meta['category']}", prefer_tr))
         if meta["description"]:
-            lines.append(f"Description: {meta['description']}")
+            lines.append(_t(f"Description: {meta['description']}", f"Aciklama: {meta['description']}", prefer_tr))
         if meta["url"]:
-            lines.append(f"URL: {meta['url']}")
+            lines.append(_t(f"URL: {meta['url']}", f"URL: {meta['url']}", prefer_tr))
 
         snippet = _extract_web_info_snippet(body_lines, question_terms)
         if snippet:
@@ -1419,17 +1524,29 @@ def _maybe_regulations_followup(question, history):
     return _format_regulations_answer(synthetic, history, gpa_loose)
 
 
-def _profiling_year_term_followup(question):
+def _profiling_year_term_followup(question, prefer_tr=False):
     y, t = extract_year_and_term(question)
     y = y or extract_year_only(question)
     t = t or extract_term_only(question)
 
     if y and not t:
-        return "FOLLOWUP_NEEDED: Which semester are you in? (Fall or Spring)"
+        return _t(
+            "FOLLOWUP_NEEDED: Which semester are you in? (Fall or Spring)",
+            "FOLLOWUP_NEEDED: Hangi dönemdесiniz? (Güz veya Bahar)",
+            prefer_tr,
+        )
     if t and not y:
-        return "FOLLOWUP_NEEDED: Which year are you in? (e.g. 1st, 2nd, 3rd, 4th)"
+        return _t(
+            "FOLLOWUP_NEEDED: Which year are you in? (e.g. 1st, 2nd, 3rd, 4th)",
+            "FOLLOWUP_NEEDED: Hangi sınıftasınız? (örn. 1., 2., 3., 4. sınıf)",
+            prefer_tr,
+        )
     if not y and not t:
-        return "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)"
+        return _t(
+            "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)",
+            "FOLLOWUP_NEEDED: Hangi sınıftasınız ve hangi dönemdесiniz? (örn. 2. sınıf bahar)",
+            prefer_tr,
+        )
     return None
 
 
@@ -1437,7 +1554,11 @@ def is_greeting_or_small_talk(text):
     """
     Check if the message is just a greeting or small talk, not a substantive question.
     """
-    t = (text or "").lower().strip()
+    raw = (text or "").strip()
+    if not raw:
+        return False
+
+    t = _normalize_chatty_text(raw)
     if not t:
         return False
 
@@ -1445,9 +1566,13 @@ def is_greeting_or_small_talk(text):
     if not words:
         return False
 
+    raw_lower = raw.casefold()
+    has_repeated_letters = bool(re.search(r"([a-z])\1{2,}", raw_lower))
+
     greeting_words = {
         "hi", "hello", "hey", "greetings", "merhaba", "selam", "sup", "yo",
-        "nasilsin", "nas\u0131ls\u0131n",
+        "nasilsin", "nas\u0131ls\u0131n", "hiya", "hai", "hewwo", "helo",
+        "slm", "naber", "tamam", "tmm",
     }
     greeting_phrases = {
         "good morning",
@@ -1460,9 +1585,47 @@ def is_greeting_or_small_talk(text):
         "hi there",
         "hello there",
         "hey there",
+        "ne haber",
+        "bos ver",
+        "boş ver",
+        "neyse",
+        "iyiyim",
     }
+    filler_words = {
+        "lol", "lmao", "haha", "ok", "okay", "k", "kk", "bruh", "bro",
+        "ugh", "hmm", "umm", "idk", "tmm",
+    }
+    frustrated_phrases = {
+        "you're useless",
+        "you are useless",
+        "this is stupid",
+        "whatever",
+        "nevermind",
+        "nvm",
+        "forget it",
+        "sacma",
+        "saçma",
+        "ise yaramaz",
+        "işe yaramaz",
+        "salak",
+    }
+    keyboard_mash_patterns = [r"asdf", r"asdfjkl", r"qwerty", r"zxcvbn"]
     phrase = " ".join(words)
     if phrase in greeting_phrases:
+        return True
+
+    if len(words) <= 3 and has_repeated_letters and (
+        any(word in greeting_words for word in words) or any(word in filler_words for word in words)
+    ):
+        return True
+
+    if len(words) <= 3 and any(word in filler_words for word in words):
+        return True
+
+    if len(words) <= 4 and any(re.fullmatch(pattern, phrase) for pattern in keyboard_mash_patterns):
+        return True
+
+    if any(cue in raw_lower for cue in frustrated_phrases):
         return True
 
     # Only treat very short messages as greetings when they are made up of
@@ -1504,7 +1667,7 @@ def _looks_like_curriculum_followup(text):
     Detect short semester follow-ups like "what about 3rd fall".
     These should be handled deterministically, not routed to the LLM fallback.
     """
-    q = (text or "").strip().lower()
+    q = _normalize_chatty_text(text)
     if not q:
         return False
     if is_course_lookup_question(text) or is_graduation_question(text) or is_regulations_question(text):
@@ -1519,19 +1682,58 @@ def _looks_like_curriculum_followup(text):
     if not year or not term:
         return False
 
-    if re.fullmatch(
-        r"(?:what about|how about|and|also|for|in)?\s*(?:the\s+)?(?:[1-6](?:st|nd|rd|th)?|first|second|third|fourth|fifth|sixth)(?:\s+year)?\s+(?:fall|spring)\s*[\?\.\!]*",
-        q,
-    ):
-        return True
+    followup_prefixes = (
+        "what about",
+        "how about",
+        "and",
+        "also",
+        "for",
+        "in",
+        "what if",
+        "then",
+        "so",
+    )
+    correction_cues = (
+        "i meant",
+        "meant",
+        "just kidding",
+        "joking",
+        "jk",
+        "j/k",
+        "sorry",
+        "instead",
+        "no wait",
+        "wait no",
+        "correction",
+        "i mean",
+        "meant to say",
+    )
 
-    if q.startswith(("what about ", "how about ", "and ", "also ", "for ", "in ")):
+    if re.match(r"^(what about|how about|what if|and|also|for|in|then|so)\b", q):
+        return True
+    if any(cue in q for cue in correction_cues):
         return True
 
     if len(q.split()) <= 4:
         return True
 
     return False
+
+
+def _looks_like_invalid_curriculum_term(text):
+    q = _normalize_chatty_text(text)
+    if not q:
+        return False
+
+    invalid_terms = [
+        "summer",
+        "winter",
+        "break",
+        "vacation",
+        "intersession",
+        "inter-session",
+    ]
+    return any(re.search(rf"\b{re.escape(term)}\b", q) for term in invalid_terms)
 
 
 def ask(question, history=[], client_type=None):
@@ -1542,6 +1744,8 @@ def ask(question, history=[], client_type=None):
 
     question_lower = question.lower().strip()
     last_bot_q = get_last_bot_question_type(history)
+    history_profile = extract_profile_from_history(history or [])
+    prefer_tr = _looks_turkish(question)
 
     if is_greeting_or_small_talk(question):
         if last_bot_q in {"faculty", "dept", "year_term", "start_year", "failed_courses"}:
@@ -1552,24 +1756,35 @@ def ask(question, history=[], client_type=None):
                 "start_year": "start_year",
                 "failed_courses": "failed_courses",
             }
-            profile = extract_profile_from_history(history or [])
-            followup = _profiling_followup_message(pending_map.get(last_bot_q), profile)
+            followup = _profiling_followup_message(pending_map.get(last_bot_q), history_profile, prefer_tr=prefer_tr)
             if followup:
                 return followup
-        return "Hi! How can I help you with IEU information today?"
+        return _t(
+            "Hi! How can I help you with IEU information today?",
+            "Merhaba! IEU bilgileriyle ilgili size nasil yardimci olabilirim?",
+            prefer_tr,
+        )
 
     if is_out_of_scope_question(question) and not is_web_info_question(question):
-        return "I don't have that information in the IEU database."
+        return _t(
+            "I don't have that information in the IEU database.",
+            "Bu bilginin IEU veritabaninda kaydi yok.",
+            prefer_tr,
+        )
 
     if _is_short_ack(question) and last_bot_q in {"faculty", "dept", "year_term", "start_year", "failed_courses"}:
         if last_bot_q == "failed_courses":
-            return "FOLLOWUP_NEEDED: Please list the failed course codes (e.g. CE 201, MATH 153)."
+            return _t(
+                "FOLLOWUP_NEEDED: Please list the failed course codes (e.g. CE 201, MATH 153).",
+                "FOLLOWUP_NEEDED: Lutfen kaldiğiniz ders kodlarini yazin (orn. CE 201, MATH 153).",
+                prefer_tr,
+            )
         followup = _profiling_followup_message({
             "faculty": "faculty",
             "dept": "dept",
             "year_term": "year_term",
             "start_year": "start_year",
-        }.get(last_bot_q), None)
+        }.get(last_bot_q), None, prefer_tr=prefer_tr)
         if followup:
             return followup
 
@@ -1580,6 +1795,18 @@ def ask(question, history=[], client_type=None):
     regs_followup = _maybe_regulations_followup(question, history)
     if regs_followup:
         return regs_followup
+
+    latest_substantive_question = get_latest_substantive_user_question(history or [])
+    if _looks_like_invalid_curriculum_term(question):
+        if (
+            (history_profile.get("department") and history_profile.get("year") and history_profile.get("term"))
+            or _looks_like_curriculum_lookup(latest_substantive_question or "")
+        ):
+            return _t(
+                "I only understand Fall or Spring for semester questions. If you meant a semester, try something like '2nd fall' or '2nd spring'.",
+                "Ders donemi sorularinda sadece Fall veya Spring anlarim. Bir donemi kastediyorsaniz '2nd fall' veya '2nd spring' gibi yazin.",
+                prefer_tr,
+            )
 
     regulations_question = is_regulations_question(question)
 
@@ -1603,7 +1830,7 @@ def ask(question, history=[], client_type=None):
                 or extract_term_only(question)
                 or any(extract_year_and_term(question))
             ):
-                return _curriculum_entry_year_followup(clarify_invalid_reply=True)
+                return _curriculum_entry_year_followup(clarify_invalid_reply=True, prefer_tr=prefer_tr)
         elif last_bot_q == "failed_courses":
             profile_flow_trigger = bool(extract_failed_courses_from_context(question, history, None))
 
@@ -1620,6 +1847,7 @@ def ask(question, history=[], client_type=None):
             profile,
             question_lower,
             require_curriculum_details=_requires_curriculum_details(question, history),
+            prefer_tr=prefer_tr,
         )
 
         # If the user is just saying hello/greeting and we haven't profiled yet,
@@ -1662,18 +1890,30 @@ def ask(question, history=[], client_type=None):
                 term_final = t_now or t_hist
 
                 if year_final and not term_final:
-                    return "FOLLOWUP_NEEDED: Which semester are you in? (Fall or Spring)"
+                    return _t(
+                        "FOLLOWUP_NEEDED: Which semester are you in? (Fall or Spring)",
+                        "FOLLOWUP_NEEDED: Hangi dÃ¶nemdesiniz? (GÃ¼z veya Bahar)",
+                        prefer_tr,
+                    )
                 if term_final and not year_final:
-                    return "FOLLOWUP_NEEDED: Which year are you in? (e.g. 1st, 2nd, 3rd, 4th)"
+                    return _t(
+                        "FOLLOWUP_NEEDED: Which year are you in? (e.g. 1st, 2nd, 3rd, 4th)",
+                        "FOLLOWUP_NEEDED: Hangi sÄ±nÄ±ftasÄ±nÄ±z? (Ã¶rn. 1., 2., 3. veya 4. sÄ±nÄ±f)",
+                        prefer_tr,
+                    )
                 if not year_final and not term_final:
-                    return "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)"
+                    return _t(
+                        "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)",
+                        "FOLLOWUP_NEEDED: Hangi sÄ±nÄ±ftasÄ±nÄ±z ve hangi dÃ¶nemdesiniz? (Ã¶rn. 2. sÄ±nÄ±f bahar)",
+                        prefer_tr,
+                    )
 
             if is_answering_profiling and question_type != "year_term" and next_question:
                 return next_question
 
             # If they didn't seem to be answering the profiling question, ask again
             if not is_answering_profiling:
-                followup = _profiling_followup_message(question_type, profile)
+                followup = _profiling_followup_message(question_type, profile, prefer_tr=prefer_tr)
                 return followup or next_question
 
     # â”€â”€ ACADEMIC QUESTION HANDLING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -1685,16 +1925,17 @@ def ask(question, history=[], client_type=None):
             profile,
             question_lower,
             require_curriculum_details=_requires_curriculum_details(question, history),
+            prefer_tr=prefer_tr,
         )
         if next_question:
-            return _profiling_followup_message(question_type, profile) or next_question
-        profile_ack = _format_profile_context_ack(profile)
+            return _profiling_followup_message(question_type, profile, prefer_tr=prefer_tr) or next_question
+        profile_ack = _format_profile_context_ack(profile, prefer_tr=prefer_tr)
         if profile_ack:
             return profile_ack
 
     parsed = parse_request_slots(question, history, last_bot_q)
     full_question = parsed["analysis_question"]
-    prefer_tr = _looks_turkish(full_question)
+    prefer_tr = prefer_tr or _looks_turkish(full_question)
     history_with_current = list(history or []) + [{"role": "user", "content": question}]
     profile = extract_profile_from_history(history_with_current)
 
@@ -1805,16 +2046,18 @@ def ask(question, history=[], client_type=None):
                 formatted.insert(0, correction_note)
             if missing_codes:
                 missing_list = ", ".join(missing_codes)
-                formatted.append(
-                    f"I don't have that information in the IEU database for {missing_list}. "
-                    "Please check the ECTS system directly."
-                )
+                formatted.append(_t(
+                    f"I don't have that information in the IEU database for {missing_list}. Please check the ECTS system directly.",
+                    f"{missing_list} icin IEU veritabaninda bu bilgi yok. Lutfen ECTS sistemini kontrol edin.",
+                    prefer_tr,
+                ))
             return "\n\n".join(formatted)
         if missing_codes:
             missing_list = ", ".join(missing_codes)
-            return (
-                f"I don't have that information in the IEU database for {missing_list}. "
-                "Please check the ECTS system directly."
+            return _t(
+                f"I don't have that information in the IEU database for {missing_list}. Please check the ECTS system directly.",
+                f"{missing_list} icin IEU veritabaninda bu bilgi yok. Lutfen ECTS sistemini kontrol edin.",
+                prefer_tr,
             )
 
     # If user shares failed course codes after a planning answer, reuse the latest
@@ -1850,20 +2093,22 @@ def ask(question, history=[], client_type=None):
                     curriculum_url=curriculum_url,
                     gpa_value=gpa_value,
                     entry_year_note=retry_entry_year_note,
+                    prefer_tr=prefer_tr,
                 )
 
     # Graduation requirement questions should not fall back to generic course search.
     if graduation_intent and (not dept or not program_name):
         if not faculty:
-            return _profiling_followup_message("faculty", profile)
-        return _profiling_followup_message("dept", profile)
+            return _profiling_followup_message("faculty", profile, prefer_tr=prefer_tr)
+        return _profiling_followup_message("dept", profile, prefer_tr=prefer_tr)
 
     if graduation_intent and dept:
         grad_text = get_graduation_text(dept, collection=collection)
         if not grad_text:
-            return (
-                "I don't have graduation requirements for that department in my database yet. "
-                "Please check the ECTS system directly."
+            return _t(
+                "I don't have graduation requirements for that department in my database yet. Please check the ECTS system directly.",
+                "O bolum icin mezuniyet kosullarini henüz veritabanimda bulamiyorum. Lutfen ECTS sistemini kontrol edin.",
+                prefer_tr,
             )
         if client_groq is None:
             return grad_text[:2000]
@@ -1882,17 +2127,21 @@ def ask(question, history=[], client_type=None):
     if (not graduation_intent) and (planning_intent or (last_bot_q == "dept" and parsed["department"])):
         if not dept or not program_name:
             if not faculty:
-                return _profiling_followup_message("faculty", profile)
-            return _profiling_followup_message("dept", profile)
+                return _profiling_followup_message("faculty", profile, prefer_tr=prefer_tr)
+            return _profiling_followup_message("dept", profile, prefer_tr=prefer_tr)
         if not start_year and has_multiple_curriculum_variants(dept, program_name=program_name):
-            return _curriculum_entry_year_followup()
+            return _curriculum_entry_year_followup(prefer_tr=prefer_tr)
         if not year or not term:
-            return "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)"
+            return _t(
+                "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)",
+                "FOLLOWUP_NEEDED: Hangi siniftasiniz ve hangi donemdedesiniz? (orn. 2. sinif bahar)",
+                prefer_tr,
+            )
 
     # Deterministic combined answer when the user asks both semesters of a year.
     if (not graduation_intent) and both_semesters_intent and dept and year:
         if not start_year and has_multiple_curriculum_variants(dept, program_name=program_name):
-            return _curriculum_entry_year_followup()
+            return _curriculum_entry_year_followup(prefer_tr=prefer_tr)
 
         fall_courses = _get_curriculum_courses_robust(
             dept,
@@ -1925,6 +2174,7 @@ def ask(question, history=[], client_type=None):
                 program_name=program_name,
                 curriculum_url=curriculum_url,
                 gpa_value=gpa_value,
+                prefer_tr=prefer_tr,
             ))
         if spring_courses:
             parts.append(_format_semester_courses(
@@ -1937,6 +2187,7 @@ def ask(question, history=[], client_type=None):
                 program_name=program_name,
                 curriculum_url=curriculum_url,
                 gpa_value=gpa_value,
+                prefer_tr=prefer_tr,
             ))
 
         if parts:
@@ -1985,9 +2236,10 @@ def ask(question, history=[], client_type=None):
                     faculty=faculty,
                 )
         if not courses:
-            return (
-                "I don't have that semester's curriculum data in my database. "
-                "Please check the ECTS system directly."
+            return _t(
+                "I don't have that semester's curriculum data in my database. Please check the ECTS system directly.",
+                "Bu doneme ait mufredat verisini veritabanimda bulamiyorum. Lutfen ECTS sistemini kontrol edin.",
+                prefer_tr,
             )
         answer = _format_semester_courses(
             dept,
@@ -2000,6 +2252,7 @@ def ask(question, history=[], client_type=None):
             curriculum_url=curriculum_url,
             gpa_value=gpa_value,
             entry_year_note=entry_year_note,
+            prefer_tr=prefer_tr,
         )
         if regulations_intent and _is_credit_load_question(full_question):
             regs_answer = _format_regulations_answer(full_question, history, gpa_value)
@@ -2024,10 +2277,17 @@ def ask(question, history=[], client_type=None):
                 else f"- {c['code']}: {c['name']}"
                 for c in courses
             ]
-            curr_text = (f"{dept} Year {year} {term} Semester courses:\n"
-                        + "\n".join(regular))
+            curr_text = _t(
+                f"{dept} Year {year} {term} Semester courses:\n" + "\n".join(regular),
+                f"{dept} - {year}. sÄ±nÄ±f {term} dÃ¶nemi dersleri:\n" + "\n".join(regular),
+                prefer_tr,
+            )
             if elec_count:
-                curr_text += f"\n\nPlus {elec_count} elective slot(s)."
+                curr_text += _t(
+                    f"\n\nPlus {elec_count} elective slot(s).",
+                    f"\n\nAyrÄ±ca {elec_count} seÃ§meli ders hakkÄ±nÄ±z var.",
+                    prefer_tr,
+                )
             context_parts.append(curr_text)
 
     # 4. graduation requirements if dept mentioned
@@ -2063,9 +2323,30 @@ def ask(question, history=[], client_type=None):
         context_parts = _query_relevant_context(collection, query_texts, n_results=3, max_docs=6)
 
     if not context_parts:
-        return (
-            "I don't have that information in the IEU database. "
-            "Please check the ECTS system directly or share more details."
+        if gemini_model:
+            try:
+                prefer_tr = _looks_turkish(question)
+                lang_instruction = "Always reply in Turkish." if prefer_tr else "Always reply in English."
+                response = gemini_model.generate_content(
+                    f"You are EkoBot, a friendly and witty academic assistant for Izmir University of Economics (IEU). "
+                    f"You help students with courses, schedules, prerequisites, and academic planning. "
+                    f"The student just sent you this message: '{question}'. "
+                    f"If it's a joke, respond with light humor. If it's sarcasm or frustration, respond with empathy and a gentle redirect. "
+                    f"If it's a typo or unclear, ask them to clarify in a friendly way. "
+                    f"If it's just casual chat, respond warmly but briefly and invite them to ask about their courses. "
+                    f"If they seem frustrated or confused, be extra warm and offer to help step by step. "
+                    f"Keep your response under 2 sentences. Never mention that you're an AI or that you can't help. "
+                    f"{lang_instruction}"
+                )
+                if response and response.text:
+                    return response.text
+            except Exception:
+                pass
+        prefer_tr = _looks_turkish(question)
+        return _t(
+            "Hey! I'm here to help with your IEU courses and academic planning. What would you like to know?",
+            "Merhaba! IEU dersleriniz ve akademik planlamaniz konusunda yardimci olmak icin buradayim. Ne ogrenmek istersiniz?",
+            prefer_tr,
         )
 
     # â”€â”€ ask LLM to reason over ALL context â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -2095,9 +2376,15 @@ def _format_semester_courses(
     curriculum_url=None,
     gpa_value=None,
     entry_year_note=None,
+    prefer_tr=False,
 ):
     elec_count = sum(1 for c in courses if c.get("code", "").startswith("ELEC"))
-    lines = [f"{dept} - Year {year} {term} Semester:\n"]
+    term_tr = "Guz" if str(term).lower() == "fall" else "Bahar" if str(term).lower() == "spring" else term
+    lines = [_t(
+        f"{dept} - Year {year} {term} Semester:\n",
+        f"{dept} - {year}. sinif {term_tr} donemi:\n",
+        prefer_tr,
+    )]
     failed_courses = _dedupe_keep_order(failed_courses or [])
     blocked_by_code = {}
 
@@ -2146,28 +2433,50 @@ def _format_semester_courses(
         if code.startswith("ELEC"):
             lines.append(f"- {code}")
         elif code in blocked_by_code:
-            lines.append(
-                f"- {code}: {name} (blocked now by failed prerequisite chain via {blocked_by_code[code]})"
-            )
+            lines.append(_t(
+                f"- {code}: {name} (blocked now by failed prerequisite chain via {blocked_by_code[code]})",
+                f"- {code}: {name} (su anda {blocked_by_code[code]} basarisiz onkosul zinciri nedeniyle engelli)",
+                prefer_tr,
+            ))
         else:
             lines.append(f"- {code}: {name}")
 
     if elec_count > 0:
-        lines.append(f"\nYou also have {elec_count} elective slot(s) this semester.")
-        lines.append("If you want the elective options, ask me and I'll list them.")
+        lines.append(_t(
+            f"\nYou also have {elec_count} elective slot(s) this semester.",
+            f"\nBu donemde {elec_count} secmeli ders hakkiniz var.",
+            prefer_tr,
+        ))
+        lines.append(_t(
+            "If you want the elective options, ask me and I'll list them.",
+            "Secmeli ders seceneklerini isterseniz, size listeleyebilirim.",
+            prefer_tr,
+        ))
 
     if failed_courses:
         current_codes = {(c.get("code") or "").strip().upper() for c in courses}
-        lines.append("\nRetake priority (failed courses you mentioned):")
+        lines.append(_t(
+            "\nRetake priority (failed courses you mentioned):",
+            "\nTekrar onceligi (soylediginiz basarisiz dersler):",
+            prefer_tr,
+        ))
         for code in failed_courses:
             offered_term = (
                 (positions.get(code, {}).get("term") or offered_term_by_code.get(code) or "")
             ).strip()
             offered_note = f"; offered in {offered_term}" if offered_term else ""
             if code in current_codes:
-                lines.append(f"- {code} (already in this semester curriculum; prioritize retaking this course{offered_note})")
+                lines.append(_t(
+                    f"- {code} (already in this semester curriculum; prioritize retaking this course{offered_note})",
+                    f"- {code} (zaten bu donem mufredatinda; bu dersi tekrar almak oncelikli olsun{offered_note})",
+                    prefer_tr,
+                ))
             else:
-                lines.append(f"- {code} (not listed in this semester curriculum; add it in its offered term{offered_note} if your credit load allows)")
+                lines.append(_t(
+                    f"- {code} (not listed in this semester curriculum; add it in its offered term{offered_note} if your credit load allows)",
+                    f"- {code} (bu donem mufredatinda listelenmiyor; kredi yukunuz yetiyorsa sunuldugu donemde ekleyin{offered_note})",
+                    prefer_tr,
+                ))
 
         blocked_chain = get_blocked_dependency_chain(
             failed_courses,
@@ -2180,18 +2489,34 @@ def _format_semester_courses(
             reverse_graph=scoped_reverse_graph,
         )
         if blocked_chain:
-            lines.append("\nBlocked dependency chain (following semesters):")
+            lines.append(_t(
+                "\nBlocked dependency chain (following semesters):",
+                "\nEngellenen onkosul zinciri (sonraki donemler):",
+                prefer_tr,
+            ))
             for item in blocked_chain[:20]:
                 title = f"{item['code']}"
                 if item.get("name"):
                     title += f" - {item['name']}"
                 lines.append(
-                    f"- {title} (Year {item['year']} {item['term']}) blocked by {item['blocked_by']}"
+                    _t(
+                        f"- {title} (Year {item['year']} {item['term']}) blocked by {item['blocked_by']}",
+                        f"- {title} ({item['year']}. sinif {item['term']}) {item['blocked_by']} nedeniyle engelleniyor",
+                        prefer_tr,
+                    )
                 )
             if len(blocked_chain) > 20:
-                lines.append(f"- ...and {len(blocked_chain) - 20} more downstream blocked course(s).")
+                lines.append(_t(
+                    f"- ...and {len(blocked_chain) - 20} more downstream blocked course(s).",
+                    f"- ...ve diger {len(blocked_chain) - 20} engelli ders daha.",
+                    prefer_tr,
+                ))
         else:
-            lines.append("\nNo downstream prerequisite blockers were found in the available curriculum data.")
+            lines.append(_t(
+                "\nNo downstream prerequisite blockers were found in the available curriculum data.",
+                "\nMevcut mufredat verisinde sonraki donemlerde onkosul engeli bulunamadi.",
+                prefer_tr,
+            ))
 
         blocked_codes = set(failed_courses)
         blocked_codes.update(item.get("code") for item in blocked_chain if item.get("code"))
@@ -2206,14 +2531,26 @@ def _format_semester_courses(
             limit=8,
         )
         if alternatives:
-            lines.append("\nSafe alternatives for this term (from later years, excluding courses blocked by your failed-chain):")
+            lines.append(_t(
+                "\nSafe alternatives for this term (from later years, excluding courses blocked by your failed-chain):",
+                "\nBu donem icin guvenli alternatifler (son yillardan, basarisiz ders zincirinizle engellenmeyen dersler):",
+                prefer_tr,
+            ))
             for item in alternatives:
                 title = f"{item['code']}"
                 if item.get("name"):
                     title += f" - {item['name']}"
-                lines.append(f"- {title} (Year {item['year']} {item['term']})")
+                lines.append(_t(
+                    f"- {title} (Year {item['year']} {item['term']})",
+                    f"- {title} ({item['year']}. sinif {item['term']})",
+                    prefer_tr,
+                ))
         else:
-            lines.append("\nNo safe same-term alternatives were found from later semesters in the available curriculum data.")
+            lines.append(_t(
+                "\nNo safe same-term alternatives were found from later semesters in the available curriculum data.",
+                "\nMevcut mufredat verisinde sonraki donemlerden guvenli ayni-donem alternatif bulunamadi.",
+                prefer_tr,
+            ))
 
         recovery_order = build_suggested_recovery_order(
             failed_courses,
@@ -2224,18 +2561,34 @@ def _format_semester_courses(
             curriculum_url=curriculum_url,
         )
         if recovery_order:
-            lines.append("\nSuggested recovery order:")
+            lines.append(_t(
+                "\nSuggested recovery order:",
+                "\nOnerilen telafi sirasi:",
+                prefer_tr,
+            ))
             for i, item in enumerate(recovery_order[:20], start=1):
                 title = item["code"]
                 if item.get("name"):
                     title += f" - {item['name']}"
                 semester_part = ""
                 if item.get("year") and item.get("term"):
-                    semester_part = f" (Year {item['year']} {item['term']})"
-                lines.append(f"{i}. {title}{semester_part} [{item.get('reason', 'dependency order')}]"
-)
+                    semester_part = _t(
+                        f" (Year {item['year']} {item['term']})",
+                        f" ({item['year']}. sinif {item['term']})",
+                        prefer_tr,
+                    )
+                reason_label = item.get("reason") or _t("dependency order", "bagimlilik sirasi", prefer_tr)
+                lines.append(_t(
+                    f"{i}. {title}{semester_part} [{reason_label}]",
+                    f"{i}. {title}{semester_part} [{reason_label}]",
+                    prefer_tr,
+                ))
             if len(recovery_order) > 20:
-                lines.append(f"...and {len(recovery_order) - 20} more item(s).")
+                lines.append(_t(
+                    f"...and {len(recovery_order) - 20} more item(s).",
+                    f"...ve {len(recovery_order) - 20} tane daha.",
+                    prefer_tr,
+                ))
 
             current_idx = _semester_sort_index(int(year), term)
             schedule, max_ects = build_ects_aware_recovery_schedule(
@@ -2247,22 +2600,50 @@ def _format_semester_courses(
             )
             if schedule:
                 gpa_note = f"GPA {gpa_value:.2f}" if gpa_value is not None else "GPA not provided"
-                lines.append(f"\nECTS-aware recovery schedule ({gpa_note}, max {max_ects} ECTS/semester):")
-                lines.append("Strict prerequisite sequencing is applied (dependent courses are scheduled after unmet failed prerequisites and only in their offered Fall/Spring term).")
+                lines.append(_t(
+                    f"\nECTS-aware recovery schedule ({gpa_note}, max {max_ects} ECTS/semester):",
+                    f"\nECTS'ye duyarlı telafi plani ({gpa_note}, en fazla {max_ects} ECTS/donem):",
+                    prefer_tr,
+                ))
+                lines.append(_t(
+                    "Strict prerequisite sequencing is applied (dependent courses are scheduled after unmet failed prerequisites and only in their offered Fall/Spring term).",
+                    "Sikı onkosul siralamasi uygulanir (bagimli dersler, giderilmemis basarisiz onkosullardan sonra ve sadece sunulduklari Güz/Bahar doneminde planlanir).",
+                    prefer_tr,
+                ))
                 for sem in schedule[:8]:
-                    header = f"- Year {sem['year']} {sem['term']}: {sem['total_ects']:.0f}/{max_ects} ECTS"
+                    header = _t(
+                        f"- Year {sem['year']} {sem['term']}: {sem['total_ects']:.0f}/{max_ects} ECTS",
+                        f"- {sem['year']}. sinif {sem['term']}: {sem['total_ects']:.0f}/{max_ects} ECTS",
+                        prefer_tr,
+                    )
                     lines.append(header)
                     for item in sem["items"]:
                         title = item["code"]
                         if item.get("name"):
                             title += f" - {item['name']}"
-                        ects_txt = f"{item['ects']:.0f} ECTS" if item.get("ects", 0) > 0 else "ECTS unknown"
-                        lines.append(f"  - {title} [{ects_txt}; {item.get('reason', 'dependency order')}]"
-)
+                        ects_txt = _t(
+                            f"{item['ects']:.0f} ECTS" if item.get("ects", 0) > 0 else "ECTS unknown",
+                            f"{item['ects']:.0f} ECTS" if item.get("ects", 0) > 0 else "ECTS bilinmiyor",
+                            prefer_tr,
+                        )
+                        reason_label = item.get("reason") or _t("dependency order", "bagimlilik sirasi", prefer_tr)
+                        lines.append(_t(
+                            f"  - {title} [{ects_txt}; {reason_label}]",
+                            f"  - {title} [{ects_txt}; {reason_label}]",
+                            prefer_tr,
+                        ))
                 if len(schedule) > 8:
-                    lines.append(f"- ...and {len(schedule) - 8} more semester(s) in the recovery schedule.")
+                    lines.append(_t(
+                        f"- ...and {len(schedule) - 8} more semester(s) in the recovery schedule.",
+                        f"- ...ve telafi planinda {len(schedule) - 8} donem daha var.",
+                        prefer_tr,
+                    ))
     else:
-        lines.append("\nIf you have any failed courses to retake, share their course codes (e.g. CE 201, MATH 153) and I will prioritize them in your plan.")
+        lines.append(_t(
+            "\nIf you have any failed courses to retake, share their course codes (e.g. CE 201, MATH 153) and I will prioritize them in your plan.",
+            "\nTekrar almaniz gereken basarisiz dersler varsa, ders kodlarini paylasin (orn. CE 201, MATH 153); planda onceliklendireyim.",
+            prefer_tr,
+        ))
 
     if entry_year_note:
         lines.append("")
