@@ -307,7 +307,7 @@ Conversation history (recent): {json.dumps(history[-12:], ensure_ascii=False)}
 # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def call_llm(question, context_docs, history, client_type=None):
-    prefer_tr = _looks_turkish(question)
+    prefer_tr = _conversation_prefers_turkish(question, history)
     if client_groq is None and gemini_model is None:
         return _t(
             "The language model is unavailable right now. Please try again later.",
@@ -667,7 +667,7 @@ def ask_with_options(question, history=None, client_type=None):
     answer = ask(question, history, client_type=client_type)
     is_followup = answer.startswith("FOLLOWUP_NEEDED:")
     clean_answer = answer.replace("FOLLOWUP_NEEDED:", "").strip() if is_followup else answer
-    prefer_tr = _looks_turkish(clean_answer) or _looks_turkish(question)
+    prefer_tr = _conversation_prefers_turkish(question, history, assistant_text=clean_answer)
 
     options = None
     if is_followup:
@@ -877,6 +877,23 @@ def _looks_turkish(text):
         "abi", "abla", "kanka", "hangi", "universite", "üniversite", "fakulte",
         "fakülte", "bolum", "bölüm", "sinif", "sınıf", "donem", "dönem",
     ])
+
+
+def _conversation_prefers_turkish(question, history=None, assistant_text=None):
+    if _looks_turkish(question):
+        return True
+    if assistant_text and _looks_turkish(assistant_text):
+        return True
+
+    for msg in reversed(history or []):
+        if msg.get("role") != "assistant":
+            continue
+        if _looks_turkish(msg.get("content", "")):
+            return True
+        break
+
+    latest_substantive = get_latest_substantive_user_question(history or [])
+    return _looks_turkish(latest_substantive)
 
 
 def _t(en_text, tr_text, prefer_tr):
@@ -1293,7 +1310,7 @@ def _format_web_info_answer(question, docs, max_docs=2):
     if not docs:
         return None
 
-    prefer_tr = _looks_turkish(question)
+    prefer_tr = _conversation_prefers_turkish(question)
 
     stopwords = {
         "a", "an", "and", "are", "as", "at", "be", "can", "do", "does", "for",
@@ -1399,7 +1416,7 @@ def _format_regulations_answer(question, history, gpa_value):
     if not regs:
         return None
 
-    prefer_tr = _looks_turkish(question)
+    prefer_tr = _conversation_prefers_turkish(question, history)
     t = (question or "").lower()
 
     # Credit load / ECTS limits
@@ -1745,7 +1762,7 @@ def ask(question, history=[], client_type=None):
     question_lower = question.lower().strip()
     last_bot_q = get_last_bot_question_type(history)
     history_profile = extract_profile_from_history(history or [])
-    prefer_tr = _looks_turkish(question)
+    prefer_tr = _conversation_prefers_turkish(question, history)
 
     if is_greeting_or_small_talk(question):
         if last_bot_q in {"faculty", "dept", "year_term", "start_year", "failed_courses"}:
@@ -2325,7 +2342,7 @@ def ask(question, history=[], client_type=None):
     if not context_parts:
         if gemini_model:
             try:
-                prefer_tr = _looks_turkish(question)
+                prefer_tr = _conversation_prefers_turkish(question, history)
                 lang_instruction = "Always reply in Turkish." if prefer_tr else "Always reply in English."
                 response = gemini_model.generate_content(
                     f"You are EkoBot, a friendly and witty academic assistant for Izmir University of Economics (IEU). "
@@ -2342,7 +2359,7 @@ def ask(question, history=[], client_type=None):
                     return response.text
             except Exception:
                 pass
-        prefer_tr = _looks_turkish(question)
+        prefer_tr = _conversation_prefers_turkish(question, history)
         return _t(
             "Hey! I'm here to help with your IEU courses and academic planning. What would you like to know?",
             "Merhaba! IEU dersleriniz ve akademik planlamaniz konusunda yardimci olmak icin buradayim. Ne ogrenmek istersiniz?",
