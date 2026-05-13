@@ -14,3 +14,4 @@ course_codes_full.json
 .pytest_cache/
 *.xlsx
 *.xls
+ieu_program_urls.xlsx 
