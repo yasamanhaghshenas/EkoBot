@@ -42,6 +42,7 @@ from catalog import (
     get_available_entry_years,
     get_curriculum_course_positions,
     get_curriculum_courses,
+    get_curriculum_year_options,
     get_electives,
     get_graduation_text,
     get_ieu_department_options,
@@ -435,6 +436,22 @@ def _curriculum_entry_year_followup(clarify_invalid_reply=False, prefer_tr=False
     return "\n".join(lines)
 
 
+def _curriculum_year_followup(prefer_tr=False):
+    return _t(
+        "FOLLOWUP_NEEDED: Which year are you in? Please choose one of the options below.",
+        "FOLLOWUP_NEEDED: Hangi siniftasiniz? Lutfen asagidaki seceneklerden birini secin.",
+        prefer_tr,
+    )
+
+
+def _curriculum_semester_followup(prefer_tr=False):
+    return _t(
+        "FOLLOWUP_NEEDED: Which semester are you in? Please choose Fall or Spring.",
+        "FOLLOWUP_NEEDED: Hangi donemdesiniz? Lutfen Guz veya Bahar secin.",
+        prefer_tr,
+    )
+
+
 def extract_profile_from_history(history):
     """
     Extract what we know about the user from conversation history.
@@ -578,18 +595,15 @@ def get_next_profiling_question(profile, question_lower, require_curriculum_deta
                 "start_year",
             )
 
-        # Required: year and semester
+        # Required: year first, then semester
         if not profile["year"] or not profile["term"]:
+            if profile["year"] and not profile["term"]:
+                return (
+                    _curriculum_semester_followup(prefer_tr=prefer_tr),
+                    "year_term",
+                )
             return (
-                _t(
-                    "Got it!\n\n"
-                    "What year and semester are you currently in?\n"
-                    "(e.g., '2nd year spring', 'third year fall', etc.)",
-                    "Anladım!\n\n"
-                    "Hangi sınıftasınız ve hangi dönemdесiniz?\n"
-                    "(örn. '2. sınıf bahar', '3. sınıf güz' vb.)",
-                    prefer_tr,
-                ),
+                _curriculum_year_followup(prefer_tr=prefer_tr),
                 "year_term",
             )
 
@@ -617,9 +631,11 @@ def _profiling_followup_message(question_type, profile=None, prefer_tr=False):
             prefer_tr,
         )
     if question_type == "year_term":
+        if profile and profile.get("year") and not profile.get("term"):
+            return _curriculum_semester_followup(prefer_tr=prefer_tr)
         return _t(
-            "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)",
-            "FOLLOWUP_NEEDED: Hangi sınıftasınız ve hangi dönemdесiniz? (örn. 2. sınıf bahar)",
+            "FOLLOWUP_NEEDED: Which year are you in? Please choose one of the options below.",
+            "FOLLOWUP_NEEDED: Hangi siniftasiniz? Lutfen asagidaki seceneklerden birini secin.",
             prefer_tr,
         )
     if question_type == "start_year":
@@ -634,6 +650,23 @@ def _profiling_followup_options(question_type, profile, prefer_tr=False):
         faculty = (profile or {}).get("faculty")
         if faculty:
             return get_ieu_department_options(faculty, prefer_tr=prefer_tr)
+    if question_type == "year_term":
+        profile = profile or {}
+        dept = profile.get("department")
+        if dept:
+            options = get_curriculum_year_options(
+                dept,
+                program_name=profile.get("program_name"),
+                curriculum_url=profile.get("curriculum_url"),
+                prefer_tr=prefer_tr,
+            )
+            if options:
+                return options
+    if question_type == "semester":
+        return [
+            {"label": _t("Fall", "Guz", prefer_tr), "value": "Fall"},
+            {"label": _t("Spring", "Bahar", prefer_tr), "value": "Spring"},
+        ]
     if question_type == "start_year":
         profile = profile or {}
         dept = profile.get("department")
@@ -698,6 +731,35 @@ def ask_with_options(question, history=None, client_type=None):
             ]
         ):
             options = _profiling_followup_options("start_year", profile, prefer_tr=prefer_tr)
+        elif any(
+            phrase in lowered
+            for phrase in [
+                "which semester are you in",
+                "what semester are you in",
+                "which semester",
+                "what semester",
+                "fall or spring",
+                "hangi donem",
+                "hangi dönem",
+                "guz veya bahar",
+                "güz veya bahar",
+            ]
+        ):
+            options = _profiling_followup_options("semester", profile, prefer_tr=prefer_tr)
+        elif any(
+            phrase in lowered
+            for phrase in [
+                "which year are you in",
+                "what year are you in",
+                "which year and semester",
+                "what year and semester",
+                "hangi sinif",
+                "hangi sınıf",
+                "kacinci sinif",
+                "kaçıncı sınıf",
+            ]
+        ):
+            options = _profiling_followup_options("year_term", profile, prefer_tr=prefer_tr)
 
     return {
         "answer": clean_answer,
@@ -1538,24 +1600,10 @@ def _profiling_year_term_followup(question, prefer_tr=False):
     t = t or extract_term_only(question)
 
     if y and not t:
-        return _t(
-            "FOLLOWUP_NEEDED: Which semester are you in? (Fall or Spring)",
-            "FOLLOWUP_NEEDED: Hangi dönemdесiniz? (Güz veya Bahar)",
-            prefer_tr,
-        )
+        return _curriculum_semester_followup(prefer_tr=prefer_tr)
     if t and not y:
-        return _t(
-            "FOLLOWUP_NEEDED: Which year are you in? (e.g. 1st, 2nd, 3rd, 4th)",
-            "FOLLOWUP_NEEDED: Hangi sınıftasınız? (örn. 1., 2., 3., 4. sınıf)",
-            prefer_tr,
-        )
-    if not y and not t:
-        return _t(
-            "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)",
-            "FOLLOWUP_NEEDED: Hangi sınıftasınız ve hangi dönemdесiniz? (örn. 2. sınıf bahar)",
-            prefer_tr,
-        )
-    return None
+        return _curriculum_year_followup(prefer_tr=prefer_tr)
+    return _curriculum_year_followup(prefer_tr=prefer_tr)
 
 
 def is_greeting_or_small_talk(text):
@@ -1898,23 +1946,11 @@ def ask(question, history=[], client_type=None):
                 term_final = t_now or t_hist
 
                 if year_final and not term_final:
-                    return _t(
-                        "FOLLOWUP_NEEDED: Which semester are you in? (Fall or Spring)",
-                        "FOLLOWUP_NEEDED: Hangi dÃ¶nemdesiniz? (GÃ¼z veya Bahar)",
-                        prefer_tr,
-                    )
+                    return _curriculum_semester_followup(prefer_tr=prefer_tr)
                 if term_final and not year_final:
-                    return _t(
-                        "FOLLOWUP_NEEDED: Which year are you in? (e.g. 1st, 2nd, 3rd, 4th)",
-                        "FOLLOWUP_NEEDED: Hangi sÄ±nÄ±ftasÄ±nÄ±z? (Ã¶rn. 1., 2., 3. veya 4. sÄ±nÄ±f)",
-                        prefer_tr,
-                    )
+                    return _curriculum_year_followup(prefer_tr=prefer_tr)
                 if not year_final and not term_final:
-                    return _t(
-                        "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)",
-                        "FOLLOWUP_NEEDED: Hangi sÄ±nÄ±ftasÄ±nÄ±z ve hangi dÃ¶nemdesiniz? (Ã¶rn. 2. sÄ±nÄ±f bahar)",
-                        prefer_tr,
-                    )
+                    return _curriculum_year_followup(prefer_tr=prefer_tr)
 
             if is_answering_profiling and question_type != "year_term" and next_question:
                 return next_question
@@ -2140,11 +2176,7 @@ def ask(question, history=[], client_type=None):
         if not start_year and has_multiple_curriculum_variants(dept, program_name=program_name):
             return _curriculum_entry_year_followup(prefer_tr=prefer_tr)
         if not year or not term:
-            return _t(
-                "FOLLOWUP_NEEDED: Which year and semester are you in? (e.g. 2nd year spring)",
-                "FOLLOWUP_NEEDED: Hangi siniftasiniz ve hangi donemdedesiniz? (orn. 2. sinif bahar)",
-                prefer_tr,
-            )
+            return _profiling_followup_message("year_term", profile, prefer_tr=prefer_tr)
 
     # Deterministic combined answer when the user asks both semesters of a year.
     if (not graduation_intent) and both_semesters_intent and dept and year:

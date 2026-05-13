@@ -260,6 +260,26 @@ def _format_curriculum_variant_label(start_year=None, end_year=None, open_ended=
     return f"{start_year}-{end_year}"
 
 
+def _format_study_year_label(year, prefer_tr=False):
+    try:
+        year_int = int(year)
+    except Exception:
+        return str(year)
+
+    if prefer_tr:
+        return f"{year_int}. sinif"
+
+    if year_int == 1:
+        suffix = "st"
+    elif year_int == 2:
+        suffix = "nd"
+    elif year_int == 3:
+        suffix = "rd"
+    else:
+        suffix = "th"
+    return f"{year_int}{suffix} year"
+
+
 _FACULTY_LABEL_TR = {
     "Common Courses (GEC)": "Ortak Dersler (GEC)",
     "Faculty of Arts and Sciences": "Fen-Edebiyat Fakültesi",
@@ -950,6 +970,51 @@ def get_curriculum_variant_options(dept_code, program_name=None):
         })
 
     return options
+
+
+def get_curriculum_year_options(dept_code, program_name=None, curriculum_url=None, prefer_tr=False):
+    """
+    Return the study-year choices that should be shown to the user.
+
+    The maximum year is derived from the curriculum's semester keys, so
+    two-year, four-year, and six-year programs can each expose the right
+    year buttons without hard-coding a one-size-fits-all range.
+    """
+    if not os.path.exists("curriculum.json"):
+        return []
+
+    max_year = 0
+    try:
+        with open("curriculum.json", "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        for item in data:
+            if not _matches_curriculum_selector(
+                item,
+                dept_code=dept_code,
+                program_name=program_name,
+                curriculum_url=curriculum_url,
+            ):
+                continue
+
+            for sem_name in (item.get("semesters") or {}).keys():
+                year, _ = _extract_year_term_from_semester_name(sem_name)
+                if year is not None:
+                    max_year = max(max_year, int(year))
+    except Exception as e:
+        print(f"  curriculum.json year-option read error: {e}")
+        return []
+
+    if max_year <= 0:
+        return []
+
+    return [
+        {
+            "label": _format_study_year_label(year, prefer_tr=prefer_tr),
+            "value": str(year),
+        }
+        for year in range(1, max_year + 1)
+    ]
 
 
 def has_multiple_curriculum_variants(dept_code, program_name=None, curriculum_url=None):
