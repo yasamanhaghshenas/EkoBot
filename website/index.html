@@ -948,6 +948,7 @@ const API_URL = window.location.origin + '/chat';
     msgs.innerHTML = '';
 
     chat.messages.forEach(m => {
+      if (m.hidden) return;
       appendBubble(m.text, m.role === 'user', m.time, false, m.options || null);
     });
 
@@ -974,6 +975,61 @@ const API_URL = window.location.origin + '/chat';
   }
 
   // ── ADD BUBBLE ──
+  function buildBubbleNode(text, isUser, timeStr, options = null) {
+    const div = document.createElement('div');
+    div.className = `message ${isUser ? 'user' : 'bot'}`;
+
+    const avatar = document.createElement('div');
+    avatar.className = `msg-avatar ${isUser ? 'user-avatar' : 'bot-avatar'}`;
+    avatar.textContent = isUser ? '👤' : '🤖';
+    div.appendChild(avatar);
+
+    const body = document.createElement('div');
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.innerHTML = escapeHtml(String(text ?? '')).replace(/\n/g, '<br>');
+    body.appendChild(bubble);
+
+    if (!isUser && Array.isArray(options) && options.length > 0) {
+      const optionsWrap = document.createElement('div');
+      optionsWrap.className = 'bubble-options';
+      options.forEach(opt => {
+        const value = (opt && typeof opt === 'object')
+          ? String(opt.value ?? opt.label ?? '')
+          : String(opt ?? '');
+        const label = (opt && typeof opt === 'object')
+          ? String(opt.label ?? opt.value ?? '')
+          : String(opt ?? '');
+        if (!value && !label) return;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'option-btn';
+        btn.textContent = label || value;
+        btn.addEventListener('click', () => sendOption(value || label));
+        optionsWrap.appendChild(btn);
+      });
+      if (optionsWrap.childElementCount > 0) {
+        body.appendChild(optionsWrap);
+      }
+    }
+
+    const time = document.createElement('div');
+    time.className = 'msg-time';
+    time.textContent = timeStr || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    body.appendChild(time);
+
+    div.appendChild(body);
+    return div;
+  }
+
+  function replaceBubbleNode(target, text, isUser, timeStr, options = null) {
+    if (!target || !target.parentNode) return null;
+    const updated = buildBubbleNode(text, isUser, timeStr, options);
+    target.parentNode.replaceChild(updated, target);
+    return updated;
+  }
+
   function appendBubble(text, isUser, timeStr, scroll = true, options = null) {
     const welcome = document.getElementById('welcome');
     if (welcome) welcome.remove();
@@ -1049,7 +1105,7 @@ const API_URL = window.location.origin + '/chat';
   }
 
   // ── SEND MESSAGE ──
-  async function sendMessage(forcedQuestion = null) {
+  async function sendMessage(forcedQuestion = null, showUserBubble = true) {
     const input = document.getElementById('userInput');
     const question = (forcedQuestion !== null && forcedQuestion !== undefined)
       ? String(forcedQuestion).trim()
@@ -1062,7 +1118,9 @@ const API_URL = window.location.origin + '/chat';
     document.getElementById('sendBtn').disabled = true;
 
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    appendBubble(question, true, timeStr);
+    if (showUserBubble) {
+      appendBubble(question, true, timeStr);
+    }
     showTyping();
 
     // create new chat if none active
@@ -1079,7 +1137,13 @@ const API_URL = window.location.origin + '/chat';
 
     // save user message
     const chat = getChat(currentChatId);
-    chat.messages.push({ role: 'user', text: question, time: timeStr });
+    chat.messages.push({
+      role: 'user',
+      text: question,
+      time: timeStr,
+      hidden: !showUserBubble,
+      source: showUserBubble ? 'typed' : 'option'
+    });
     chat.updatedAt = Date.now();
     saveChats();
 
@@ -1118,10 +1182,47 @@ const API_URL = window.location.origin + '/chat';
       removeTyping();
 
       const botTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      appendBubble(data.answer, false, botTime, true, data.options || null);
+      const botMessages = chat.messages
+        .map((m, idx) => ({ m, idx }))
+        .filter(item => item.m.role === 'bot');
+      const lastBotMessage = botMessages.length ? botMessages[botMessages.length - 1] : null;
+      const shouldSwapFollowup = Boolean(
+        data.is_followup &&
+        lastBotMessage &&
+        (lastBotMessage.m.isFollowup || (Array.isArray(lastBotMessage.m.options) && lastBotMessage.m.options.length > 0)) &&
+        Array.isArray(data.options) && data.options.length > 0
+      );
 
-      // save bot message
-      chat.messages.push({ role: 'bot', text: data.answer, time: botTime, options: data.options || null });
+      if (shouldSwapFollowup) {
+        const msgs = document.getElementById('messages');
+        const domBotMessages = msgs.querySelectorAll('.message.bot');
+        const lastDomBotMessage = domBotMessages.length ? domBotMessages[domBotMessages.length - 1] : null;
+        if (lastDomBotMessage) {
+          replaceBubbleNode(lastDomBotMessage, data.answer, false, botTime, data.options || null);
+        } else {
+          appendBubble(data.answer, false, botTime, true, data.options || null);
+        }
+
+        chat.messages[lastBotMessage.idx] = {
+          role: 'bot',
+          text: data.answer,
+          time: botTime,
+          options: data.options || null,
+          isFollowup: true
+        };
+      } else {
+        appendBubble(data.answer, false, botTime, true, data.options || null);
+
+        // save bot message
+        chat.messages.push({
+          role: 'bot',
+          text: data.answer,
+          time: botTime,
+          options: data.options || null,
+          isFollowup: !!data.is_followup
+        });
+      }
+
       chat.preview = data.answer.slice(0, 60) + (data.answer.length > 60 ? '…' : '');
       chat.updatedAt = Date.now();
       saveChats();
@@ -1148,7 +1249,7 @@ const API_URL = window.location.origin + '/chat';
   }
 
   function sendOption(value) {
-    sendMessage(value);
+    sendMessage(value, false);
   }
 
   function handleKey(e) {

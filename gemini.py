@@ -1,4 +1,4 @@
-from groq import Groq
+﻿from groq import Groq
 import google.generativeai as genai
 import chromadb
 import json
@@ -559,10 +559,8 @@ def get_next_profiling_question(profile, question_lower, require_curriculum_deta
     if not profile["department"] or not profile["program_name"]:
         return (
             _t(
-                "Got it!\n\n"
-                f"Which department are you in under {profile.get('faculty') or 'your faculty'}? Please choose one of the options below.",
-                "Anladım!\n\n"
-                f"{profile.get('faculty') or 'fakülteniz'} altındaki bölümünüz hangisi? Lütfen aşağıdaki seçeneklerden birini seçin.",
+                "Got it!\n\nWhich department are you in? Please choose one of the options below.",
+                "Anladım!\n\nHangi bölümdesiniz? Lütfen aşağıdaki seçeneklerden birini seçin.",
                 prefer_tr,
             ),
             "dept",
@@ -613,13 +611,6 @@ def _profiling_followup_message(question_type, profile=None, prefer_tr=False):
             prefer_tr,
         )
     if question_type == "dept":
-        faculty = (profile or {}).get("faculty")
-        if faculty:
-            return _t(
-                f"FOLLOWUP_NEEDED: Which department are you in under {faculty}? Please choose one of the options below.",
-                f"FOLLOWUP_NEEDED: {faculty} altındaki bölümünüz hangisi? Lütfen aşağıdaki seçeneklerden birini seçin.",
-                prefer_tr,
-            )
         return _t(
             "FOLLOWUP_NEEDED: Which department are you in? Please choose one of the options below.",
             "FOLLOWUP_NEEDED: Hangi bölümdesiniz? Lütfen aşağıdaki seçeneklerden birini seçin.",
