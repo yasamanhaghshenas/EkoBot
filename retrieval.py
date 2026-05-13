@@ -1,6 +1,11 @@
 import re
 
 from catalog import _normalize_course_code
+from grading_helpers import (
+    extract_evaluation_lines,
+    extract_grading_only_response,
+    is_grading_question,
+)
 
 
 def _looks_like_course_code(value):
@@ -52,6 +57,125 @@ def get_context_for_codes(collection, codes):
     return contexts, missing, corrections
 
 
+def _pick_field(doc, labels):
+    for label in labels:
+        m = re.search(rf"^{re.escape(label)}:\s*(.+)$", doc, re.IGNORECASE | re.MULTILINE)
+        if m:
+            return m.group(1).strip()
+    return None
+
+
+def _course_header(doc):
+    code = _pick_field(doc, ["Course Code"]) or "Unknown"
+    name = _pick_field(doc, ["Course Name"]) or "Unknown"
+    return f"{code} - {name}"
+
+
+def _course_focus_from_question(question):
+    q = (question or "").lower()
+    if is_grading_question(q):
+        return "grading"
+
+    if any(cue in q for cue in [
+        "who teaches", "who is teaching", "who will teach", "who taught",
+        "instructor", "lecturer", "teacher",
+    ]):
+        return "teacher"
+
+    if "coordinator" in q:
+        return "coordinator"
+
+    if any(cue in q for cue in ["prereq", "prerequisite"]):
+        return "prerequisites"
+
+    if any(cue in q for cue in ["credit", "credits", "ects"]):
+        return "credits"
+
+    if any(cue in q for cue in ["description", "course description", "course aim", "aim"]):
+        return "description"
+
+    return None
+
+
+def _extract_focused_course_response(doc, focus):
+    if not doc or not focus:
+        return ""
+
+    header = _course_header(doc)
+
+    if focus == "teacher":
+        teacher = _pick_field(doc, ["Course Lecturer(s)", "Course Lecturer", "Course Instructor(s)"])
+        coordinator = _pick_field(doc, ["Course Coordinator"])
+        lines = [header]
+        if teacher:
+            lines.append(f"Teacher/Lecturer(s): {teacher}")
+        elif coordinator:
+            lines.append(f"Course Coordinator: {coordinator}")
+        else:
+            return ""
+        return "\n".join(lines)
+
+    if focus == "coordinator":
+        coordinator = _pick_field(doc, ["Course Coordinator"])
+        teacher = _pick_field(doc, ["Course Lecturer(s)", "Course Lecturer", "Course Instructor(s)"])
+        lines = [header]
+        if coordinator:
+            lines.append(f"Course Coordinator: {coordinator}")
+        elif teacher:
+            lines.append(f"Teacher/Lecturer(s): {teacher}")
+        else:
+            return ""
+        return "\n".join(lines)
+
+    if focus == "prerequisites":
+        prereq = _pick_field(doc, ["Prerequisites"])
+        if prereq is None:
+            return ""
+        return "\n".join([header, f"Prerequisites: {prereq}"])
+
+    if focus == "credits":
+        credits = _pick_field(doc, ["Credits"])
+        ects = _pick_field(doc, ["ECTS"])
+        lines = [header]
+        if credits is not None:
+            lines.append(f"Credits: {credits}")
+        if ects is not None:
+            lines.append(f"ECTS: {ects}")
+        return "\n".join(lines) if len(lines) > 1 else ""
+
+    if focus == "description":
+        desc = _pick_field(doc, ["Course Description", "Course Aim"])
+        if desc is None:
+            return ""
+        return "\n".join([header, f"Description: {desc}"])
+
+    return ""
+
+
+def extract_course_specific_response(course_contexts, question):
+    """
+    Return only the requested course section when the user asks for a
+    specific detail such as teacher, prerequisites, credits, or grading.
+    """
+    if not course_contexts:
+        return ""
+
+    focus = _course_focus_from_question(question)
+    if not focus:
+        return ""
+
+    if focus == "grading":
+        return extract_grading_only_response(course_contexts)
+
+    results = []
+    for doc in course_contexts:
+        focused = _extract_focused_course_response(doc, focus)
+        if focused:
+            results.append(focused)
+
+    return "\n\n".join(results)
+
+
 def format_course_direct_response(doc):
     def pick(label):
         m = re.search(rf"^{re.escape(label)}:\s*(.+)$", doc, re.IGNORECASE | re.MULTILINE)
@@ -76,8 +200,7 @@ def format_course_direct_response(doc):
     eval_section = []
     if eval_match:
         eval_text = eval_match.group(1).strip()
-        eval_lines = [line.strip() for line in eval_text.split("\n") if line.strip()]
-        eval_lines = [line for line in eval_lines if not line.startswith("time(s)") and "%" in line]
+        eval_lines = extract_evaluation_lines(eval_text)
         if eval_lines:
             eval_section.append("Evaluation System:")
             for line in eval_lines:

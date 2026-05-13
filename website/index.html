@@ -1182,12 +1182,14 @@ const API_URL = window.location.origin + '/chat';
       removeTyping();
 
       const botTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const followupMode = String(data.followup_mode || 'replace').toLowerCase();
       const botMessages = chat.messages
         .map((m, idx) => ({ m, idx }))
         .filter(item => item.m.role === 'bot');
       const lastBotMessage = botMessages.length ? botMessages[botMessages.length - 1] : null;
       const shouldSwapFollowup = Boolean(
         data.is_followup &&
+        followupMode !== 'append' &&
         lastBotMessage &&
         (lastBotMessage.m.isFollowup || (Array.isArray(lastBotMessage.m.options) && lastBotMessage.m.options.length > 0)) &&
         Array.isArray(data.options) && data.options.length > 0
@@ -1208,7 +1210,8 @@ const API_URL = window.location.origin + '/chat';
           text: data.answer,
           time: botTime,
           options: data.options || null,
-          isFollowup: true
+          isFollowup: true,
+          followupMode: followupMode
         };
       } else {
         appendBubble(data.answer, false, botTime, true, data.options || null);
@@ -1219,7 +1222,8 @@ const API_URL = window.location.origin + '/chat';
           text: data.answer,
           time: botTime,
           options: data.options || null,
-          isFollowup: !!data.is_followup
+          isFollowup: !!data.is_followup,
+          followupMode: followupMode
         });
       }
 

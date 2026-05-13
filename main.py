@@ -33,6 +33,7 @@ class ChatResponse(BaseModel):
     answer: str
     is_followup: bool = False
     options: Optional[List[ChatOption]] = None
+    followup_mode: Optional[str] = None
 
 @app.get("/")
 def root():
@@ -58,4 +59,5 @@ async def chat(req: ChatRequest, request: Request):
         answer=result.get("answer", ""),
         is_followup=bool(result.get("is_followup", False)),
         options=result.get("options"),
+        followup_mode=result.get("followup_mode"),
     )

@@ -6,7 +6,6 @@ import os
 import re
 
 from embeddings import SentenceTransformerEmbeddingFunction
-from grading_helpers import is_grading_question, extract_grading_only_response
 from parsing import (
     VALID_DEPTS,
     _dedupe_keep_order,
@@ -60,7 +59,11 @@ from planning import (
     get_scoped_offered_terms,
     get_scoped_prerequisite_maps,
 )
-from retrieval import format_course_direct_response, get_context_for_codes
+from retrieval import (
+    extract_course_specific_response,
+    format_course_direct_response,
+    get_context_for_codes,
+)
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
@@ -452,6 +455,36 @@ def _curriculum_semester_followup(prefer_tr=False):
     )
 
 
+def _looks_like_profile_correction(text):
+    q = _normalize_chatty_text(text)
+    if not q:
+        return False
+
+    correction_cues = (
+        "sorry i meant",
+        "sorry, i meant",
+        "i meant",
+        "i mean",
+        "meant to say",
+        "actually",
+        "no wait",
+        "wait no",
+        "correction",
+        "instead",
+        "rather",
+        "my bad",
+        "wrong",
+    )
+    return any(cue in q for cue in correction_cues)
+
+
+def _profile_fields_changed(previous, current):
+    fields = ["faculty", "department", "program_name", "year", "term", "start_year"]
+    previous = previous or {}
+    current = current or {}
+    return any(previous.get(field) != current.get(field) for field in fields)
+
+
 def extract_profile_from_history(history):
     """
     Extract what we know about the user from conversation history.
@@ -470,82 +503,140 @@ def extract_profile_from_history(history):
         "failed_courses": None,
     }
 
-    # Scan history for extracted values
-    for msg in history:
+    def _clear_lower_fields(level):
+        if level == "faculty":
+            profile["department"] = None
+            profile["program_name"] = None
+            profile["curriculum_url"] = None
+            profile["year"] = None
+            profile["term"] = None
+            profile["start_year"] = None
+        elif level == "department":
+            profile["program_name"] = None
+            profile["curriculum_url"] = None
+            profile["year"] = None
+            profile["term"] = None
+            profile["start_year"] = None
+        elif level == "year":
+            profile["term"] = None
+
+    def _set_profile_value(key, value, clear_level=None):
+        if value is None:
+            return False
+        if isinstance(value, str):
+            value = value.strip()
+            if not value:
+                return False
+        if profile.get(key) == value:
+            return False
+        profile[key] = value
+        if clear_level:
+            _clear_lower_fields(clear_level)
+        return True
+
+    # Scan history in order so later explicit answers override earlier wrong clicks.
+    for msg in history or []:
         if msg.get("role") != "user":
             continue
-        content = msg.get("content", "")
+        content = msg.get("content", "") or ""
 
-        if not profile["faculty"]:
-            faculty = detect_faculty_choice(content)
-            if faculty:
-                profile["faculty"] = faculty
+        faculty = detect_faculty_choice(content)
+        if faculty:
+            # Higher-level choices reset the dependent lower-level profile data.
+            _set_profile_value("faculty", faculty, clear_level="faculty")
 
         resolved_dept = resolve_ieu_department(content, faculty_name=profile["faculty"])
         if not resolved_dept:
             resolved_dept = resolve_ieu_department(content)
 
-        if not resolved_dept and not profile["department"]:
-            dept_code = detect_department_from_context(content, history, strict=True)
-            if dept_code:
-                profile["department"] = normalize_department_code(dept_code)
-                resolved_dept = resolve_ieu_department(dept_code, faculty_name=profile["faculty"])
-
         if resolved_dept:
             dept_code = (resolved_dept.get("department_code") or "").strip().upper()
-            if dept_code and not profile["department"]:
-                profile["department"] = normalize_department_code(dept_code)
+            if dept_code:
+                _set_profile_value("department", normalize_department_code(dept_code), clear_level="department")
             dept_name = (resolved_dept.get("program_name") or resolved_dept.get("label") or "").strip()
-            if dept_name and not profile["program_name"]:
+            if dept_name:
                 profile["program_name"] = dept_name
-            if not profile["faculty"]:
-                profile["faculty"] = (resolved_dept.get("faculty_label") or resolved_dept.get("faculty_sheet") or "").strip() or None
-            if not profile["curriculum_url"]:
-                profile["curriculum_url"] = _get_curriculum_url_for_start_year(resolved_dept, profile.get("start_year"))
+            new_faculty = (resolved_dept.get("faculty_label") or resolved_dept.get("faculty_sheet") or "").strip() or None
+            if new_faculty:
+                profile["faculty"] = new_faculty
+            curriculum_url = _get_curriculum_url_for_start_year(resolved_dept, profile.get("start_year"))
+            if curriculum_url:
+                profile["curriculum_url"] = curriculum_url
+        else:
+            dept_code = detect_department(content)
+            if dept_code:
+                _set_profile_value("department", normalize_department_code(dept_code), clear_level="department")
+                code_resolved = resolve_ieu_department(profile["department"], faculty_name=profile["faculty"])
+                if not code_resolved:
+                    code_resolved = resolve_ieu_department(profile["department"])
+                if code_resolved:
+                    dept_name = (code_resolved.get("program_name") or code_resolved.get("label") or "").strip()
+                    if dept_name:
+                        profile["program_name"] = dept_name
+                    new_faculty = (code_resolved.get("faculty_label") or code_resolved.get("faculty_sheet") or "").strip() or None
+                    if new_faculty:
+                        profile["faculty"] = new_faculty
+                    curriculum_url = _get_curriculum_url_for_start_year(code_resolved, profile.get("start_year"))
+                    if curriculum_url:
+                        profile["curriculum_url"] = curriculum_url
 
-        # Department
-        if not profile["department"]:
-            profile["department"] = detect_department_from_context(content, history, strict=True)
         if profile["department"] and not profile["program_name"]:
             code_resolved = resolve_ieu_department(profile["department"], faculty_name=profile["faculty"])
+            if not code_resolved:
+                code_resolved = resolve_ieu_department(profile["department"])
             if code_resolved:
-                profile["program_name"] = (code_resolved.get("program_name") or code_resolved.get("label") or "").strip() or None
-                if not profile["faculty"]:
-                    profile["faculty"] = (code_resolved.get("faculty_label") or code_resolved.get("faculty_sheet") or "").strip() or None
-                if not profile["curriculum_url"]:
-                    profile["curriculum_url"] = _get_curriculum_url_for_start_year(code_resolved, profile.get("start_year"))
+                dept_name = (code_resolved.get("program_name") or code_resolved.get("label") or "").strip()
+                if dept_name:
+                    profile["program_name"] = dept_name
+                new_faculty = (code_resolved.get("faculty_label") or code_resolved.get("faculty_sheet") or "").strip() or None
+                if new_faculty:
+                    profile["faculty"] = new_faculty
+                curriculum_url = _get_curriculum_url_for_start_year(code_resolved, profile.get("start_year"))
+                if curriculum_url:
+                    profile["curriculum_url"] = curriculum_url
 
         # Year and term
-        if not profile["year"] or not profile["term"]:
-            y, t = extract_year_and_term(content)
-            y = y or extract_year_only(content)
-            t = t or extract_term_only(content)
-            if y and not profile["year"]:
-                profile["year"] = y
-            if t and not profile["term"]:
-                profile["term"] = t
+        y, t = extract_year_and_term(content)
+        y = y or extract_year_only(content)
+        t = t or extract_term_only(content)
+        if y is not None:
+            _set_profile_value("year", y, clear_level="year")
+        if t is not None:
+            profile["term"] = t
 
         # Start year
-        if not profile["start_year"]:
-            profile["start_year"] = extract_starting_year_loose(content)
+        start_year = extract_starting_year_loose(content)
+        if start_year is not None:
+            profile["start_year"] = start_year
+            if profile["department"]:
+                resolved_dept = resolve_ieu_department(profile["department"], faculty_name=profile["faculty"])
+                if not resolved_dept:
+                    resolved_dept = resolve_ieu_department(profile["department"])
+                if resolved_dept:
+                    curriculum_url = _get_curriculum_url_for_start_year(resolved_dept, profile["start_year"])
+                    if curriculum_url:
+                        profile["curriculum_url"] = curriculum_url
 
         # GPA
-        if not profile["gpa"]:
-            profile["gpa"] = extract_gpa_from_context(content, history)
+        gpa_value = extract_gpa_from_context(content, history)
+        if gpa_value is not None:
+            profile["gpa"] = gpa_value
 
         # Erasmus/international status
-        if not profile["erasmus"]:
-            content_lower = content.lower()
-            if any(word in content_lower for word in ["erasmus", "exchange", "international", "international student"]):
-                profile["erasmus"] = any(word in content_lower for word in ["erasmus", "exchange"])
+        content_lower = content.lower()
+        if any(word in content_lower for word in ["erasmus", "exchange", "international", "international student"]):
+            profile["erasmus"] = any(word in content_lower for word in ["erasmus", "exchange"])
 
         # Failed courses
-        if not profile["failed_courses"]:
-            profile["failed_courses"] = extract_failed_courses_from_context(content, history, None)
+        failed_courses = extract_failed_courses_from_context(content, history, None)
+        if failed_courses:
+            profile["failed_courses"] = failed_courses
 
     # Refine curriculum_url based on start_year if we have both
     if profile["start_year"] and profile["department"]:
         resolved_dept = resolve_ieu_department(profile["department"], faculty_name=profile["faculty"])
+        if not resolved_dept:
+            resolved_dept = resolve_ieu_department(profile["department"])
         if resolved_dept:
             profile["curriculum_url"] = _get_curriculum_url_for_start_year(resolved_dept, profile["start_year"])
 
@@ -617,29 +708,36 @@ def _requires_curriculum_details(question, history):
     return not is_graduation_question(anchor_text)
 
 
-def _profiling_followup_message(question_type, profile=None, prefer_tr=False):
+def _with_followup_prefix(message, prefer_tr=False, correction=False):
+    if not correction or not message:
+        return message
+    prefix = _t("No problem. ", "Sorun degil. ", prefer_tr)
+    return message.replace("FOLLOWUP_NEEDED: ", f"FOLLOWUP_NEEDED: {prefix}", 1)
+
+
+def _profiling_followup_message(question_type, profile=None, prefer_tr=False, correction=False):
     if question_type == "faculty":
-        return _t(
+        return _with_followup_prefix(_t(
             "FOLLOWUP_NEEDED: Which faculty are you in? Please choose one of the options below.",
             "FOLLOWUP_NEEDED: Hangi fakültedesiniz? Lütfen aşağıdaki seçeneklerden birini seçin.",
             prefer_tr,
-        )
+        ), prefer_tr=prefer_tr, correction=correction)
     if question_type == "dept":
-        return _t(
+        return _with_followup_prefix(_t(
             "FOLLOWUP_NEEDED: Which department are you in? Please choose one of the options below.",
             "FOLLOWUP_NEEDED: Hangi bölümdesiniz? Lütfen aşağıdaki seçeneklerden birini seçin.",
             prefer_tr,
-        )
+        ), prefer_tr=prefer_tr, correction=correction)
     if question_type == "year_term":
         if profile and profile.get("year") and not profile.get("term"):
-            return _curriculum_semester_followup(prefer_tr=prefer_tr)
-        return _t(
+            return _with_followup_prefix(_curriculum_semester_followup(prefer_tr=prefer_tr), prefer_tr=prefer_tr, correction=correction)
+        return _with_followup_prefix(_t(
             "FOLLOWUP_NEEDED: Which year are you in? Please choose one of the options below.",
             "FOLLOWUP_NEEDED: Hangi siniftasiniz? Lutfen asagidaki seceneklerden birini secin.",
             prefer_tr,
-        )
+        ), prefer_tr=prefer_tr, correction=correction)
     if question_type == "start_year":
-        return _curriculum_entry_year_followup(prefer_tr=prefer_tr)
+        return _with_followup_prefix(_curriculum_entry_year_followup(prefer_tr=prefer_tr), prefer_tr=prefer_tr, correction=correction)
     return None
 
 
@@ -692,6 +790,7 @@ def ask_with_options(question, history=None, client_type=None):
     is_followup = answer.startswith("FOLLOWUP_NEEDED:")
     clean_answer = answer.replace("FOLLOWUP_NEEDED:", "").strip() if is_followup else answer
     prefer_tr = _conversation_prefers_turkish(question, history, assistant_text=clean_answer)
+    is_correction = _looks_like_profile_correction(question)
 
     options = None
     if is_followup:
@@ -765,6 +864,7 @@ def ask_with_options(question, history=None, client_type=None):
         "answer": clean_answer,
         "is_followup": is_followup,
         "options": options or None,
+        "followup_mode": "append" if is_followup and is_correction else ("replace" if is_followup else None),
     }
 
 
@@ -890,8 +990,37 @@ def _format_profile_context_ack(profile, prefer_tr=False):
     )
 
 
-def _looks_like_profile_update_only(question, history, last_bot_q, profile=None):
-    if last_bot_q in {"dept", "year_term", "start_year", "failed_courses"}:
+def _should_resume_planning_after_profile_completion(question, history):
+    """
+    If the latest substantive user question was a planning / curriculum request,
+    do not stop at a profile acknowledgment once the profile is complete.
+    """
+    anchor = get_latest_substantive_user_question(history or [])
+    candidate = anchor or question or ""
+    if not candidate:
+        return False
+
+    candidate_lower = candidate.lower()
+    if _looks_like_curriculum_lookup(candidate):
+        return True
+    if is_semester_question(candidate):
+        return True
+    if is_course_lookup_question(candidate):
+        return True
+    if is_graduation_question(candidate):
+        return True
+    if is_regulations_question(candidate):
+        return True
+
+    return any(k in candidate_lower for k in [
+        "which course", "which courses", "what course", "what courses",
+        "what classes", "which classes", "should i take", "i should take",
+        "hangi ders", "hangi dersleri",
+    ])
+
+
+def _looks_like_profile_update_only(question, history, last_bot_q, profile=None, allow_pending=False):
+    if not allow_pending and last_bot_q in {"dept", "year_term", "start_year", "failed_courses"}:
         return False
 
     q = (question or "").strip().lower()
@@ -917,7 +1046,7 @@ def _looks_like_profile_update_only(question, history, last_bot_q, profile=None)
 
     return any(
         profile.get(field)
-        for field in ["department", "year", "term", "start_year", "failed_courses"]
+        for field in ["faculty", "department", "year", "term", "start_year", "failed_courses"]
     )
 
 
@@ -1864,6 +1993,32 @@ def ask(question, history=[], client_type=None):
                 prefer_tr,
             )
 
+    history_with_current = list(history or []) + [{"role": "user", "content": question}]
+    current_profile = extract_profile_from_history(history_with_current)
+    if _profile_fields_changed(history_profile, current_profile) and _looks_like_profile_update_only(
+        question,
+        history,
+        last_bot_q,
+        profile=current_profile,
+        allow_pending=True,
+    ):
+        next_question, question_type = get_next_profiling_question(
+            current_profile,
+            question_lower,
+            require_curriculum_details=_requires_curriculum_details(question, history),
+            prefer_tr=prefer_tr,
+        )
+        if next_question:
+            return _profiling_followup_message(
+                question_type,
+                current_profile,
+                prefer_tr=prefer_tr,
+                correction=_looks_like_profile_correction(question),
+            ) or next_question
+        profile_ack = _format_profile_context_ack(current_profile, prefer_tr=prefer_tr)
+        if profile_ack and not _should_resume_planning_after_profile_completion(question, history):
+            return profile_ack
+
     regulations_question = is_regulations_question(question)
 
     profile_flow_trigger = _looks_like_curriculum_lookup(question) and not regulations_question
@@ -1957,7 +2112,12 @@ def ask(question, history=[], client_type=None):
 
             # If they didn't seem to be answering the profiling question, ask again
             if not is_answering_profiling:
-                followup = _profiling_followup_message(question_type, profile, prefer_tr=prefer_tr)
+                followup = _profiling_followup_message(
+                    question_type,
+                    profile,
+                    prefer_tr=prefer_tr,
+                    correction=_looks_like_profile_correction(question),
+                )
                 return followup or next_question
 
     # â”€â”€ ACADEMIC QUESTION HANDLING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -1972,9 +2132,14 @@ def ask(question, history=[], client_type=None):
             prefer_tr=prefer_tr,
         )
         if next_question:
-            return _profiling_followup_message(question_type, profile, prefer_tr=prefer_tr) or next_question
+            return _profiling_followup_message(
+                question_type,
+                profile,
+                prefer_tr=prefer_tr,
+                correction=_looks_like_profile_correction(question),
+            ) or next_question
         profile_ack = _format_profile_context_ack(profile, prefer_tr=prefer_tr)
-        if profile_ack:
+        if profile_ack and not _should_resume_planning_after_profile_completion(question, history):
             return profile_ack
 
     parsed = parse_request_slots(question, history, last_bot_q)
@@ -2004,6 +2169,10 @@ def ask(question, history=[], client_type=None):
     if codes:
         course_contexts, missing_codes, corrections = get_context_for_codes(collection, codes)
         if course_contexts:
+            specific_response = extract_course_specific_response(course_contexts, full_question)
+            if specific_response:
+                return specific_response
+
             ql = full_question.lower()
             if len(codes) == 1 and any(p in ql for p in ["tell me about", "more details", "details about", "information about", "what is ", "what about", "how about"]):
                 correction_note = _format_course_correction_note(corrections, _looks_turkish(full_question))
@@ -2077,12 +2246,6 @@ def ask(question, history=[], client_type=None):
 
     if course_lookup_intent and not planning_intent and not graduation_intent and not regulations_intent:
         if course_contexts:
-            # Check if this is a grading-specific question - return ONLY evaluation system
-            if is_grading_question(full_question):
-                grading_response = extract_grading_only_response(course_contexts)
-                if grading_response:
-                    return grading_response
-            
             # Otherwise return full course information
             formatted = [format_course_direct_response(doc) for doc in course_contexts]
             correction_note = _format_course_correction_note(corrections, _looks_turkish(full_question))
@@ -2143,8 +2306,8 @@ def ask(question, history=[], client_type=None):
     # Graduation requirement questions should not fall back to generic course search.
     if graduation_intent and (not dept or not program_name):
         if not faculty:
-            return _profiling_followup_message("faculty", profile, prefer_tr=prefer_tr)
-        return _profiling_followup_message("dept", profile, prefer_tr=prefer_tr)
+            return _profiling_followup_message("faculty", profile, prefer_tr=prefer_tr, correction=_looks_like_profile_correction(question))
+        return _profiling_followup_message("dept", profile, prefer_tr=prefer_tr, correction=_looks_like_profile_correction(question))
 
     if graduation_intent and dept:
         grad_text = get_graduation_text(dept, collection=collection)
@@ -2171,12 +2334,12 @@ def ask(question, history=[], client_type=None):
     if (not graduation_intent) and (planning_intent or (last_bot_q == "dept" and parsed["department"])):
         if not dept or not program_name:
             if not faculty:
-                return _profiling_followup_message("faculty", profile, prefer_tr=prefer_tr)
-            return _profiling_followup_message("dept", profile, prefer_tr=prefer_tr)
+                return _profiling_followup_message("faculty", profile, prefer_tr=prefer_tr, correction=_looks_like_profile_correction(question))
+            return _profiling_followup_message("dept", profile, prefer_tr=prefer_tr, correction=_looks_like_profile_correction(question))
         if not start_year and has_multiple_curriculum_variants(dept, program_name=program_name):
             return _curriculum_entry_year_followup(prefer_tr=prefer_tr)
         if not year or not term:
-            return _profiling_followup_message("year_term", profile, prefer_tr=prefer_tr)
+            return _profiling_followup_message("year_term", profile, prefer_tr=prefer_tr, correction=_looks_like_profile_correction(question))
 
     # Deterministic combined answer when the user asks both semesters of a year.
     if (not graduation_intent) and both_semesters_intent and dept and year:
