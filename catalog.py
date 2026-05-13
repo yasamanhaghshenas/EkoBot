@@ -260,6 +260,104 @@ def _format_curriculum_variant_label(start_year=None, end_year=None, open_ended=
     return f"{start_year}-{end_year}"
 
 
+_FACULTY_LABEL_TR = {
+    "Common Courses (GEC)": "Ortak Dersler (GEC)",
+    "Faculty of Arts and Sciences": "Fen-Edebiyat Fakültesi",
+    "Faculty of Communication": "İletişim Fakültesi",
+    "Faculty of Engineering": "Mühendislik Fakültesi",
+    "Faculty of Fine Arts and Design": "Güzel Sanatlar ve Tasarım Fakültesi",
+    "Faculty of Health Sciences": "Sağlık Bilimleri Fakültesi",
+    "Faculty of Law": "Hukuk Fakültesi",
+    "Faculty of Medicine": "Tıp Fakültesi",
+    "Faculty of Business": "İşletme Fakültesi",
+    "Graduate School": "Lisansüstü Okulu",
+    "Schools & Vocational Schools": "Okullar ve Meslek Yüksekokulları",
+}
+
+_DEPARTMENT_LABEL_TR = {
+    "Accounting and Auditing Program": "Muhasebe ve Denetim Programı",
+    "Aerospace Engineering": "Havacılık ve Uzay Mühendisliği",
+    "Applied English Translation": "Uygulamalı İngilizce Çevirmenlik",
+    "Architectural Restoration": "Mimari Restorasyon",
+    "Architecture": "Mimarlık",
+    "Atatürk / History": "Atatürk / Tarih",
+    "Banking and Insurance": "Bankacılık ve Sigortacılık",
+    "Biomedical Engineering": "Biyomedikal Mühendisliği",
+    "Business Administration": "İşletme",
+    "Child Development": "Çocuk Gelişimi",
+    "Cinema and Digital Media": "Sinema ve Dijital Medya",
+    "Civil Aviation Cabin Services": "Sivil Havacılık Kabin Hizmetleri",
+    "Civil Aviation Transportation Management": "Sivil Havacılık Ulaştırma İşletmeciliği",
+    "Civil Engineering": "İnşaat Mühendisliği",
+    "Computer Engineering": "Bilgisayar Mühendisliği",
+    "Computer Programming": "Bilgisayar Programcılığı",
+    "Construction Technology": "İnşaat Teknolojisi",
+    "Economics": "Ekonomi",
+    "Elderly Care": "Yaşlı Bakımı",
+    "Electrical and Electronics Engineering": "Elektrik-Elektronik Mühendisliği",
+    "English Prep + Language Programs": "İngilizce Hazırlık + Dil Programları",
+    "English Translation and Interpreting": "İngilizce Mütercim ve Tercümanlık",
+    "Food Engineering": "Gıda Mühendisliği",
+    "Foreign Trade": "Dış Ticaret",
+    "Gastronomy and Culinary Arts": "Gastronomi ve Mutfak Sanatları",
+    "GEC Pool 1": "GEC Havuzu 1",
+    "GEC Pool 2": "GEC Havuzu 2",
+    "GEC Pool 3": "GEC Havuzu 3",
+    "GEC Pool 4": "GEC Havuzu 4",
+    "GEC Pool 5": "GEC Havuzu 5",
+    "GEC Pool 6": "GEC Havuzu 6",
+    "GEC Pool 7": "GEC Havuzu 7",
+    "Genetics and Bioengineering": "Genetik ve Biyomühendislik",
+    "Graphic Design": "Grafik Tasarımı",
+    "Industrial Design": "Endüstriyel Tasarım",
+    "Industrial Engineering": "Endüstri Mühendisliği",
+    "Interior Architecture and Environmental Design": "İç Mimarlık ve Çevre Tasarımı",
+    "Interior Design": "İç Mekân Tasarımı",
+    "International Trade and Finance": "Uluslararası Ticaret ve Finansman",
+    "Justice": "Adalet",
+    "Law": "Hukuk",
+    "Legal Office Management and Secretariat": "Adalet Büro Yönetimi ve Sekreterliği",
+    "Logistics Management": "Lojistik Yönetimi",
+    "Mathematics": "Matematik",
+    "Mechanical Engineering": "Makine Mühendisliği",
+    "Mechatronics Engineering": "Mekatronik Mühendisliği",
+    "Media and Communication": "Medya ve İletişim",
+    "Medical Documentation and Secretariat": "Tıbbi Dokümantasyon ve Sekreterlik",
+    "Medical Imaging Techniques": "Tıbbi Görüntüleme Teknikleri",
+    "Medical Laboratory Techniques": "Tıbbi Laboratuvar Teknikleri",
+    "Medicine": "Tıp",
+    "New Media and Communication": "Yeni Medya ve İletişim",
+    "Nursing": "Hemşirelik",
+    "Nutrition and Dietetics": "Beslenme ve Diyetetik",
+    "Occupational Health and Safety": "İş Sağlığı ve Güvenliği",
+    "Opticianry": "Optisyenlik",
+    "Orientation": "Oryantasyon",
+    "Paramedic": "Paramedik",
+    "Physics": "Fizik",
+    "Physiotherapy": "Fizyoterapi",
+    "Physiotherapy and Rehabilitation": "Fizyoterapi ve Rehabilitasyon",
+    "Political Science and International Relations": "Siyaset Bilimi ve Uluslararası İlişkiler",
+    "Psychology": "Psikoloji",
+    "Public Relations and Advertising": "Halkla İlişkiler ve Reklamcılık",
+    "Radio and TV Programming": "Radyo ve Televizyon Programcılığı",
+    "Sociology": "Sosyoloji",
+    "Software Engineering": "Yazılım Mühendisliği",
+    "Textile and Fashion Design": "Tekstil ve Moda Tasarımı",
+    "Tourism and Hotel Management": "Turizm ve Otel İşletmeciliği",
+    "Turkish Language": "Türk Dili",
+    "Visual Communication Design": "Görsel İletişim Tasarımı",
+}
+
+
+def _localize_profile_option_label(label, prefer_tr=False):
+    raw = (label or "").strip()
+    if not raw or not prefer_tr:
+        return raw
+
+    base = re.sub(r"\s*\(Turkish\)$", "", raw).strip()
+    return _FACULTY_LABEL_TR.get(base) or _DEPARTMENT_LABEL_TR.get(base) or base
+
+
 def _build_curriculum_variants(rows):
     grouped = {}
     order = []
@@ -486,21 +584,27 @@ def load_ieu_profile_hierarchy(
     }
 
 
-def get_ieu_faculty_options(include_common=False, include_graduate=False):
+def get_ieu_faculty_options(include_common=False, include_graduate=False, prefer_tr=False):
     hierarchy = load_ieu_profile_hierarchy(include_common=include_common, include_graduate=include_graduate)
     return [
-        {"label": faculty["label"], "value": faculty["label"]}
+        {
+            "label": _localize_profile_option_label(faculty["label"], prefer_tr=prefer_tr),
+            "value": faculty["label"],
+        }
         for faculty in hierarchy.get("faculties", [])
     ]
 
 
-def get_ieu_department_options(faculty_name, include_common=False, include_graduate=False):
+def get_ieu_department_options(faculty_name, include_common=False, include_graduate=False, prefer_tr=False):
     hierarchy = load_ieu_profile_hierarchy(include_common=include_common, include_graduate=include_graduate)
     faculty = resolve_ieu_faculty(faculty_name, include_common=include_common, include_graduate=include_graduate)
     if not faculty:
         return []
     return [
-        {"label": dept["label"], "value": dept["label"]}
+        {
+            "label": _localize_profile_option_label(dept["label"], prefer_tr=prefer_tr),
+            "value": dept["label"],
+        }
         for dept in faculty.get("departments", [])
     ]
 
