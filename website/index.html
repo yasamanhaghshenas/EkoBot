@@ -911,6 +911,29 @@ const API_URL = window.location.origin + '/chat';
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
+  function looksLikeSelfCorrection(text) {
+    const q = String(text || '').trim().toLowerCase();
+    if (!q) return false;
+
+    const correctionCues = [
+      'sorry i meant',
+      'sorry, i meant',
+      'i meant',
+      'i mean',
+      'meant to say',
+      'actually',
+      'no wait',
+      'wait no',
+      'correction',
+      'instead',
+      'rather',
+      'my bad',
+      'wrong',
+    ];
+
+    return correctionCues.some(cue => q.includes(cue));
+  }
+
   // ── WELCOME SCREEN ──
   function showWelcome() {
     const t = tx[currentLang];
@@ -1183,6 +1206,9 @@ const API_URL = window.location.origin + '/chat';
 
       const botTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const followupMode = String(data.followup_mode || 'replace').toLowerCase();
+      // Typed self-corrections should stay in the transcript, not replace the
+      // earlier bot bubble that triggered the correction.
+      const isTypedCorrection = showUserBubble && looksLikeSelfCorrection(question);
       const botMessages = chat.messages
         .map((m, idx) => ({ m, idx }))
         .filter(item => item.m.role === 'bot');
@@ -1190,6 +1216,7 @@ const API_URL = window.location.origin + '/chat';
       const shouldSwapFollowup = Boolean(
         data.is_followup &&
         followupMode !== 'append' &&
+        !isTypedCorrection &&
         lastBotMessage &&
         (lastBotMessage.m.isFollowup || (Array.isArray(lastBotMessage.m.options) && lastBotMessage.m.options.length > 0)) &&
         Array.isArray(data.options) && data.options.length > 0
