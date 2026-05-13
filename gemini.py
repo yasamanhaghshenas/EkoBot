@@ -313,11 +313,7 @@ Conversation history (recent): {json.dumps(history[-12:], ensure_ascii=False)}
 def call_llm(question, context_docs, history, client_type=None):
     prefer_tr = _conversation_prefers_turkish(question, history)
     if client_groq is None and gemini_model is None:
-        return _t(
-            "The language model is unavailable right now. Please try again later.",
-            "Dil modeli su anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.",
-            prefer_tr,
-        )
+        return _soft_fallback_message(prefer_tr)
 
     context = "\n\n---\n\n".join(context_docs)
     # truncate context to avoid token limit (increased to 15000 to preserve evaluation system)
@@ -404,11 +400,7 @@ Always be specific and helpful â€” do not just say you don't have the infor
             return response.choices[0].message.content
     except Exception as e:
         print(f"LLM error: {e}")
-        return _t(
-            "The language model is unavailable right now. Please try again later.",
-            "Dil modeli su anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.",
-            prefer_tr,
-        )
+        return _soft_fallback_message(prefer_tr)
 
 
 # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -1082,6 +1074,14 @@ def _t(en_text, tr_text, prefer_tr):
     return tr_text if prefer_tr else en_text
 
 
+def _soft_fallback_message(prefer_tr=False):
+    return _t(
+        "Sorry, I didn't quite understand that. I either don't have that information in the IEU database or you may need to rephrase your question.",
+        "Üzgünüm, bunu tam anlayamadım. Ya bu bilgi IEU veritabanında yok ya da soruyu yeniden ifade etmeniz gerekiyor.",
+        prefer_tr,
+    )
+
+
 def _normalize_chatty_text(text):
     t = (text or "").strip().lower()
     if not t:
@@ -1090,6 +1090,13 @@ def _normalize_chatty_text(text):
     t = re.sub(r"([a-z])\1{2,}", r"\1", t)
     t = re.sub(r"\s+", " ", t)
     return t
+
+
+def _word_matches_chatty_variant(word, candidates):
+    if word in candidates:
+        return True
+    compact = re.sub(r"(.)\1+", r"\1", word)
+    return compact in candidates
 
 
 def _extract_loose_gpa_value(text, allow_integer=False):
@@ -1800,11 +1807,12 @@ def is_greeting_or_small_talk(text):
         return True
 
     if len(words) <= 3 and has_repeated_letters and (
-        any(word in greeting_words for word in words) or any(word in filler_words for word in words)
+        any(_word_matches_chatty_variant(word, greeting_words) for word in words)
+        or any(_word_matches_chatty_variant(word, filler_words) for word in words)
     ):
         return True
 
-    if len(words) <= 3 and any(word in filler_words for word in words):
+    if len(words) <= 3 and any(_word_matches_chatty_variant(word, filler_words) for word in words):
         return True
 
     if len(words) <= 4 and any(re.fullmatch(pattern, phrase) for pattern in keyboard_mash_patterns):
@@ -1816,7 +1824,7 @@ def is_greeting_or_small_talk(text):
     # Only treat very short messages as greetings when they are made up of
     # obvious greeting words. This keeps "which internship" and similar phrases
     # from being misread as small talk.
-    if len(words) <= 3 and any(word in greeting_words for word in words):
+    if len(words) <= 3 and any(_word_matches_chatty_variant(word, greeting_words) for word in words):
         return True
     return False
 
@@ -2546,11 +2554,7 @@ def ask(question, history=[], client_type=None):
             except Exception:
                 pass
         prefer_tr = _conversation_prefers_turkish(question, history)
-        return _t(
-            "Hey! I'm here to help with your IEU courses and academic planning. What would you like to know?",
-            "Merhaba! IEU dersleriniz ve akademik planlamaniz konusunda yardimci olmak icin buradayim. Ne ogrenmek istersiniz?",
-            prefer_tr,
-        )
+        return _soft_fallback_message(prefer_tr)
 
     # â”€â”€ ask LLM to reason over ALL context â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     # truncate to avoid token limit (increased to 15000 to preserve evaluation system)
