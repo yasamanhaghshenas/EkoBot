@@ -43,7 +43,6 @@ from catalog import (
     get_curriculum_courses,
     get_curriculum_year_options,
     get_electives,
-    get_graduation_text,
     get_ieu_department_options,
     get_ieu_faculty_options,
     get_curriculum_variant_options,
@@ -342,9 +341,11 @@ STRICT RULES:
 3. NEVER make up course names, codes, credits, instructors, or descriptions.
 4. If multiple courses are asked about, answer each one separately with a clear label.
 5. If a course code looks like a typo, mention the correction.
-6. Always reply in the same language the student used (Turkish or English).
-   If the student writes in Turkish, always respond in Turkish. If they write in English, respond in English.
-   Match the student's language exactly.
+6. CRITICAL: Always respond in the EXACT same language the student used in their MOST RECENT message.
+    If they wrote in Turkish, respond entirely in Turkish. If English, respond entirely in English.
+    Never mix languages in a single response.
+    "tell me about electives" = English -> respond in English.
+    "seçmeli dersler" = Turkish -> respond in Turkish.
 7. Be concise, friendly, and direct â€” like a helpful academic advisor.
 8. For direct course code requests (e.g. 'tell me about CE 326'), treat it as a direct lookup.
     Do NOT argue with the code prefix or claim it "should" belong to another department.
@@ -872,8 +873,63 @@ def _is_short_ack(text):
     }
 
 
+def _is_elective_followup_request(question):
+    q = _normalize_chatty_text(question)
+    if not q:
+        return False
+
+    if _is_short_ack(question):
+        return True
+
+    return any(phrase in q for phrase in [
+        "tell me about electives",
+        "show electives",
+        "electives",
+        "elective",
+        "secmeli",
+        "seçmeli",
+        "secmeli ders",
+        "seçmeli ders",
+        "evet",
+    ])
+
+
+def _assistant_mentions_elective_context(text):
+    content_lower = (text or "").lower()
+    return any(phrase in content_lower for phrase in [
+        "elective slot",
+        "elective slots",
+        "courses you can choose",
+        "elective",
+        "seçmeli",
+        "secmeli",
+    ])
+
+
+def _is_pure_credit_load_question(question):
+    q = _normalize_chatty_text(question)
+    if not q:
+        return False
+
+    has_credit_phrase = any(phrase in q for phrase in [
+        "how many credits can i take",
+        "how many credits",
+        "credits can i take",
+        "credit limit",
+        "kaç kredi",
+        "kac kredi",
+    ])
+    if not has_credit_phrase:
+        return False
+
+    if any(phrase in q for phrase in ["courses", "course", "take this semester", "schedule"]):
+        return False
+
+    return True
+
+
 def _maybe_elective_followup(question, history):
-    if not _is_short_ack(question):
+    if not _is_elective_followup_request(question):
         return None
 
     last_assistant = None
@@ -885,21 +941,25 @@ def _maybe_elective_followup(question, history):
     if not last_assistant:
         return None
 
-    content_lower = last_assistant.lower()
-    if "elective slot" not in content_lower and "courses you can choose" not in content_lower:
+    if not _assistant_mentions_elective_context(last_assistant):
         return None
 
     latest_plan = get_latest_planning_tuple_from_history(history)
-    if not latest_plan:
+    profile = extract_profile_from_history(history)
+    dept = None
+    if latest_plan:
+        dept, _, _ = latest_plan
+    if not dept:
+        dept = profile.get("department")
+    if not dept:
         return None
 
-    dept, _, _ = latest_plan
-    profile = extract_profile_from_history(history)
     elective_lines = _format_elective_option_lines(
         dept,
         start_year=profile.get("start_year"),
         program_name=profile.get("program_name"),
         curriculum_url=profile.get("curriculum_url"),
+        prefer_tr=_looks_turkish(question),
     )
     if not elective_lines:
         return _t(
@@ -911,7 +971,7 @@ def _maybe_elective_followup(question, history):
     return "\n".join(elective_lines)
 
 
-def _format_elective_option_lines(dept, start_year=None, program_name=None, curriculum_url=None, limit=20):
+def _format_elective_option_lines(dept, start_year=None, program_name=None, curriculum_url=None, limit=20, prefer_tr=False):
     electives = get_electives(
         dept,
         start_year=start_year,
@@ -921,7 +981,7 @@ def _format_elective_option_lines(dept, start_year=None, program_name=None, curr
     if not electives:
         return []
 
-    lines = [f"Available electives for {dept}:"]
+    lines = [_t(f"Available electives for {dept}:", f"{dept} icin mevcut secmeli dersler:", prefer_tr)]
     for item in electives[:limit]:
         code = (item.get("code") or "").strip()
         name = (item.get("name") or "").strip()
@@ -933,9 +993,33 @@ def _format_elective_option_lines(dept, start_year=None, program_name=None, curr
             lines.append(f"- {name}")
 
     if len(electives) > limit:
-        lines.append(f"- ...and {len(electives) - limit} more elective option(s).")
+        lines.append(_t(f"- ...and {len(electives) - limit} more elective option(s).", f"- ...ve {len(electives) - limit} adet daha secmeli ders var.", prefer_tr))
 
     return lines
+
+
+def _is_medicine_department(dept=None, program_name=None, faculty=None):
+    text = " ".join(part for part in [dept, program_name, faculty] if part).casefold()
+    return any(token in text for token in ["medicine", "tıp", "tip", "medical faculty", "faculty of medicine"])
+
+
+def _format_graduation_requirements(prefer_tr=False, is_medicine=False):
+    ects = 360 if is_medicine else 240
+    en_lines = [
+        "In order to graduate from this undergraduate program, the students are required:",
+        "- to succeed in all of the courses listed in the curriculum of the program by getting the grade of at least DD/S",
+        f"- to complete a minimum of {ects} ECTS",
+        "- to have a Cumulative Grade Point Average (CGPA) of 2.00 out of 4.00",
+        "- to complete their compulsory internship in a specified duration and quality.",
+    ]
+    tr_lines = [
+        "Bu lisans programından mezun olabilmek icin ogrencilerin:",
+        "- programin ders planinda yer alan tum dersleri en az DD/S notu ile basarmalari",
+        f"- en az {ects} ECTS tamamlamalari",
+        "- 4.00 uzerinden en az 2.00 Genel Not Ortalamasi (CGPA) sahibi olmalari",
+        "- zorunlu stajlarini belirtilen sure ve nitelikte tamamlamalari",
+    ]
+    return "\n".join(tr_lines if prefer_tr else en_lines)
 
 
 def _format_profile_context_ack(profile, prefer_tr=False):
@@ -1631,8 +1715,8 @@ def _format_regulations_answer(question, history, gpa_value):
 
         lines = [
             _t(
-                f"With GPA {gpa_value:.2f}, your maximum course load is {max_ects} ECTS per semester.",
-                f"GPA {gpa_value:.2f} ile donemlik maksimum ders yukunuz {max_ects} ECTS.",
+                f"With GPA {gpa_value:.2f}, your maximum is {max_ects} ECTS.",
+                f"GPA {gpa_value:.2f} ile maksimum {max_ects} ECTS alabilirsiniz.",
                 prefer_tr,
             )
         ]
@@ -1989,6 +2073,12 @@ def ask(question, history=[], client_type=None):
     if regs_followup:
         return regs_followup
 
+    if _is_pure_credit_load_question(question):
+        gpa_value = extract_gpa_from_context(question, history)
+        regs_answer = _format_regulations_answer(question, history, gpa_value)
+        if regs_answer:
+            return regs_answer
+
     latest_substantive_question = get_latest_substantive_user_question(history or [])
     if _looks_like_invalid_curriculum_term(question):
         if (
@@ -2318,16 +2408,10 @@ def ask(question, history=[], client_type=None):
         return _profiling_followup_message("dept", profile, prefer_tr=prefer_tr, correction=_looks_like_profile_correction(question))
 
     if graduation_intent and dept:
-        grad_text = get_graduation_text(dept, collection=collection)
-        if not grad_text:
-            return _t(
-                "I don't have graduation requirements for that department in my database yet. Please check the ECTS system directly.",
-                "O bolum icin mezuniyet kosullarini henüz veritabanimda bulamiyorum. Lutfen ECTS sistemini kontrol edin.",
-                prefer_tr,
-            )
-        if client_groq is None:
-            return grad_text[:2000]
-        context_parts.append(grad_text[:2000])
+        return _format_graduation_requirements(
+            prefer_tr=prefer_tr,
+            is_medicine=_is_medicine_department(dept, program_name=program_name, faculty=faculty),
+        )
 
     # Deterministic regulations answers (works even without LLM).
     if regulations_intent and (not planning_intent) and (not graduation_intent) and (not web_info_intent):
@@ -2505,9 +2589,12 @@ def ask(question, history=[], client_type=None):
     if (not graduation_intent) and dept and any(k in full_question.lower() for k in
                    ["graduate", "graduation", "finish", "complete",
                     "mezun", "bitir"]):
-        grad_text = get_graduation_text(dept, collection=collection)
-        if grad_text:
-            context_parts.append(grad_text[:1000])
+        context_parts.append(
+            _format_graduation_requirements(
+                prefer_tr=prefer_tr,
+                is_medicine=_is_medicine_department(dept, program_name=program_name, faculty=faculty),
+            )
+        )
 
     # 5. regulations if GPA/credits/grades mentioned (allow mixed planning+rules questions)
     if regulations_intent or any(k in full_question.lower() for k in
