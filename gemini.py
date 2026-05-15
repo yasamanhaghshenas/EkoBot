@@ -918,11 +918,15 @@ def _is_pure_credit_load_question(question):
         "credit limit",
         "kaç kredi",
         "kac kredi",
+        "credits",
+        "kredi",
+        "ects",
     ])
     if not has_credit_phrase:
         return False
 
-    if any(phrase in q for phrase in ["courses", "course", "take this semester", "schedule"]):
+    # If the user explicitly mentions courses or schedule, treat as planning.
+    if any(phrase in q for phrase in ["courses", "course", "schedule", "which course", "which courses"]):
         return False
 
     return True
@@ -2341,6 +2345,12 @@ def ask(question, history=[], client_type=None):
         if client_groq is None and not (course_lookup_intent or planning_intent or graduation_intent):
             return _format_web_info_answer(full_question, web_docs) or web_docs[0]
         context_parts.extend(web_docs)
+    elif web_info_intent:
+        return _t(
+            "I don't have that information in the IEU database.",
+            "Bu bilginin IEU veritabaninda kaydi yok.",
+            prefer_tr,
+        )
 
     if course_lookup_intent and not planning_intent and not graduation_intent and not regulations_intent:
         if course_contexts:
