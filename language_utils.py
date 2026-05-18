@@ -16,10 +16,26 @@ _ENGLISH_HINTS = (
     "this semester", "schedule", "credits", "course", "student affairs",
 )
 
+_ENGLISH_FORCE_WORDS = (
+    "hello", "hi", "yes", "no", "ok", "okay", "thanks", "wtf", "omg", "lol",
+    "you", "your", "what", "who", "how", "why", "when", "where", "can", "are",
+    "is", "the", "i", "me", "my",
+)
+
+_ENGLISH_FORCE_PATTERN = re.compile(
+    r"\b(?:" + "|".join(re.escape(word) for word in _ENGLISH_FORCE_WORDS) + r")\b",
+    re.IGNORECASE,
+)
+
 
 def detect_language(text: str, history: list = []) -> str:
     # For short messages, use history language instead of guessing
     text = (text or "").strip()
+    normalized = f" {text.casefold()} "
+
+    if _ENGLISH_FORCE_PATTERN.search(normalized):
+        return "en"
+
     if len(text.strip()) < 12:
         if history:
             # Find last user message longer than 12 chars

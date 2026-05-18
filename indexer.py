@@ -3,7 +3,10 @@ import json
 import os
 import sys
 from embeddings import SentenceTransformerEmbeddingFunction
-from scraper import scrape_support_pages
+from scraper import scrape_it_faq_pages, scrape_support_pages
+
+
+ERASMUS_URL_MARKERS = ("erasmus", "exchange", "international", "oia")
 
 
 def normalize_metadata(course):
@@ -14,6 +17,13 @@ def normalize_metadata(course):
         "code": str(course.get("code", "")),
         "url": str(url),
     }
+
+
+def _infer_category_from_url(url):
+    lower_url = (url or "").lower()
+    if any(marker in lower_url for marker in ERASMUS_URL_MARKERS):
+        return "erasmus"
+    return ""
 
 
 def batched(seq, size):
@@ -234,6 +244,7 @@ def main():
             doc = "\n".join(doc_parts).strip()
 
             try:
+                category = _infer_category_from_url(url)
                 collection = safe_add(
                     collection,
                     documents=[doc],
@@ -243,6 +254,7 @@ def main():
                             "doc_type": "web_info",
                             "title": title,
                             "url": url,
+                            "category": category,
                             "sheet": sheet,
                         }
                     ],
@@ -260,6 +272,8 @@ def main():
         if not text:
             continue
         try:
+            source_url = str(metadata.get("source_url") or "")
+            category = _infer_category_from_url(source_url) or str(metadata.get("category") or "")
             collection = safe_add(
                 collection,
                 documents=[text],
@@ -267,16 +281,45 @@ def main():
                 metadatas=[
                     {
                         "doc_type": "support_page",
-                        "category": str(metadata.get("category") or ""),
+                        "category": category,
                         "language": str(metadata.get("language") or ""),
-                        "source_url": str(metadata.get("source_url") or ""),
-                        "url": str(metadata.get("source_url") or ""),
+                        "source_url": source_url,
+                        "url": source_url,
                     }
                 ],
             )
             indexed_support_docs += 1
         except Exception:
             failed_support_docs += 1
+
+    indexed_it_faq_docs = 0
+    failed_it_faq_docs = 0
+    print("\nScraping and indexing IT FAQ pages...")
+    it_faq_docs = scrape_it_faq_pages(verify_ssl=True)
+    print(f"IT FAQ chunks collected: {len(it_faq_docs)}")
+    for i, item in enumerate(it_faq_docs):
+        text = (item.get("text") or "").strip()
+        metadata = item.get("metadata") or {}
+        if not text:
+            continue
+        try:
+            collection = safe_add(
+                collection,
+                documents=[text],
+                ids=[f"it_faq_{i}"],
+                metadatas=[
+                    {
+                        "doc_type": "it_faq",
+                        "category": str(metadata.get("category") or "it_support"),
+                        "language": str(metadata.get("language") or ""),
+                        "source_url": str(metadata.get("source_url") or ""),
+                        "url": str(metadata.get("source_url") or ""),
+                    }
+                ],
+            )
+            indexed_it_faq_docs += 1
+        except Exception:
+            failed_it_faq_docs += 1
 
     indexed_reg_docs = 0
     failed_reg_docs = 0
@@ -308,6 +351,8 @@ def main():
     print(f"Web docs failed    : {failed_web_docs}")
     print(f"Support docs indexed: {indexed_support_docs}")
     print(f"Support docs failed : {failed_support_docs}")
+    print(f"IT FAQ docs indexed  : {indexed_it_faq_docs}")
+    print(f"IT FAQ docs failed   : {failed_it_faq_docs}")
     print(f"Reg docs indexed   : {indexed_reg_docs}")
     print(f"Reg docs failed    : {failed_reg_docs}")
     print(f"Collection total   : {collection.count()}")

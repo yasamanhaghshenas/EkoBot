@@ -1,5 +1,6 @@
 import argparse
 import json
+import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -39,6 +40,12 @@ SUPPORT_PAGE_SOURCES = [
             "https://kariyer.ieu.edu.tr/en/staj-basvuru-kilavuzu",
         ],
     },
+]
+
+
+IT_FAQ_SOURCES = [
+    "https://comp.izmirekonomi.edu.tr/en/sss",
+    "https://comp.izmirekonomi.edu.tr/tr/sss",
 ]
 
 
@@ -132,6 +139,66 @@ def scrape_support_pages(verify_ssl=True):
             if not url:
                 continue
             items.extend(_scrape_support_page(url, category, verify_ssl=verify_ssl))
+    return items
+
+
+def _normalize_faq_question(text):
+    q = re.sub(r"\s+", " ", (text or "")).strip()
+    return q.rstrip("?:-").strip()
+
+
+def _extract_faq_pairs_from_page(soup):
+    items = []
+    headings = soup.find_all(["h2", "h3", "h4", "h5", "h6"])
+
+    for idx, heading in enumerate(headings):
+        question = _normalize_faq_question(heading.get_text(" ", strip=True))
+        if not question:
+            continue
+
+        answer_parts = []
+        for sibling in heading.find_all_next():
+            if sibling == heading:
+                continue
+            if getattr(sibling, "name", None) in {"h2", "h3", "h4", "h5", "h6"}:
+                break
+            if getattr(sibling, "name", None) == "p":
+                text = sibling.get_text(" ", strip=True)
+                if text:
+                    answer_parts.append(text)
+
+        answer = " ".join(answer_parts).strip()
+        if question and answer:
+            items.append((question, answer))
+
+    return items
+
+
+def scrape_it_faq_pages(verify_ssl=True):
+    items = []
+    for url in IT_FAQ_SOURCES:
+        try:
+            response = requests.get(url, timeout=20, verify=verify_ssl)
+            response.encoding = "utf-8"
+            if response.status_code >= 400:
+                continue
+
+            soup = BeautifulSoup(response.text or "", "html.parser")
+            faq_pairs = _extract_faq_pairs_from_page(soup)
+            language = _infer_language(url, response.text)
+            for i, (question, answer) in enumerate(faq_pairs):
+                items.append(
+                    {
+                        "text": f"Q: {question}\nA: {answer}",
+                        "metadata": {
+                            "category": "it_support",
+                            "language": language,
+                            "source_url": url,
+                        },
+                    }
+                )
+        except Exception:
+            continue
     return items
 
 

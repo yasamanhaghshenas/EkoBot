@@ -1372,12 +1372,15 @@ def _build_semantic_query_texts(question, full_question, parsed, history, codes,
     return _dedupe_texts(queries)[:6]
 
 
-def _query_relevant_context(collection_obj, query_texts, n_results=3, max_docs=6):
+def _query_relevant_context(collection_obj, query_texts, n_results=3, max_docs=6, where=None):
     if not query_texts:
         return []
 
     try:
-        results = collection_obj.query(query_texts=query_texts, n_results=n_results)
+        query_kwargs = {"query_texts": query_texts, "n_results": n_results}
+        if where is not None:
+            query_kwargs["where"] = where
+        results = collection_obj.query(**query_kwargs)
     except Exception as e:
         print(f"  semantic context query error: {e}")
         return []
@@ -2149,6 +2152,7 @@ CONVERSATIONAL_PHRASES = [
     "got it", "cool", "great", "nice", "bye", "goodbye", "görüşürüz",
     "lol", "haha", "wtf", "hmm", "oh", "wow", "really", "interesting",
     "who am i", "what are you", "who are you", "sen kimsin", "ben kimim",
+    "yes", "no", "nope",
 ]
 
 IEU_ACRONYMS = {
@@ -2163,6 +2167,140 @@ IEU_ACRONYMS = {
     "bano": "Bütünleme Ağırlıklı Not Ortalaması — weighted GPA for resit exams",
 }
 
+IT_FAQ = [
+    {
+        "keywords": ["ekoid password", "forgot password", "forgot ekoid", "şifremi unuttum", "ekoid şifre"],
+        "en": "To reset your EkoID password, you must apply in person to the IT Support office with your student ID card. No one else can get your password for you. IT Support: itsupport@ieu.edu.tr",
+        "tr": "EkoID şifrenizi sıfırlamak için öğrenci kimlik kartınızla IT Destek ofisine bizzat başvurmanız gerekiyor. Başka biri sizin adınıza şifre alamaz. IT Destek: itsupport@ieu.edu.tr",
+    },
+    {
+        "keywords": ["change password", "change ekoid", "şifre değiştir", "ekoid şifre değiştir"],
+        "en": "You can change your EkoID password online at: https://ekoid.izmirekonomi.edu.tr/pwd/change/",
+        "tr": "EkoID şifrenizi şu adresten değiştirebilirsiniz: https://ekoid.izmirekonomi.edu.tr/pwd/change/",
+    },
+    {
+        "keywords": ["internet activation", "activate internet", "wifi register", "netregister", "internet kayıt", "internet nasıl bağlanır", "connect internet", "internet access"],
+        "en": "To activate internet access on campus, bring your device and student ID card to the IT Support office. Outside office hours, register your device online at: https://netregister.izmirekonomi.edu.tr/",
+        "tr": "Kampüs internetine bağlanmak için cihazınız ve öğrenci kimliğinizle IT Destek ofisine gidin. Mesai saatleri dışında cihazınızı online kaydetmek için: https://netregister.izmirekonomi.edu.tr/",
+    },
+    {
+        "keywords": ["autodesk", "autocad", "free software", "ücretsiz yazılım"],
+        "en": "IEU students can use Autodesk software (including AutoCAD) for free through the Autodesk Student Community Programme. More info: https://comp.ieu.edu.tr/tr/autodesk",
+        "tr": "İEÜ öğrencileri Autodesk Öğrenci Topluluğu Programı kapsamında AutoCAD dahil Autodesk yazılımlarını ücretsiz kullanabilir. Bilgi için: https://comp.ieu.edu.tr/tr/autodesk",
+    },
+    {
+        "keywords": ["microsoft azure", "azure", "azure üyelik"],
+        "en": "To activate Microsoft Azure, send an email with subject 'Microsoft Azure Membership Activation' from your university email to itsupport@ieu.edu.tr. Your request will be evaluated within 24 hours.",
+        "tr": "Microsoft Azure'u aktifleştirmek için üniversite e-postanızdan 'Microsoft Azure Membership Activation' konusuyla itsupport@ieu.edu.tr adresine mail atın. 24 saat içinde değerlendirilir.",
+    },
+    {
+        "keywords": ["office 365", "microsoft office", "word excel", "office yükle"],
+        "en": "IEU students can use Office 365 for free — install on up to 5 devices. Access Word, Excel, PowerPoint, Teams, OneDrive and more. Contact itsupport@ieu.edu.tr to activate.",
+        "tr": "İEÜ öğrencileri Office 365'i ücretsiz kullanabilir — 5 cihaza kadar yüklenebilir. Word, Excel, PowerPoint, Teams, OneDrive dahildir. Aktivasyon için: itsupport@ieu.edu.tr",
+    },
+    {
+        "keywords": ["lost card", "ekocard", "lost ekocard", "kartımı kaybettim", "eko kart", "kart kayıp"],
+        "en": "If you lost your EkoCard, apply to the Student Affairs Directorate (Öğrenci İşleri) for a new card.",
+        "tr": "EkoKartınızı kaybettiyseniz yeni kart için Öğrenci İşleri Müdürlüğü'ne başvurun.",
+    },
+    {
+        "keywords": ["library database", "off campus", "vpn", "database access", "kütüphane veritabanı", "kampüs dışı"],
+        "en": "You can access IEU library databases from off-campus using VPN. Setup instructions: https://comp.ieu.edu.tr/en/vpn",
+        "tr": "İEÜ kütüphane veritabanlarına kampüs dışından VPN ile erişebilirsiniz. Kurulum için: https://comp.ieu.edu.tr/en/vpn",
+    },
+    {
+        "keywords": ["phishing", "suspicious email", "reset password email", "şüpheli mail", "dolandırıcılık"],
+        "en": "IEU IT department will NEVER ask for your ID number, phone, or password via email. If you receive such a message, ignore it and do not reset your password.",
+        "tr": "İEÜ IT departmanı asla e-posta yoluyla kimlik numaranızı, telefonunuzu veya şifrenizi istemez. Böyle bir mesaj alırsanız dikkate almayın.",
+    },
+    {
+        "keywords": ["eduroam", "eduroam wifi", "eduroam bağlan"],
+        "en": "IEU's eduroam service can only be used at other universities you visit, not on IEU campus itself. On IEU campus, use the IEU-Student WiFi network.",
+        "tr": "İEÜ'nün eduroam hizmeti yalnızca ziyaret ettiğiniz diğer üniversitelerde kullanılabilir. İEÜ kampüsünde IEU-Student WiFi ağını kullanın.",
+    },
+]
+
+PGDM_FAQ = [
+    {
+        "keywords": [
+            "psychological support", "counseling", "mental health", "psikolojik destek",
+            "psikolojik danışma", "pgdm", "therapy", "terapi", "counselor", "danışman",
+            "i need help", "yardıma ihtiyacım var", "stressed", "stres", "anxiety",
+            "depressed", "depresyon", "sad", "üzgün", "struggling"
+        ],
+        "en": (
+            "IEU offers free psychological counseling through the Psychological Development and "
+            "Counseling Center (PGDM). You can apply for an appointment at:\n"
+            "🔗 https://pgdm.ieu.edu.tr/tr/basvuru\n\n"
+            "📍 Location: A Block, Floor -1, Office 1B18-1B19\n"
+            "📧 Email: psikolojikgelisim@ieu.edu.tr\n"
+            "🕐 Working hours: 08:30–17:45\n\n"
+            "You don't have to face it alone — reach out anytime."
+        ),
+        "tr": (
+            "İEÜ, Psikolojik Gelişim ve Danışma Merkezi (PGDM) aracılığıyla ücretsiz psikolojik "
+            "danışmanlık sunuyor. Randevu almak için:\n"
+            "🔗 https://pgdm.ieu.edu.tr/tr/basvuru\n\n"
+            "📍 Konum: A Blok, -1. Kat, Ofis 1B18-1B19\n"
+            "📧 E-posta: psikolojikgelisim@ieu.edu.tr\n"
+            "🕐 Çalışma saatleri: 08:30–17:45\n\n"
+            "Yalnız olmak zorunda değilsin, istediğin zaman ulaşabilirsin."
+        ),
+    },
+    {
+        "keywords": [
+            "emergency", "crisis", "acil", "kriz", "harm myself", "kendime zarar",
+            "suicide", "intihar", "urgent help", "acil yardım", "can't cope",
+            "başa çıkamıyorum", "ambulance", "ambulans", "112"
+        ],
+        "en": (
+            "If you're in a crisis or emergency, please reach out immediately:\n\n"
+            "🚨 Emergency Line: 112\n\n"
+            "During working hours (08:30–17:45), contact PGDM directly:\n"
+            "📧 psikolojikgelisim@ieu.edu.tr\n"
+            "📍 A Block, Floor -1, Office 1B18-1B19\n\n"
+            "Outside working hours, go to the nearest hospital:\n"
+            "• Dokuz Eylül University Hospital, Balçova\n"
+            "• Ege University Hospital, Bornova\n"
+            "• İzmir Katip Çelebi University Training Hospital, Çiğli\n\n"
+            "You matter. Please don't hesitate to ask for help. 💙"
+        ),
+        "tr": (
+            "Eğer bir kriz ya da acil durumla karşı karşıyaysan lütfen hemen ulaş:\n\n"
+            "🚨 Acil Hat: 112\n\n"
+            "Çalışma saatleri içinde (08:30–17:45) PGDM'ye doğrudan ulaşabilirsin:\n"
+            "📧 psikolojikgelisim@ieu.edu.tr\n"
+            "📍 A Blok, -1. Kat, Ofis 1B18-1B19\n\n"
+            "Mesai saatleri dışında en yakın hastaneye başvur:\n"
+            "• Dokuz Eylül Üniversitesi Hastanesi, Balçova\n"
+            "• Ege Üniversitesi Hastanesi, Bornova\n"
+            "• İzmir Katip Çelebi Üniversitesi Eğitim ve Araştırma Hastanesi, Çiğli\n\n"
+            "Yardım istemekten çekinme, önemlisin. 💙"
+        ),
+    },
+    {
+        "keywords": [
+            "how to apply pgdm", "pgdm appointment", "book appointment", "randevu al",
+            "pgdm başvuru", "counseling appointment", "danışmanlık randevusu"
+        ],
+        "en": (
+            "To apply for psychological counseling at IEU, visit the PGDM application page:\n"
+            "🔗 https://pgdm.ieu.edu.tr/tr/basvuru\n\n"
+            "The service is free and confidential for all IEU students."
+        ),
+        "tr": (
+            "İEÜ'de psikolojik danışmanlık başvurusu için PGDM başvuru sayfasını ziyaret et:\n"
+            "🔗 https://pgdm.ieu.edu.tr/tr/basvuru\n\n"
+            "Hizmet tüm İEÜ öğrencilerine ücretsiz ve gizlilik içinde sunulmaktadır."
+        ),
+    },
+]
+
+HARDCODED_ANSWERS = {
+    "it_faq": IT_FAQ,
+    "pgdm_faq": PGDM_FAQ,
+}
+
 ACADEMIC_KEYWORDS = [
     "course", "ders", "gpa", "gano", "ects", "kredi", "internship", "staj",
     "graduation", "mezuniyet", "curriculum", "müfredat", "syllabus",
@@ -2174,16 +2312,33 @@ ACADEMIC_KEYWORDS = [
     "çift anadal", "minor", "yan dal",
 ]
 
+CURRICULUM_FLOW_TRIGGERS = [
+    "my curriculum", "my course plan", "my semester plan", "müfredatım",
+    "ders planım", "what courses should i take", "hangi dersleri almalıyım",
+    "course schedule", "semester schedule", "plan my courses",
+    "what do i take next semester", "next semester courses",
+    "show me my curriculum", "show my courses",
+    "i failed", "dersten kaldım", "failed course", "kalan derslerim",
+    "which courses do i need", "graduation plan", "kaç dersim kaldı",
+]
+
 
 def classify_message_type(question: str, history: list) -> str:
     q_lower = question.lower().strip()
+
+    if re.fullmatch(r"(?:yes|no|nope)(?:[.!?]+)?", q_lower):
+        return "conversational"
 
     # Check academic keywords first
     if any(kw in q_lower for kw in ACADEMIC_KEYWORDS):
         return "academic"
 
     # Check conversational phrases
-    if any(phrase in q_lower for phrase in CONVERSATIONAL_PHRASES):
+    if any(
+        phrase in q_lower
+        for phrase in CONVERSATIONAL_PHRASES
+        if phrase not in {"yes", "no", "nope"}
+    ):
         return "conversational"
 
     # Short message with no keywords
@@ -2214,6 +2369,42 @@ def _extract_known_acronym_definition(question: str):
     return None, None
 
 
+def _is_correction_phrase(question: str) -> bool:
+    q_lower = (question or "").lower()
+    return any(
+        phrase in q_lower
+        for phrase in [
+            "no i mean",
+            "hayır yani",
+            "that's not what i meant",
+            "bunu sormadım",
+        ]
+    )
+
+
+def _match_hardcoded_answer(question: str, session_language: str):
+    q_lower = (question or "").lower()
+    for entries in HARDCODED_ANSWERS.values():
+        for entry in entries or []:
+            keywords = entry.get("keywords") or []
+            matched_keywords = [kw for kw in keywords if kw in q_lower]
+            if matched_keywords:
+                answer = entry.get(session_language) or entry.get("en") or entry.get("tr")
+                return matched_keywords, answer
+    return None, None
+
+
+def _match_hardcoded_entries(question: str, session_language: str, entries):
+    q_lower = (question or "").lower()
+    for entry in entries or []:
+        keywords = entry.get("keywords") or []
+        matched_keywords = [kw for kw in keywords if kw in q_lower]
+        if matched_keywords:
+            answer = entry.get(session_language) or entry.get("en") or entry.get("tr")
+            return matched_keywords, answer
+    return None, None
+
+
 def ask(question, history=[], client_type=None, session_language=None):
     # Some eval harnesses redirect stdout to non-UTF8 files on Windows.
     # Keep debug logging ASCII-only to avoid encode errors.
@@ -2222,6 +2413,15 @@ def ask(question, history=[], client_type=None, session_language=None):
 
     session_language = session_language or detect_language(question)
     prefer_tr = session_language == "tr"
+
+    matched_keywords, hardcoded_answer = _match_hardcoded_entries(question, session_language, PGDM_FAQ)
+    if hardcoded_answer:
+        print(f"[ROUTE] PGDM match: psychological support")
+        return hardcoded_answer
+
+    if _is_correction_phrase(question):
+        history = [msg for msg in (history or []) if msg.get("role") == "user"]
+
     history_profile = extract_profile_from_history(history or [])
 
     if is_self_identity_question(question):
@@ -2242,7 +2442,15 @@ def ask(question, history=[], client_type=None, session_language=None):
         print(f"[ROUTE] Acronym match: {acronym}")
         return acronym_definition
 
+    matched_keywords, hardcoded_answer = _match_hardcoded_answer(question, session_language)
+    if hardcoded_answer:
+        print(f"[ROUTE] IT FAQ match: {matched_keywords}")
+        return hardcoded_answer
+
     if msg_type == "conversational":
+        q_lower = question.lower().strip()
+        if re.fullmatch(r"(?:yes|no|nope)(?:[.!?]+)?", q_lower):
+            return _t("Got it.", "Tamam.", prefer_tr)
         if client is None:
             return get_fallback_response(session_language)
         try:
@@ -2253,7 +2461,9 @@ def ask(question, history=[], client_type=None, session_language=None):
                         "role": "system",
                         "content": (
                             "You are EkoBot, a friendly assistant for IEU. Respond naturally and briefly in "
-                            f"{session_language}. Max 2 sentences. Don't dump academic info unless asked."
+                            f"{session_language}. Max 2 sentences. Don't dump academic info unless asked. "
+                            "Never describe what you're doing or why. Never say 'there is no need for a response'. "
+                            "Just respond naturally like a human would."
                         ),
                     },
                     {"role": "user", "content": question},
@@ -2376,7 +2586,8 @@ def ask(question, history=[], client_type=None, session_language=None):
 
     regulations_question = is_regulations_question(question)
 
-    profile_flow_trigger = _looks_like_curriculum_lookup(question) and not regulations_question
+    should_start_curriculum_flow = any(trigger in question_lower for trigger in CURRICULUM_FLOW_TRIGGERS)
+    profile_flow_trigger = should_start_curriculum_flow and not regulations_question
 
     pythonDIRECT_RAG_KEYWORDS = [
         "internship", "staj", "staj başvuru", "apply for internship",
@@ -2886,6 +3097,12 @@ def ask(question, history=[], client_type=None, session_language=None):
             failed_courses,
             gpa_value,
         )
+        lower_full_question = full_question.lower()
+        exclude_erasmus = (
+            ("staj" in lower_full_question or "internship" in lower_full_question)
+            and "erasmus" not in lower_full_question
+            and "exchange" not in lower_full_question
+        )
         certificate_question = any(
             kw in full_question.lower()
             for kw in [
@@ -2896,7 +3113,13 @@ def ask(question, history=[], client_type=None, session_language=None):
         if certificate_question:
             context_parts = get_certificate_context(collection, query_texts, n_results=3, max_docs=6)
         else:
-            context_parts = _query_relevant_context(collection, query_texts, n_results=3, max_docs=6)
+            context_parts = _query_relevant_context(
+                collection,
+                query_texts,
+                n_results=3,
+                max_docs=6,
+                where={"category": {"$ne": "erasmus"}} if exclude_erasmus else None,
+            )
 
         if certificate_question and not context_parts:
             return _t(
