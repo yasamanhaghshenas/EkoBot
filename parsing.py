@@ -1234,6 +1234,60 @@ def is_regulations_question(text):
     return any(k in t for k in keywords)
 
 
+def is_gpa_credit_limit_question(text, history=None):
+    """
+    Return True only when the user is asking about credit limits/maximum ECTS
+    AND there is a GPA cue present either in the current message or recent
+    user messages (history). This prevents planning questions like
+    "what should I take this semester?" from being misclassified.
+
+    Args:
+        text: current user message (string)
+        history: conversation history list (optional)
+    """
+    t = (text or "").lower()
+    credit_cues = [
+        "how many credits", "credits can i take", "credit limit", "credit load",
+        "how many ects", "ects can i take", "maximum ects", "max ects",
+        "kaç ders alabilirim", "kac ders alabilirim", "kredi limiti", "kaç kredi", "kac kredi",
+    ]
+    gpa_cues = [
+        "gpa", "cgpa", "gano", "not ortalaması", "not ortalamasi", "ortalama",
+    ]
+
+    # Must include a credit-related cue in the current message.
+    if not any(cue in t for cue in credit_cues):
+        return False
+
+    # Exclude general planning/course-schedule style questions that mention
+    # courses rather than credit limits.
+    if any(cue in t for cue in ["course", "courses", "schedule", "which course", "which courses", "what course", "what courses", "take this semester"]):
+        return False
+
+    # If a numeric GPA is present in the current message or recent history,
+    # treat that as satisfying the GPA cue requirement.
+    try:
+        if extract_gpa_from_context(text, history) is not None:
+            return True
+    except Exception:
+        pass
+
+    # Otherwise, look for explicit GPA words either in the current message
+    # or in recent user messages (last 6) in history.
+    if any(cue in t for cue in gpa_cues):
+        return True
+
+    if history:
+        for msg in reversed(history[-6:]):
+            if msg.get("role") != "user":
+                continue
+            content = (msg.get("content") or "").lower()
+            if any(cue in content for cue in gpa_cues):
+                return True
+
+    return False
+
+
 _WEB_INFO_STOPWORDS = {
     "a", "an", "and", "about", "at", "by", "for", "from", "in", "of", "on",
     "the", "to", "with", "via",

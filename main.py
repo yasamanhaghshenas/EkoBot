@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 import gemini
 import os
+from language_utils import detect_language
 
 app = FastAPI(title="EkoBot API")
 
@@ -34,6 +35,7 @@ class ChatResponse(BaseModel):
     is_followup: bool = False
     options: Optional[List[ChatOption]] = None
     followup_mode: Optional[str] = None
+    session_language: str = "tr"
 
 @app.get("/")
 def root():
@@ -46,6 +48,7 @@ def root():
 @app.post("/chat")
 async def chat(req: ChatRequest, request: Request):
     history = [{"role": m.role, "content": m.content} for m in (req.history or [])]
+    session_language = detect_language(req.question)
 
     # Some clients include the current question in the history payload.
     # The backend already receives it separately as `question`.
@@ -53,11 +56,12 @@ async def chat(req: ChatRequest, request: Request):
         if (history[-1].get("content") or "").strip() == (req.question or "").strip():
             history = history[:-1]
     client_type = (request.headers.get("X-Client-Type") or "").strip().lower()
-    result = gemini.ask_with_options(req.question, history, client_type=client_type)
+    result = gemini.ask_with_options(req.question, history, client_type=client_type, session_language=session_language)
 
     return ChatResponse(
         answer=result.get("answer", ""),
         is_followup=bool(result.get("is_followup", False)),
         options=result.get("options"),
         followup_mode=result.get("followup_mode"),
+        session_language=session_language,
     )

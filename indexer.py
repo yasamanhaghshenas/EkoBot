@@ -3,6 +3,7 @@ import json
 import os
 import sys
 from embeddings import SentenceTransformerEmbeddingFunction
+from scraper import scrape_support_pages
 
 
 def normalize_metadata(course):
@@ -149,6 +150,8 @@ def main():
 
     indexed_web_docs = 0
     failed_web_docs = 0
+    indexed_support_docs = 0
+    failed_support_docs = 0
     indexed_curriculum_docs = 0
     failed_curriculum_docs = 0
     if os.path.exists("curriculum.json"):
@@ -248,6 +251,33 @@ def main():
             except Exception:
                 failed_web_docs += 1
 
+    print("\nScraping and indexing support service pages...")
+    support_docs = scrape_support_pages(verify_ssl=True)
+    print(f"Support chunks collected: {len(support_docs)}")
+    for i, item in enumerate(support_docs):
+        text = (item.get("text") or "").strip()
+        metadata = item.get("metadata") or {}
+        if not text:
+            continue
+        try:
+            collection = safe_add(
+                collection,
+                documents=[text],
+                ids=[f"support_page_{i}"],
+                metadatas=[
+                    {
+                        "doc_type": "support_page",
+                        "category": str(metadata.get("category") or ""),
+                        "language": str(metadata.get("language") or ""),
+                        "source_url": str(metadata.get("source_url") or ""),
+                        "url": str(metadata.get("source_url") or ""),
+                    }
+                ],
+            )
+            indexed_support_docs += 1
+        except Exception:
+            failed_support_docs += 1
+
     indexed_reg_docs = 0
     failed_reg_docs = 0
     if os.path.exists("ieu_regulations.json"):
@@ -276,6 +306,8 @@ def main():
     print(f"Curriculum docs failed : {failed_curriculum_docs}")
     print(f"Web docs indexed   : {indexed_web_docs}")
     print(f"Web docs failed    : {failed_web_docs}")
+    print(f"Support docs indexed: {indexed_support_docs}")
+    print(f"Support docs failed : {failed_support_docs}")
     print(f"Reg docs indexed   : {indexed_reg_docs}")
     print(f"Reg docs failed    : {failed_reg_docs}")
     print(f"Collection total   : {collection.count()}")

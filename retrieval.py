@@ -8,6 +8,12 @@ from grading_helpers import (
 )
 
 
+# Chroma returns a distance score where:
+# - lower distance = more similar (better match)
+# - higher distance = less similar (worse match)
+MAX_DISTANCE = 0.75
+
+
 def _looks_like_course_code(value):
     return bool(re.match(r"^[A-Z]{2,6}\s\d{3,4}$", (value or "").strip()))
 
@@ -16,6 +22,7 @@ def get_context_for_codes(collection, codes):
     contexts = []
     missing = []
     corrections = {}
+    low_confidence_score = None
     for code in codes:
         normalized = _normalize_course_code(code) or code
         found = False
@@ -24,12 +31,19 @@ def get_context_for_codes(collection, codes):
                 query_texts=[normalized],
                 n_results=1,
                 where={"code": normalized},
-                include=["documents", "metadatas"],
+                include=["documents", "metadatas", "distances"],
             )
             docs = (results.get("documents") or [[]])[0]
-            if docs:
+            distances = (results.get("distances") or [[]])[0]
+            top_distance = distances[0] if distances else None
+            if top_distance is not None:
+                print(f"[RETRIEVAL] Top distance: {top_distance}")
+            if docs and (top_distance is None or top_distance <= MAX_DISTANCE):
                 contexts.append(docs[0])
                 found = True
+            elif docs and top_distance is not None and top_distance > MAX_DISTANCE:
+                print(f"[RETRIEVAL] Low confidence ({top_distance:.2f}), falling back")
+                low_confidence_score = top_distance
         except Exception:
             pass
 
@@ -38,23 +52,30 @@ def get_context_for_codes(collection, codes):
                 results = collection.query(
                     query_texts=[normalized],
                     n_results=1,
-                    include=["documents", "metadatas"],
+                    include=["documents", "metadatas", "distances"],
                 )
                 docs = (results.get("documents") or [[]])[0]
                 metas = (results.get("metadatas") or [[]])[0]
-                if docs and metas:
+                distances = (results.get("distances") or [[]])[0]
+                top_distance = distances[0] if distances else None
+                if top_distance is not None:
+                    print(f"[RETRIEVAL] Top distance: {top_distance}")
+                if docs and metas and (top_distance is None or top_distance <= MAX_DISTANCE):
                     candidate_code = (metas[0] or {}).get("code") or ""
                     candidate_code = candidate_code.strip().upper()
                     if _looks_like_course_code(candidate_code) and candidate_code != normalized:
                         contexts.append(docs[0])
                         corrections[normalized] = candidate_code
                         found = True
+                elif docs and top_distance is not None and top_distance > MAX_DISTANCE:
+                    print(f"[RETRIEVAL] Low confidence ({top_distance:.2f}), falling back")
+                    low_confidence_score = top_distance
             except Exception:
                 pass
 
         if not found:
             missing.append(normalized)
-    return contexts, missing, corrections
+    return contexts, missing, corrections, low_confidence_score
 
 
 def _pick_field(doc, labels):

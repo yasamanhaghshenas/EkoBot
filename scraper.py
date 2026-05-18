@@ -8,6 +8,133 @@ import urllib3
 from bs4 import BeautifulSoup
 
 
+SUPPORT_PAGE_SOURCES = [
+    {
+        "category": "student_affairs",
+        "urls": [
+            "https://oim.ieu.edu.tr/en",
+            "https://oim.ieu.edu.tr/tr",
+        ],
+    },
+    {
+        "category": "academic_calendar",
+        "urls": [
+            "https://www.ieu.edu.tr/en/akademik-takvim",
+            "https://www.ieu.edu.tr/tr/akademik-takvim",
+        ],
+    },
+    {
+        "category": "it_support",
+        "urls": [
+            "https://itsupport.ieu.edu.tr/en/",
+            "https://itsupport.ieu.edu.tr/tr/",
+            "https://comp.izmirekonomi.edu.tr/en/ekoid",
+        ],
+    },
+    {
+        "category": "internship",
+        "urls": [
+            "https://kariyer.ieu.edu.tr/en",
+            "https://kariyer.ieu.edu.tr/tr",
+            "https://kariyer.ieu.edu.tr/en/staj-basvuru-kilavuzu",
+        ],
+    },
+]
+
+
+def _infer_language(source_url, text):
+    lower_url = (source_url or "").lower()
+    if "/en" in lower_url or lower_url.endswith("/en"):
+        return "en"
+    if "/tr" in lower_url or lower_url.endswith("/tr"):
+        return "tr"
+
+    sample = (text or "")[:1000].lower()
+    if any(ch in sample for ch in ["ç", "ğ", "ı", "ö", "ş", "ü"]):
+        return "tr"
+    return "en"
+
+
+def _extract_clean_text_from_html(html):
+    soup = BeautifulSoup(html or "", "html.parser")
+
+    for tag in soup(["script", "style", "noscript", "svg", "iframe", "footer", "nav", "header"]):
+        tag.decompose()
+
+    for node in soup.select(
+        ".menu, .navbar, .navigation, .breadcrumbs, .breadcrumb, .cookie, .cookies, "
+        ".social, .sidebar, #menu, #nav, #navbar, #footer"
+    ):
+        node.decompose()
+
+    # Prefer the main content body when available.
+    main = soup.find("main") or soup.find("article") or soup.find("section")
+    target = main if main is not None else soup.body or soup
+    text = target.get_text("\n", strip=True)
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    return "\n".join(lines)
+
+
+def _chunk_text_tokens(text, max_tokens=400, overlap=50):
+    tokens = (text or "").split()
+    if not tokens:
+        return []
+
+    chunks = []
+    step = max(max_tokens - overlap, 1)
+    for start in range(0, len(tokens), step):
+        piece = tokens[start:start + max_tokens]
+        if not piece:
+            break
+        chunks.append(" ".join(piece))
+        if start + max_tokens >= len(tokens):
+            break
+    return chunks
+
+
+def _scrape_support_page(url, category, verify_ssl=True):
+    try:
+        response = requests.get(url, timeout=20, verify=verify_ssl)
+        response.encoding = "utf-8"
+        if response.status_code >= 400:
+            return []
+
+        clean_text = _extract_clean_text_from_html(response.text)
+        if not clean_text:
+            return []
+
+        language = _infer_language(url, clean_text)
+        chunks = _chunk_text_tokens(clean_text, max_tokens=400, overlap=50)
+        return [
+            {
+                "text": chunk,
+                "metadata": {
+                    "category": category,
+                    "language": language,
+                    "source_url": url,
+                },
+            }
+            for chunk in chunks
+        ]
+    except Exception:
+        return []
+
+
+def scrape_support_pages(verify_ssl=True):
+    """
+    Scrape and chunk high-value non-course IEU service pages.
+    Returns a list of dicts with `text` and `metadata`.
+    """
+    items = []
+    for source in SUPPORT_PAGE_SOURCES:
+        category = source.get("category")
+        for url in source.get("urls", []):
+            if not url:
+                continue
+            items.extend(_scrape_support_page(url, category, verify_ssl=verify_ssl))
+    return items
+
+
 def scrape_course(course, verify_ssl=True):
     try:
         url = course["syllabus_url"]

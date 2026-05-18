@@ -1,4 +1,4 @@
-﻿from groq import Groq
+from groq import Groq
 import google.generativeai as genai
 import chromadb
 import json
@@ -6,6 +6,7 @@ import os
 import re
 
 from embeddings import SentenceTransformerEmbeddingFunction
+from language_utils import detect_language, get_fallback_response
 from parsing import (
     VALID_DEPTS,
     _dedupe_keep_order,
@@ -29,6 +30,7 @@ from parsing import (
     get_latest_substantive_user_question,
     is_course_lookup_question,
     is_graduation_question,
+    is_gpa_credit_limit_question,
     is_regulations_question,
     is_web_info_question,
     is_semester_question,
@@ -202,6 +204,8 @@ def parse_request_slots(question, history, last_bot_q):
     q_lower = analysis_question.lower()
     if is_graduation_question(analysis_question):
         result["intent"] = "graduation"
+    elif is_gpa_credit_limit_question(analysis_question, history):
+        result["intent"] = "credit_limit"
     elif is_regulations_question(analysis_question):
         result["intent"] = "regulations"
     elif is_web_info_question(analysis_question):
@@ -211,7 +215,7 @@ def parse_request_slots(question, history, last_bot_q):
 
     # LLM normalization for likely academic questions.
     likely_academic = any([
-        result["intent"] in ["planning", "graduation", "regulations"],
+        result["intent"] in ["planning", "graduation", "regulations", "credit_limit"],
         last_bot_q in ["dept", "year_term", "start_year"],
         bool(re.search(r"\b(course|courses|semester|semester\b|graduation|graduate|curriculum|curriculum\b|department|major|requirements)\b", q_lower)),
         bool(is_web_info_question(analysis_question)),
@@ -223,7 +227,7 @@ def parse_request_slots(question, history, last_bot_q):
     heuristic_start_year = result["start_year"]
 
     needs_help = (
-        result["intent"] in ["planning", "graduation"] and not result["department"]
+        result["intent"] in ["planning", "graduation", "credit_limit"] and not result["department"]
     ) or (
         result["intent"] == "planning" and result["department"] and (not result["year"] or not result["term"])
     ) or (
@@ -235,7 +239,7 @@ def parse_request_slots(question, history, last_bot_q):
             parser_prompt = f"""You are an IEU student-request parser.
 Return ONLY valid JSON, no markdown, no explanation.
 
-Possible intents: planning, graduation, regulations, course_lookup, web_info, other
+Possible intents: planning, graduation, regulations, credit_limit, course_lookup, web_info, other
 Possible departments: {", ".join(VALID_DEPTS)}
 
 Rules:
@@ -263,7 +267,7 @@ Conversation history (recent): {json.dumps(history[-12:], ensure_ascii=False)}
             parsed = _extract_json_object(response.choices[0].message.content)
             if isinstance(parsed, dict):
                 intent = (parsed.get("intent") or "").strip().lower() or None
-                if intent in {"planning", "graduation", "regulations", "course_lookup", "web_info", "other"}:
+                if intent in {"planning", "graduation", "regulations", "credit_limit", "course_lookup", "web_info", "other"}:
                     result["intent"] = intent
 
                 parsed_dept = normalize_department_code(parsed.get("department"))
@@ -309,10 +313,11 @@ Conversation history (recent): {json.dumps(history[-12:], ensure_ascii=False)}
 # LLM CALL
 # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-def call_llm(question, context_docs, history, client_type=None):
-    prefer_tr = _conversation_prefers_turkish(question, history)
+def call_llm(question, context_docs, history, client_type=None, session_language=None):
+    session_language = session_language or detect_language(question)
+    prefer_tr = session_language == "tr"
     if client_groq is None and gemini_model is None:
-        return _soft_fallback_message(prefer_tr)
+        return _soft_fallback_message(session_language)
 
     context = "\n\n---\n\n".join(context_docs)
     # truncate context to avoid token limit (increased to 15000 to preserve evaluation system)
@@ -324,6 +329,7 @@ def call_llm(question, context_docs, history, client_type=None):
     mobile_rule = ""
     if client_type_norm == "mobile":
         mobile_rule = "\n10. For mobile clients, do not use markdown headers or bullet points. Reply in plain text."
+    language_rule = f"\n11. You MUST respond in {session_language} language only. Never switch languages mid-response."
 
     system_prompt = """You are EkoBot, an academic assistant for ؤ°zmir University of Economics (IEU).
 
@@ -337,7 +343,7 @@ from the context provided.
 
 STRICT RULES:
 1. Answer ONLY using the context provided. Never use your own knowledge.
-2. If the answer is not in the context, say: 'I don't have that information in the IEU database.'
+2. If the answer is not in the context, say: ''
 3. NEVER make up course names, codes, credits, instructors, or descriptions.
 4. If multiple courses are asked about, answer each one separately with a clear label.
 5. If a course code looks like a typo, mention the correction.
@@ -364,7 +370,7 @@ Always be specific and helpful â€” do not just say you don't have the infor
     exam weights, or how they will be graded in a course, extract and clearly present the
     Evaluation System section from the course data (e.g., Midterm 40%, Final 60%, etc.).
     Present grading breakdown as a clear list if available.
-"""
+""" + language_rule
     if mobile_rule:
         system_prompt += mobile_rule
 
@@ -401,7 +407,7 @@ Always be specific and helpful â€” do not just say you don't have the infor
             return response.choices[0].message.content
     except Exception as e:
         print(f"LLM error: {e}")
-        return _soft_fallback_message(prefer_tr)
+        return _soft_fallback_message(session_language)
 
 
 # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -411,22 +417,22 @@ Always be specific and helpful â€” do not just say you don't have the infor
 def _curriculum_entry_year_followup(clarify_invalid_reply=False, prefer_tr=False):
     lines = [
         _t(
-            "FOLLOWUP_NEEDED: Which year did you enroll in university? "
-            "(which year did you start university? e.g. 2023)",
-            "FOLLOWUP_NEEDED: Üniversiteye hangi yılda kayıt oldunuz? "
-            "(üniversiteye hangi yıl başladınız? örn. 2023)",
+            "FOLLOWUP_NEEDED: Could you share which year you started university? "
+            "(entry year, e.g. 2023)",
+            "FOLLOWUP_NEEDED: Üniversiteye hangi yıl başladığını paylaşabilir misin? "
+            "(giriş yılı, örn. 2023)",
             prefer_tr,
         ),
     ]
     if clarify_invalid_reply:
         lines.append(_t(
-            "I still need your enrollment year, not your current year and semester.",
-            "Hâlâ kayıt yılınıza ihtiyacım var, şu anki yıl ve döneminize değil.",
+            "I still need your entry year, not your current class year/semester.",
+            "Hâlâ giriş yılına ihtiyacım var, şu anki sınıf/dönem bilgine değil.",
             prefer_tr,
         ))
     lines.append(_t(
         "Please choose one of the options below.",
-        "Lütfen aşağıdaki seçeneklerden birini seçin.",
+        "Aşağıdaki seçeneklerden birini seçebilirsin.",
         prefer_tr,
     ))
     return "\n".join(lines)
@@ -434,16 +440,16 @@ def _curriculum_entry_year_followup(clarify_invalid_reply=False, prefer_tr=False
 
 def _curriculum_year_followup(prefer_tr=False):
     return _t(
-        "FOLLOWUP_NEEDED: Which year are you in? Please choose one of the options below.",
-        "FOLLOWUP_NEEDED: Hangi siniftasiniz? Lutfen asagidaki seceneklerden birini secin.",
+        "FOLLOWUP_NEEDED: Which year are you currently in? Please choose one of the options below.",
+        "FOLLOWUP_NEEDED: Şu anda kaçıncı sınıftasın? Aşağıdaki seçeneklerden birini seçebilirsin.",
         prefer_tr,
     )
 
 
 def _curriculum_semester_followup(prefer_tr=False):
     return _t(
-        "FOLLOWUP_NEEDED: Which semester are you in? Please choose Fall or Spring.",
-        "FOLLOWUP_NEEDED: Hangi donemdesiniz? Lutfen Guz veya Bahar secin.",
+        "FOLLOWUP_NEEDED: Which semester are you in right now? Please choose Fall or Spring.",
+        "FOLLOWUP_NEEDED: Şu an hangi dönemdesin? Lütfen Güz veya Bahar seç.",
         prefer_tr,
     )
 
@@ -645,12 +651,10 @@ def get_next_profiling_question(profile, question_lower, require_curriculum_deta
     if not profile["faculty"]:
         return (
             _t(
-                "Hi! I'm EkoBot, your IEU academic assistant.\n\n"
-                "To help you find the right courses and graduation requirements, I need to understand your situation.\n\n"
-                "Which faculty are you in? Please choose one of the options below.",
-                "Merhaba! Ben EkoBot, IEU akademik asistanınızım.\n\n"
-                "Doğru dersleri ve mezuniyet koşullarını bulmanıza yardımcı olmak için durumunuzu anlamam gerekiyor.\n\n"
-                "Hangi fakültedesiniz? Lütfen aşağıdaki seçeneklerden birini seçin.",
+                "Hi! I can help you plan courses accurately.\n\n"
+                "Could you tell me which faculty you're in? Please choose one of the options below.",
+                "Merhaba! Ders planını doğru hazırlayabilmem için küçük bir bilgiye ihtiyacım var.\n\n"
+                "Hangi fakültede okuyorsun? Aşağıdaki seçeneklerden birini seçebilirsin.",
                 prefer_tr,
             ),
             "faculty",
@@ -660,8 +664,8 @@ def get_next_profiling_question(profile, question_lower, require_curriculum_deta
     if not profile["department"] or not profile["program_name"]:
         return (
             _t(
-                "Got it!\n\nWhich department are you in? Please choose one of the options below.",
-                "Anladım!\n\nHangi bölümdesiniz? Lütfen aşağıdaki seçeneklerden birini seçin.",
+                "Great, thanks. Could you tell me which department you're in? Please choose one of the options below.",
+                "Harika, teşekkürler. Hangi bölümde okuyorsun? Aşağıdaki seçeneklerden birini seçebilirsin.",
                 prefer_tr,
             ),
             "dept",
@@ -712,21 +716,21 @@ def _profiling_followup_message(question_type, profile=None, prefer_tr=False, co
     if question_type == "faculty":
         return _with_followup_prefix(_t(
             "FOLLOWUP_NEEDED: Which faculty are you in? Please choose one of the options below.",
-            "FOLLOWUP_NEEDED: Hangi fakültedesiniz? Lütfen aşağıdaki seçeneklerden birini seçin.",
+            "FOLLOWUP_NEEDED: Hangi fakültede okuyorsun? Aşağıdaki seçeneklerden birini seçebilirsin.",
             prefer_tr,
         ), prefer_tr=prefer_tr, correction=correction)
     if question_type == "dept":
         return _with_followup_prefix(_t(
             "FOLLOWUP_NEEDED: Which department are you in? Please choose one of the options below.",
-            "FOLLOWUP_NEEDED: Hangi bölümdesiniz? Lütfen aşağıdaki seçeneklerden birini seçin.",
+            "FOLLOWUP_NEEDED: Hangi bölümde okuyorsun? Aşağıdaki seçeneklerden birini seçebilirsin.",
             prefer_tr,
         ), prefer_tr=prefer_tr, correction=correction)
     if question_type == "year_term":
         if profile and profile.get("year") and not profile.get("term"):
             return _with_followup_prefix(_curriculum_semester_followup(prefer_tr=prefer_tr), prefer_tr=prefer_tr, correction=correction)
         return _with_followup_prefix(_t(
-            "FOLLOWUP_NEEDED: Which year are you in? Please choose one of the options below.",
-            "FOLLOWUP_NEEDED: Hangi siniftasiniz? Lutfen asagidaki seceneklerden birini secin.",
+            "FOLLOWUP_NEEDED: Which year are you currently in? Please choose one of the options below.",
+            "FOLLOWUP_NEEDED: Şu anda kaçıncı sınıftasın? Aşağıdaki seçeneklerden birini seçebilirsin.",
             prefer_tr,
         ), prefer_tr=prefer_tr, correction=correction)
     if question_type == "start_year":
@@ -777,12 +781,14 @@ def _profiling_followup_options(question_type, profile, prefer_tr=False):
     return None
 
 
-def ask_with_options(question, history=None, client_type=None):
+def ask_with_options(question, history=None, client_type=None, session_language=None):
     history = history or []
-    answer = ask(question, history, client_type=client_type)
+    answer = ask(question, history, client_type=client_type, session_language=session_language)
     is_followup = answer.startswith("FOLLOWUP_NEEDED:")
     clean_answer = answer.replace("FOLLOWUP_NEEDED:", "").strip() if is_followup else answer
-    prefer_tr = _conversation_prefers_turkish(question, history, assistant_text=clean_answer)
+    if session_language is None:
+        session_language = detect_language(question)
+    prefer_tr = session_language == "tr"
     is_correction = _looks_like_profile_correction(question)
 
     options = None
@@ -932,7 +938,7 @@ def _is_pure_credit_load_question(question):
     return True
 
 
-def _maybe_elective_followup(question, history):
+def _maybe_elective_followup(question, history, session_language=None):
     if not _is_elective_followup_request(question):
         return None
 
@@ -966,11 +972,7 @@ def _maybe_elective_followup(question, history):
         prefer_tr=_looks_turkish(question),
     )
     if not elective_lines:
-        return _t(
-            "I don't have elective options for that department in the IEU database.",
-            "O bölüm için IEU veritabanında seçmeli ders seçenekleri bulamıyorum.",
-            _looks_turkish(question),
-        )
+        return get_fallback_response(session_language or detect_language(question))
 
     return "\n".join(elective_lines)
 
@@ -1162,12 +1164,8 @@ def _t(en_text, tr_text, prefer_tr):
     return tr_text if prefer_tr else en_text
 
 
-def _soft_fallback_message(prefer_tr=False):
-    return _t(
-        "Sorry, I didn't quite understand that. I either don't have that information in the IEU database or you may need to rephrase your question.",
-        "Üzgünüm, bunu tam anlayamadım. Ya bu bilgi IEU veritabanında yok ya da soruyu yeniden ifade etmeniz gerekiyor.",
-        prefer_tr,
-    )
+def _soft_fallback_message(session_language="tr"):
+    return get_fallback_response(session_language)
 
 
 def _normalize_chatty_text(text):
@@ -1700,8 +1698,8 @@ def _format_regulations_answer(question, history, gpa_value):
     if _is_credit_load_question(question):
         if gpa_value is None:
             return _t(
-                "FOLLOWUP_NEEDED: What is your CGPA/GPA (0.00-4.00)?",
-                "FOLLOWUP_NEEDED: GANO/CGPA ortalaman kac? (0.00-4.00)",
+                "FOLLOWUP_NEEDED: Could you share your current GPA/CGPA (0.00-4.00)?",
+                "FOLLOWUP_NEEDED: Genel not ortalamanı (GANO/CGPA) paylaşabilir misin? (0.00-4.00)",
                 prefer_tr,
             )
 
@@ -2017,16 +2015,82 @@ def _looks_like_invalid_curriculum_term(text):
     return any(re.search(rf"\b{re.escape(term)}\b", q) for term in invalid_terms)
 
 
-def ask(question, history=[], client_type=None):
+def reset_flow_state(history, question):
+    """
+    Heuristic to decide whether an active profiling/planning flow should be
+    interrupted and reset because the user asked an unrelated question or the
+    flow has stalled.
+
+    Returns True when the flow should be reset (caller should clear any
+    pending flow state like `last_bot_q`).
+    """
+    try:
+        last_bot_q = get_last_bot_question_type(history)
+    except Exception:
+        last_bot_q = None
+
+    if not last_bot_q:
+        return False
+
+    q = (question or "").strip()
+    q_lower = q.lower()
+
+    # Determine the new message's primary intent (if any)
+    new_intent = None
+    if is_semester_question(q):
+        new_intent = "planning"
+    elif is_regulations_question(q):
+        new_intent = "regulations"
+    elif is_gpa_credit_limit_question(q, history):
+        new_intent = "credit_limit"
+    elif is_web_info_question(q):
+        new_intent = "web_info"
+    elif is_graduation_question(q):
+        new_intent = "graduation"
+    elif is_course_lookup_question(q):
+        new_intent = "course_lookup"
+
+    # If the user is mid-profiling (faculty/dept/year/start_year/failed_courses)
+    # and the new message clearly maps to a non-academic or different intent,
+    # treat it as an interrupt.
+    profiling_tokens = {"faculty", "dept", "year_term", "start_year", "failed_courses"}
+    if last_bot_q in profiling_tokens:
+        # If the new intent is unrelated to profiling/planning, reset.
+        if new_intent is None or new_intent == "web_info" or new_intent == "course_lookup":
+            return True
+
+        # If the new intent is academic but not planning (e.g., regulations/credit),
+        # we still allow it to proceed without clearing profile state. Only reset
+        # when it's a clearly unrelated topic.
+
+    # Flow timeout: if there have been many recent messages (stall) assume stale.
+    recent = (history or [])[-12:]
+    if last_bot_q in profiling_tokens and len(recent) >= 6:
+        return True
+
+    return False
+
+
+def ask(question, history=[], client_type=None, session_language=None):
     # Some eval harnesses redirect stdout to non-UTF8 files on Windows.
     # Keep debug logging ASCII-only to avoid encode errors.
     safe_question = (question or "").encode("ascii", "backslashreplace").decode("ascii")
     print(f"\n[EkoBot] Question: {safe_question}")
 
+    session_language = session_language or detect_language(question)
+    prefer_tr = session_language == "tr"
     question_lower = question.lower().strip()
     last_bot_q = get_last_bot_question_type(history)
     history_profile = extract_profile_from_history(history or [])
-    prefer_tr = _conversation_prefers_turkish(question, history)
+
+    # Interrupt detection: if the user asks a clearly unrelated question while
+    # a profiling/planning flow is active, reset the pending flow state so the
+    # new request is handled independently.
+    try:
+        if reset_flow_state(history, question):
+            last_bot_q = None
+    except Exception:
+        pass
 
     if is_greeting_or_small_talk(question):
         if last_bot_q in {"faculty", "dept", "year_term", "start_year", "failed_courses"}:
@@ -2047,17 +2111,13 @@ def ask(question, history=[], client_type=None):
         )
 
     if is_out_of_scope_question(question) and not is_web_info_question(question):
-        return _t(
-            "I don't have that information in the IEU database.",
-            "Bu bilginin IEU veritabaninda kaydi yok.",
-            prefer_tr,
-        )
+        return get_fallback_response(session_language)
 
     if _is_short_ack(question) and last_bot_q in {"faculty", "dept", "year_term", "start_year", "failed_courses"}:
         if last_bot_q == "failed_courses":
             return _t(
-                "FOLLOWUP_NEEDED: Please list the failed course codes (e.g. CE 201, MATH 153).",
-                "FOLLOWUP_NEEDED: Lutfen kaldiğiniz ders kodlarini yazin (orn. CE 201, MATH 153).",
+                "FOLLOWUP_NEEDED: Could you list the course codes you failed? (e.g. CE 201, MATH 153)",
+                "FOLLOWUP_NEEDED: Kaldığın derslerin kodlarını paylaşabilir misin? (örn. CE 201, MATH 153)",
                 prefer_tr,
             )
         followup = _profiling_followup_message({
@@ -2069,7 +2129,7 @@ def ask(question, history=[], client_type=None):
         if followup:
             return followup
 
-    elective_followup = _maybe_elective_followup(question, history)
+    elective_followup = _maybe_elective_followup(question, history, session_language=session_language)
     if elective_followup:
         return elective_followup
 
@@ -2268,8 +2328,12 @@ def ask(question, history=[], client_type=None):
     course_contexts = []
     missing_codes = []
     corrections = {}
+    low_confidence_score = None
     if codes:
-        course_contexts, missing_codes, corrections = get_context_for_codes(collection, codes)
+        course_contexts, missing_codes, corrections, low_confidence_score = get_context_for_codes(collection, codes)
+        if low_confidence_score is not None and not course_contexts:
+            print(f"[RETRIEVAL] Low confidence ({low_confidence_score:.2f}), falling back")
+            return get_fallback_response(session_language)
         if course_contexts:
             specific_response = extract_course_specific_response(course_contexts, full_question)
             if specific_response:
@@ -2321,10 +2385,16 @@ def ask(question, history=[], client_type=None):
         "should i take", "i should take", "hangi ders",
     ])
     graduation_intent = parsed["intent"] == "graduation" or is_graduation_question(full_question)
+    credit_limit_intent = parsed["intent"] == "credit_limit" or is_gpa_credit_limit_question(full_question, history)
     regulations_intent = (
         parsed["intent"] == "regulations" or is_regulations_question(full_question)
     )
     curriculum_followup_intent = _looks_like_curriculum_followup(question)
+
+    if credit_limit_intent:
+        regs_answer = _format_regulations_answer(full_question, history, gpa_value)
+        if regs_answer:
+            return regs_answer
 
     planning_intent = (
         parsed["intent"] == "planning"
@@ -2346,11 +2416,7 @@ def ask(question, history=[], client_type=None):
             return _format_web_info_answer(full_question, web_docs) or web_docs[0]
         context_parts.extend(web_docs)
     elif web_info_intent:
-        return _t(
-            "I don't have that information in the IEU database.",
-            "Bu bilginin IEU veritabaninda kaydi yok.",
-            prefer_tr,
-        )
+        return get_fallback_response(session_language)
 
     if course_lookup_intent and not planning_intent and not graduation_intent and not regulations_intent:
         if course_contexts:
@@ -2361,19 +2427,11 @@ def ask(question, history=[], client_type=None):
                 formatted.insert(0, correction_note)
             if missing_codes:
                 missing_list = ", ".join(missing_codes)
-                formatted.append(_t(
-                    f"I don't have that information in the IEU database for {missing_list}. Please check the ECTS system directly.",
-                    f"{missing_list} icin IEU veritabaninda bu bilgi yok. Lutfen ECTS sistemini kontrol edin.",
-                    prefer_tr,
-                ))
+                formatted.append(get_fallback_response(session_language))
             return "\n\n".join(formatted)
         if missing_codes:
             missing_list = ", ".join(missing_codes)
-            return _t(
-                f"I don't have that information in the IEU database for {missing_list}. Please check the ECTS system directly.",
-                f"{missing_list} icin IEU veritabaninda bu bilgi yok. Lutfen ECTS sistemini kontrol edin.",
-                prefer_tr,
-            )
+            return get_fallback_response(session_language)
 
     # If user shares failed course codes after a planning answer, reuse the latest
     # planning tuple and return a retake-prioritized recommendation.
@@ -2541,11 +2599,7 @@ def ask(question, history=[], client_type=None):
                     faculty=faculty,
                 )
         if not courses:
-            return _t(
-                "I don't have that semester's curriculum data in my database. Please check the ECTS system directly.",
-                "Bu doneme ait mufredat verisini veritabanimda bulamiyorum. Lutfen ECTS sistemini kontrol edin.",
-                prefer_tr,
-            )
+            return get_fallback_response(session_language)
         answer = _format_semester_courses(
             dept,
             year,
@@ -2651,7 +2705,7 @@ def ask(question, history=[], client_type=None):
             except Exception:
                 pass
         prefer_tr = _conversation_prefers_turkish(question, history)
-        return _soft_fallback_message(prefer_tr)
+        return _soft_fallback_message(session_language)
 
     # â”€â”€ ask LLM to reason over ALL context â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     # truncate to avoid token limit (increased to 15000 to preserve evaluation system)
@@ -2662,7 +2716,7 @@ def ask(question, history=[], client_type=None):
     if len(combined) > 15000:
         combined = combined[:15000]
 
-    return call_llm(full_question, [combined], history, client_type=client_type)
+    return call_llm(full_question, [combined], history, client_type=client_type, session_language=session_language)
 
 
 # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
