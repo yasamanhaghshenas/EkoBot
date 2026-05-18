@@ -2312,8 +2312,8 @@ PGDM_FAQ = [
             "graduation ceremony", "mezuniyet töreni", "tören", "ceremony", "when is graduation",
             "mezuniyet ne zaman", "diploma ceremony", "graduation date"
         ],
-        "en": "IEU holds graduation ceremonies typically in June and January. For the exact date and details of the upcoming ceremony, check the IEU academic calendar or announcements at: https://www.ieu.edu.tr/en/students — Graduation ceremony details are announced closer to the date.",
-        "tr": "İEÜ mezuniyet törenleri genellikle Haziran ve Ocak aylarında düzenlenir. Yaklaşan tören tarihi ve detayları için İEÜ akademik takvimini veya duyuruları kontrol et: https://www.ieu.edu.tr/tr/students",
+        "en": "IEU holds graduation ceremonies typically in July. For the exact date and details of the upcoming ceremony, check the IEU academic calendar or announcements at: https://www.ieu.edu.tr/en/students — Graduation ceremony details are announced closer to the date.",
+        "tr": "İEÜ mezuniyet törenleri genellikle Temmuz ayında düzenlenir. Yaklaşan tören tarihi ve detayları için İEÜ akademik takvimini veya duyuruları kontrol et: https://www.ieu.edu.tr/tr/students",
     },
 ]
 
@@ -2527,6 +2527,9 @@ ACADEMIC_KEYWORDS = [
     "danışman", "transcript", "transkript", "password", "şifre", "apply",
     "başvuru", "scholarship", "burs", "erasmus", "exchange", "study abroad", "hareketlilik", "değişim",
     "double major", "feng 497", "feng 498", "graduation project", "bitirme projesi", "capstone",
+    "who teaches", "instructor", "hoca", "öğretim", "credits", "credit hours",
+    "tell me about", "what is this course", "bu ders", "ders hakkında", "course content", "ders içeriği",
+    "grading", "notlandırma", "se ", "ce ", "eee ", "math ", "phys ", "eng ", "sfl ",
     "çift anadal", "minor", "yan dal", "dmp",
 ]
 
@@ -2544,6 +2547,9 @@ CURRICULUM_FLOW_TRIGGERS = [
 
 def classify_message_type(question: str, history: list) -> str:
     q_lower = question.lower().strip()
+
+    if is_course_code_question(question):
+        return "academic"
 
     if re.fullmatch(r"(?:yes|no|nope)(?:[.!?]+)?", q_lower):
         return "conversational"
@@ -2573,6 +2579,12 @@ def classify_message_type(question: str, history: list) -> str:
         return "conversational"
 
     return "academic"
+
+
+def is_course_code_question(question: str) -> bool:
+    """Detect if question contains an IEU course code like SE 302, CE 342, EEE 242, MATH 154"""
+    pattern = r'\b[A-Za-z]{2,5}\s?\d{3}\b'
+    return bool(re.search(pattern, question, re.IGNORECASE))
 
 
 def _extract_known_acronym_definition(question: str):
