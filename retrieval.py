@@ -251,3 +251,38 @@ def format_course_direct_response(doc):
         lines.append(f"Description: {desc}")
 
     return "\n".join(lines)
+
+
+def get_certificate_context(collection_obj, query_texts, n_results=3, max_docs=6):
+    def _query_and_collect(texts):
+        if not texts:
+            return []
+        try:
+            results = collection_obj.query(query_texts=texts, n_results=n_results, include=["documents"])
+        except Exception:
+            return []
+
+        docs = []
+        for batch in results.get("documents") or []:
+            for doc in batch or []:
+                if not doc or doc in docs:
+                    continue
+                docs.append(doc)
+                if len(docs) >= max_docs:
+                    return docs
+        return docs
+
+    alt_queries = [
+        "student certificate IEU",
+        "diploma belgesi",
+        "öğrenci belgesi nasıl alınır",
+    ]
+
+    merged = []
+    for batch in (_query_and_collect(query_texts), _query_and_collect(alt_queries)):
+        for doc in batch:
+            if doc not in merged:
+                merged.append(doc)
+                if len(merged) >= max_docs:
+                    return merged
+    return merged

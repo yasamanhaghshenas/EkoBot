@@ -63,6 +63,7 @@ from retrieval import (
     extract_course_specific_response,
     format_course_direct_response,
     get_context_for_codes,
+    get_certificate_context,
 )
 
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
@@ -317,7 +318,7 @@ def call_llm(question, context_docs, history, client_type=None, session_language
     mobile_rule = ""
     if client_type_norm == "mobile":
         mobile_rule = "\n10. For mobile clients, do not use markdown headers or bullet points. Reply in plain text."
-    language_rule = f"\n11. You MUST respond in {session_language} language only. Never switch languages mid-response."
+    language_rule = f"\n11. ABSOLUTE RULE: Your response language must be {session_language}. Never switch languages. Even for greetings, thanks, or one-word replies — always use {session_language}. If you find yourself writing in the other language, stop and rewrite."
 
     system_prompt = """You are EkoBot, an academic assistant for ؤ°zmir University of Economics (IEU).
 
@@ -2082,6 +2083,137 @@ def is_topic_change(question: str, history: list) -> bool:
     return False
 
 
+SELF_IDENTITY_QUESTIONS = [
+    "what are you", "who are you", "sen kimsin", "ne sin", "nedir ekobot",
+    "what is ekobot", "tell me about yourself", "kendini tanıt",
+]
+
+USER_IDENTITY_QUESTIONS = [
+    "who am i", "ben kimim", "do you know me", "beni tanıyor musun",
+    "what do you know about me",
+]
+
+
+def is_self_identity_question(question: str) -> bool:
+    q_lower = (question or "").lower()
+    return any(phrase in q_lower for phrase in SELF_IDENTITY_QUESTIONS)
+
+
+def is_user_identity_question(question: str) -> bool:
+    q_lower = (question or "").lower()
+    return any(phrase in q_lower for phrase in USER_IDENTITY_QUESTIONS)
+
+
+def _format_user_identity_response(profile, prefer_tr=False):
+    if not profile:
+        profile = {}
+
+    parts = []
+    gpa_value = profile.get("gpa")
+    department = profile.get("program_name") or profile.get("department")
+    year = profile.get("year")
+
+    if gpa_value is not None:
+        parts.append(_t(f"a GPA of {gpa_value}", f"bir GANO {gpa_value}", prefer_tr))
+    if department:
+        parts.append(_t(f"you're in {department}", f"{department} bölümündesin", prefer_tr))
+    if year:
+        parts.append(_t(f"you're in year {year}", f"{year}. sınıftasın", prefer_tr))
+
+    if not parts:
+        return _t(
+            "I don't have your personal information — I can only remember what you tell me during our conversation!",
+            "Kişisel bilgilerin bende yok — sadece bu konuşma sırasında bana söylediklerini hatırlayabilirim!",
+            prefer_tr,
+        )
+
+    if len(parts) == 1:
+        details = parts[0]
+    elif len(parts) == 2:
+        details = f"{parts[0]} and {parts[1]}" if not prefer_tr else f"{parts[0]} ve {parts[1]}"
+    else:
+        if prefer_tr:
+            details = ", ".join(parts[:-1]) + f" ve {parts[-1]}"
+        else:
+            details = ", ".join(parts[:-1]) + f", and {parts[-1]}"
+
+    return _t(
+        f"Based on our conversation, you mentioned {details}.",
+        f"Konuşmamıza göre {details}.",
+        prefer_tr,
+    )
+
+
+CONVERSATIONAL_PHRASES = [
+    "thanks", "thank you", "teşekkür", "tamam", "okay", "ok", "sure",
+    "got it", "cool", "great", "nice", "bye", "goodbye", "görüşürüz",
+    "lol", "haha", "wtf", "hmm", "oh", "wow", "really", "interesting",
+    "who am i", "what are you", "who are you", "sen kimsin", "ben kimim",
+]
+
+IEU_ACRONYMS = {
+    "ybs": "Yönetim Bilişim Sistemleri (Management Information Systems) — a department at IEU Faculty of Business.",
+    "obs": "Öğrenci Bilgi Sistemi — IEU's Student Information System, accessible at obs.ieu.edu.tr",
+    "sys": "Staj Yönetim Sistemi — IEU's Internship Management System at staj.izmirekonomi.edu.tr",
+    "tlc": "Teaching and Learning Center — IEU's academic support center. See: https://www.ieu.edu.tr/tlc/en/for-students",
+    "kyk": "Kredi ve Yurtlar Kurumu — Government student dormitory and loan institution",
+    "ects": "European Credit Transfer System — the credit system used at IEU",
+    "cgpa": "Cumulative Grade Point Average — your overall GPA across all semesters",
+    "gano": "Genel Ağırlıklı Not Ortalaması — Turkish term for CGPA",
+    "bano": "Bütünleme Ağırlıklı Not Ortalaması — weighted GPA for resit exams",
+}
+
+ACADEMIC_KEYWORDS = [
+    "course", "ders", "gpa", "gano", "ects", "kredi", "internship", "staj",
+    "graduation", "mezuniyet", "curriculum", "müfredat", "syllabus",
+    "department", "bölüm", "faculty", "fakülte", "registration", "kayıt",
+    "exam", "sınav", "grade", "not", "certificate", "belge", "attendance",
+    "devam", "prerequisite", "ön koşul", "elective", "seçmeli", "advisor",
+    "danışman", "transcript", "transkript", "password", "şifre", "apply",
+    "başvuru", "scholarship", "burs", "erasmus", "exchange", "double major",
+    "çift anadal", "minor", "yan dal",
+]
+
+
+def classify_message_type(question: str, history: list) -> str:
+    q_lower = question.lower().strip()
+
+    # Check academic keywords first
+    if any(kw in q_lower for kw in ACADEMIC_KEYWORDS):
+        return "academic"
+
+    # Check conversational phrases
+    if any(phrase in q_lower for phrase in CONVERSATIONAL_PHRASES):
+        return "conversational"
+
+    # Short message with no keywords
+    if len(q_lower) < 15:
+        if not history:
+            return "conversational"
+        # Check if last bot message asked a question (flow continuation)
+        last_bot_msgs = [m["content"] for m in history if m["role"] == "assistant"]
+        if last_bot_msgs:
+            last = last_bot_msgs[-1].lower()
+            if "?" in last or "please" in last or "lütfen" in last or "seç" in last:
+                return "ambiguous"
+        return "conversational"
+
+    return "academic"
+
+
+def _extract_known_acronym_definition(question: str):
+    q_lower = (question or "").lower().strip()
+    definition_cues = ["what is", "what does", "what's", "nedir", "ne demek"]
+
+    if not any(cue in q_lower for cue in definition_cues):
+        return None, None
+
+    for acronym, definition in IEU_ACRONYMS.items():
+        if re.search(rf"\b{re.escape(acronym)}\b", q_lower):
+            return acronym, definition
+    return None, None
+
+
 def ask(question, history=[], client_type=None, session_language=None):
     # Some eval harnesses redirect stdout to non-UTF8 files on Windows.
     # Keep debug logging ASCII-only to avoid encode errors.
@@ -2090,9 +2222,56 @@ def ask(question, history=[], client_type=None, session_language=None):
 
     session_language = session_language or detect_language(question)
     prefer_tr = session_language == "tr"
+    history_profile = extract_profile_from_history(history or [])
+
+    if is_self_identity_question(question):
+        return _t(
+            "I'm EkoBot, an AI-powered academic assistant for İzmir University of Economics (IEU). I can help you with courses, curriculum planning, graduation requirements, GPA rules, internships, and university regulations. What would you like to know?",
+            "Ben EkoBot, İzmir Ekonomi Üniversitesi (İEU) öğrencileri için geliştirilmiş bir yapay zeka akademik asistanım. Dersler, müfredat, mezuniyet koşulları, GPA kuralları, staj ve üniversite yönetmelikleri konularında yardımcı olabilirim. Ne öğrenmek istersin?",
+            prefer_tr,
+        )
+
+    if is_user_identity_question(question):
+        return _format_user_identity_response(history_profile, prefer_tr=prefer_tr)
+
+    msg_type = classify_message_type(question, history or [])
+    print(f"[ROUTE] Message type: {msg_type}")
+
+    acronym, acronym_definition = _extract_known_acronym_definition(question)
+    if acronym_definition:
+        print(f"[ROUTE] Acronym match: {acronym}")
+        return acronym_definition
+
+    if msg_type == "conversational":
+        if client is None:
+            return get_fallback_response(session_language)
+        try:
+            response = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "You are EkoBot, a friendly assistant for IEU. Respond naturally and briefly in "
+                            f"{session_language}. Max 2 sentences. Don't dump academic info unless asked."
+                        ),
+                    },
+                    {"role": "user", "content": question},
+                ],
+                max_tokens=1000,
+            )
+            answer = response.choices[0].message.content
+            if not answer or answer.strip() == "" or answer.strip() == "''":
+                return get_fallback_response(session_language)
+            return answer
+        except Exception:
+            return get_fallback_response(session_language)
+
+    if msg_type == "ambiguous":
+        pass
+
     question_lower = question.lower().strip()
     last_bot_q = get_last_bot_question_type(history)
-    history_profile = extract_profile_from_history(history or [])
 
     if is_topic_change(question, history or []):
         last_bot_q = None
@@ -2202,7 +2381,7 @@ def ask(question, history=[], client_type=None, session_language=None):
     pythonDIRECT_RAG_KEYWORDS = [
         "internship", "staj", "staj başvuru", "apply for internship",
         "password", "şifre", "sifre", "forgot password",
-        "student certificate", "öğrenci belgesi",
+        "student certificate", "degree certificate", "diploma", "mezuniyet belgesi", "diplomam", "öğrenci belgesi",
         "transcript", "transkript",
         "apply for graduation", "mezuniyet başvuru",
     ]
@@ -2707,7 +2886,24 @@ def ask(question, history=[], client_type=None, session_language=None):
             failed_courses,
             gpa_value,
         )
-        context_parts = _query_relevant_context(collection, query_texts, n_results=3, max_docs=6)
+        certificate_question = any(
+            kw in full_question.lower()
+            for kw in [
+                "student certificate", "degree certificate", "diploma", "mezuniyet belgesi",
+                "diplomam", "öğrenci belgesi",
+            ]
+        )
+        if certificate_question:
+            context_parts = get_certificate_context(collection, query_texts, n_results=3, max_docs=6)
+        else:
+            context_parts = _query_relevant_context(collection, query_texts, n_results=3, max_docs=6)
+
+        if certificate_question and not context_parts:
+            return _t(
+                "You can request your degree certificate or student certificate through the Student Information System or by visiting the Student Affairs office (Öğrenci İşleri). For more info visit: https://oim.ieu.edu.tr/en",
+                "Diploma veya öğrenci belgenizi Öğrenci Bilgi Sistemi üzerinden ya da Öğrenci İşleri ofisine başvurarak talep edebilirsiniz. Detaylı bilgi için: https://oim.ieu.edu.tr/tr",
+                prefer_tr,
+            )
 
     if not context_parts:
         try:

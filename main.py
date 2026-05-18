@@ -48,7 +48,7 @@ def root():
 @app.post("/chat")
 async def chat(req: ChatRequest, request: Request):
     history = [{"role": m.role, "content": m.content} for m in (req.history or [])]
-    session_language = detect_language(req.question)
+    session_language = detect_language(req.question, history)
 
     # Some clients include the current question in the history payload.
     # The backend already receives it separately as `question`.

@@ -1,6 +1,6 @@
 import re
 
-from langdetect import DetectorFactory, LangDetectException, detect_langs
+from langdetect import DetectorFactory
 
 DetectorFactory.seed = 0
 
@@ -17,40 +17,27 @@ _ENGLISH_HINTS = (
 )
 
 
-def detect_language(text: str) -> str:
+def detect_language(text: str, history: list = []) -> str:
+    # For short messages, use history language instead of guessing
     text = (text or "").strip()
-    if not text:
-        return "tr"
-
-    normalized = f" {text.casefold()} "
-
-    if any(char in normalized for char in _TURKISH_HINTS[:6]):
-        return "tr"
-    if re.search(r"\b(?:ve|ama|mi|mı|mu|mü|ders|kredi|bölüm|bolum|fakulte|ortalama|mezun|staj)\b", normalized):
-        return "tr"
+    if len(text.strip()) < 12:
+        if history:
+            # Find last user message longer than 12 chars
+            for msg in reversed(history):
+                if msg["role"] == "user" and len(msg["content"].strip()) >= 12:
+                    try:
+                        from langdetect import detect
+                        return detect(msg["content"])
+                    except:
+                        pass
+        return "tr"  # default
 
     try:
-        candidates = detect_langs(text)
-    except LangDetectException:
+        from langdetect import detect
+        lang = detect(text)
+        return lang if lang in ["tr", "en"] else "tr"
+    except:
         return "tr"
-    except Exception:
-        return "tr"
-
-    if not candidates:
-        return "tr"
-
-    best = candidates[0]
-    if best.lang == "tr" and best.prob >= 0.35:
-        return "tr"
-    if best.lang == "en" and best.prob >= 0.35:
-        return "en"
-
-    if any(hint in normalized for hint in _ENGLISH_HINTS):
-        return "en"
-    if any(hint in normalized for hint in ("kredi", "ders", "bölüm", "bolum", "gano", "ortalama")):
-        return "tr"
-
-    return "tr"
 
 
 def get_fallback_response(session_language: str) -> str:
