@@ -388,7 +388,10 @@ Always be specific and helpful â€” do not just say you don't have the infor
             messages=messages,
             max_tokens=1000,
         )
-        return response.choices[0].message.content
+        answer = response.choices[0].message.content
+        if not answer or answer.strip() == "" or answer.strip() == "''":
+            return get_fallback_response(session_language)
+        return answer
     except Exception as e:
         print(f"LLM error: {e}")
         return _soft_fallback_message(session_language)
@@ -401,10 +404,8 @@ Always be specific and helpful â€” do not just say you don't have the infor
 def _curriculum_entry_year_followup(clarify_invalid_reply=False, prefer_tr=False):
     lines = [
         _t(
-            "FOLLOWUP_NEEDED: Could you share which year you started university? "
-            "(entry year, e.g. 2023)",
-            "FOLLOWUP_NEEDED: Üniversiteye hangi yıl başladığını paylaşabilir misin? "
-            "(giriş yılı, örn. 2023)",
+            "FOLLOWUP_NEEDED: Which year did you start university?",
+            "FOLLOWUP_NEEDED: Hangi yılda başladın üniversiteye?",
             prefer_tr,
         ),
     ]
@@ -424,16 +425,16 @@ def _curriculum_entry_year_followup(clarify_invalid_reply=False, prefer_tr=False
 
 def _curriculum_year_followup(prefer_tr=False):
     return _t(
-        "FOLLOWUP_NEEDED: Which year are you currently in? Please choose one of the options below.",
-        "FOLLOWUP_NEEDED: Şu anda kaçıncı sınıftasın? Aşağıdaki seçeneklerden birini seçebilirsin.",
+        "FOLLOWUP_NEEDED: Which year of your program are you in?",
+        "FOLLOWUP_NEEDED: Kaçıncı sınıftasın?",
         prefer_tr,
     )
 
 
 def _curriculum_semester_followup(prefer_tr=False):
     return _t(
-        "FOLLOWUP_NEEDED: Which semester are you in right now? Please choose Fall or Spring.",
-        "FOLLOWUP_NEEDED: Şu an hangi dönemdesin? Lütfen Güz veya Bahar seç.",
+        "FOLLOWUP_NEEDED: Are you in the Fall or Spring semester?",
+        "FOLLOWUP_NEEDED: Hangi yarıyıldasın, Güz mü Bahar mı?",
         prefer_tr,
     )
 
@@ -700,21 +701,21 @@ def _profiling_followup_message(question_type, profile=None, prefer_tr=False, co
     if question_type == "faculty":
         return _with_followup_prefix(_t(
             "FOLLOWUP_NEEDED: Which faculty are you in? Please choose one of the options below.",
-            "FOLLOWUP_NEEDED: Hangi fakültede okuyorsun? Aşağıdaki seçeneklerden birini seçebilirsin.",
+            "FOLLOWUP_NEEDED: Hangi fakültede okuyorsun?",
             prefer_tr,
         ), prefer_tr=prefer_tr, correction=correction)
     if question_type == "dept":
         return _with_followup_prefix(_t(
             "FOLLOWUP_NEEDED: Which department are you in? Please choose one of the options below.",
-            "FOLLOWUP_NEEDED: Hangi bölümde okuyorsun? Aşağıdaki seçeneklerden birini seçebilirsin.",
+            "FOLLOWUP_NEEDED: Hangin bölümdesin?",
             prefer_tr,
         ), prefer_tr=prefer_tr, correction=correction)
     if question_type == "year_term":
         if profile and profile.get("year") and not profile.get("term"):
             return _with_followup_prefix(_curriculum_semester_followup(prefer_tr=prefer_tr), prefer_tr=prefer_tr, correction=correction)
         return _with_followup_prefix(_t(
-            "FOLLOWUP_NEEDED: Which year are you currently in? Please choose one of the options below.",
-            "FOLLOWUP_NEEDED: Şu anda kaçıncı sınıftasın? Aşağıdaki seçeneklerden birini seçebilirsin.",
+            "FOLLOWUP_NEEDED: Which year of your program are you in?",
+            "FOLLOWUP_NEEDED: Kaçıncı sınıftasın?",
             prefer_tr,
         ), prefer_tr=prefer_tr, correction=correction)
     if question_type == "start_year":
@@ -1682,8 +1683,8 @@ def _format_regulations_answer(question, history, gpa_value):
     if _is_credit_load_question(question):
         if gpa_value is None:
             return _t(
-                "FOLLOWUP_NEEDED: Could you share your current GPA/CGPA (0.00-4.00)?",
-                "FOLLOWUP_NEEDED: Genel not ortalamanı (GANO/CGPA) paylaşabilir misin? (0.00-4.00)",
+                "FOLLOWUP_NEEDED: What is your current GPA/CGPA (0.00-4.00)?",
+                "FOLLOWUP_NEEDED: Güncel GANO/CGPA'n kaç? (0.00-4.00)",
                 prefer_tr,
             )
 
@@ -2055,6 +2056,32 @@ def reset_flow_state(history, question):
     return False
 
 
+TOPIC_SIGNALS = {
+    "internship": ["internship", "staj"],
+    "password": ["password", "şifre", "sifre", "forgot", "reset"],
+    "certificate": ["certificate", "belge", "öğrenci belgesi"],
+    "attendance": ["attendance", "devam", "missed class"],
+    "graduation": ["graduation", "mezuniyet"],
+    "gpa": ["gpa", "gano", "credit limit", "kredi limiti"],
+    "transcript": ["transcript", "transkript"],
+}
+
+
+def is_topic_change(question: str, history: list) -> bool:
+    if len(history) < 4:
+        return False
+    q_lower = question.lower()
+    last_two_assistant = [m["content"].lower() for m in history[-4:] if m["role"] == "assistant"]
+    combined_history = " ".join(last_two_assistant)
+    for topic, keywords in TOPIC_SIGNALS.items():
+        q_match = any(kw in q_lower for kw in keywords)
+        history_match = any(kw in combined_history for kw in keywords)
+        if q_match and not history_match:
+            print(f"[INTENT] Topic change detected: {topic}")
+            return True
+    return False
+
+
 def ask(question, history=[], client_type=None, session_language=None):
     # Some eval harnesses redirect stdout to non-UTF8 files on Windows.
     # Keep debug logging ASCII-only to avoid encode errors.
@@ -2066,6 +2093,9 @@ def ask(question, history=[], client_type=None, session_language=None):
     question_lower = question.lower().strip()
     last_bot_q = get_last_bot_question_type(history)
     history_profile = extract_profile_from_history(history or [])
+
+    if is_topic_change(question, history or []):
+        last_bot_q = None
 
     # Interrupt detection: if the user asks a clearly unrelated question while
     # a profiling/planning flow is active, reset the pending flow state so the
@@ -2100,8 +2130,8 @@ def ask(question, history=[], client_type=None, session_language=None):
     if _is_short_ack(question) and last_bot_q in {"faculty", "dept", "year_term", "start_year", "failed_courses"}:
         if last_bot_q == "failed_courses":
             return _t(
-                "FOLLOWUP_NEEDED: Could you list the course codes you failed? (e.g. CE 201, MATH 153)",
-                "FOLLOWUP_NEEDED: Kaldığın derslerin kodlarını paylaşabilir misin? (örn. CE 201, MATH 153)",
+                "FOLLOWUP_NEEDED: Which course codes did you fail? (e.g. CE 201, MATH 153)",
+                "FOLLOWUP_NEEDED: Kaldığın derslerin kodları neler? (örn. CE 201, MATH 153)",
                 prefer_tr,
             )
         followup = _profiling_followup_message({
@@ -2168,6 +2198,17 @@ def ask(question, history=[], client_type=None, session_language=None):
     regulations_question = is_regulations_question(question)
 
     profile_flow_trigger = _looks_like_curriculum_lookup(question) and not regulations_question
+
+    pythonDIRECT_RAG_KEYWORDS = [
+        "internship", "staj", "staj başvuru", "apply for internship",
+        "password", "şifre", "sifre", "forgot password",
+        "student certificate", "öğrenci belgesi",
+        "transcript", "transkript",
+        "apply for graduation", "mezuniyet başvuru",
+    ]
+    if any(kw in question_lower for kw in pythonDIRECT_RAG_KEYWORDS):
+        # skip curriculum flow, go straight to RAG
+        profile_flow_trigger = False
 
     if not regulations_question and not profile_flow_trigger and last_bot_q in {"faculty", "dept", "year_term", "start_year", "failed_courses"}:
         if last_bot_q == "faculty":
