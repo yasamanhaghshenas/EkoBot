@@ -1,5 +1,4 @@
 from groq import Groq
-from google import genai
 import chromadb
 import json
 import os
@@ -66,22 +65,9 @@ from retrieval import (
     get_context_for_codes,
 )
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-
-if GROQ_API_KEY:
-    client_groq = Groq(api_key=GROQ_API_KEY)
-else:
-    client_groq = None
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+if not os.environ.get("GROQ_API_KEY"):
     print("WARNING: GROQ_API_KEY is not set. LLM fallback disabled.")
-
-GEMINI_MODEL_NAME = "gemini-2.0-flash"
-
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if GEMINI_API_KEY:
-    gemini_client = genai.Client(api_key=GEMINI_API_KEY)
-else:
-    gemini_client = None
-    print("WARNING: GEMINI_API_KEY is not set.")
 
 db_client = chromadb.PersistentClient(path="./db")
 collection = db_client.get_or_create_collection("ieu_courses", embedding_function=SentenceTransformerEmbeddingFunction())
@@ -99,16 +85,6 @@ def _extract_json_object(text):
         return json.loads(match.group(0))
     except Exception:
         return None
-
-
-def _generate_gemini_response(prompt):
-    if not gemini_client:
-        return None
-    response = gemini_client.models.generate_content(
-        model=GEMINI_MODEL_NAME,
-        contents=prompt,
-    )
-    return getattr(response, "text", None)
 
 
 def _get_curriculum_url_for_start_year(resolved_dept, start_year):
@@ -245,7 +221,7 @@ def parse_request_slots(question, history, last_bot_q):
         result["intent"] == "planning" and result["department"] and has_multiple_curriculum_variants(result["department"]) and not result["start_year"]
     )
 
-    if likely_academic and client_groq is not None:
+    if likely_academic and client is not None:
         try:
             parser_prompt = f"""You are an IEU student-request parser.
 Return ONLY valid JSON, no markdown, no explanation.
@@ -267,13 +243,14 @@ Latest substantive user question: {anchor_question or "null"}
 Last bot question type: {last_bot_q or "null"}
 Conversation history (recent): {json.dumps(history[-12:], ensure_ascii=False)}
 """
-            response = client_groq.chat.completions.create(
-                model="llama-3.1-8b-instant",
+            response = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
                 temperature=0,
                 messages=[
                     {"role": "system", "content": parser_prompt},
                     {"role": "user", "content": "Parse the request now."},
                 ],
+                max_tokens=1000,
             )
             parsed = _extract_json_object(response.choices[0].message.content)
             if isinstance(parsed, dict):
@@ -327,7 +304,7 @@ Conversation history (recent): {json.dumps(history[-12:], ensure_ascii=False)}
 def call_llm(question, context_docs, history, client_type=None, session_language=None):
     session_language = session_language or detect_language(question)
     prefer_tr = session_language == "tr"
-    if client_groq is None and gemini_client is None:
+    if client is None:
         return _soft_fallback_message(session_language)
 
     context = "\n\n---\n\n".join(context_docs)
@@ -406,17 +383,12 @@ Always be specific and helpful â€” do not just say you don't have the infor
     })
 
     try:
-        if gemini_client:
-            full_prompt = "\n\n".join([m["content"] for m in messages])
-            response_text = _generate_gemini_response(full_prompt)
-            if response_text:
-                return response_text
-        elif client_groq:
-            response = client_groq.chat.completions.create(
-                model="llama-3.1-8b-instant",
-                messages=messages,
-            )
-            return response.choices[0].message.content
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=messages,
+            max_tokens=1000,
+        )
+        return response.choices[0].message.content
     except Exception as e:
         print(f"LLM error: {e}")
         return _soft_fallback_message(session_language)
@@ -2422,9 +2394,9 @@ def ask(question, history=[], client_type=None, session_language=None):
     web_docs = _query_web_info_context(collection, full_question) if web_info_intent else []
 
     if web_docs:
-        if web_info_intent and client_groq is None:
+        if web_info_intent and client is None:
             return _format_web_info_answer(full_question, web_docs) or web_docs[0]
-        if client_groq is None and not (course_lookup_intent or planning_intent or graduation_intent):
+        if client is None and not (course_lookup_intent or planning_intent or graduation_intent):
             return _format_web_info_answer(full_question, web_docs) or web_docs[0]
         context_parts.extend(web_docs)
     elif web_info_intent:
@@ -2697,25 +2669,32 @@ def ask(question, history=[], client_type=None, session_language=None):
         context_parts = _query_relevant_context(collection, query_texts, n_results=3, max_docs=6)
 
     if not context_parts:
-        if gemini_client:
-            try:
-                prefer_tr = _conversation_prefers_turkish(question, history)
-                lang_instruction = "Always reply in Turkish." if prefer_tr else "Always reply in English."
-                response_text = _generate_gemini_response(
-                    f"You are EkoBot, a friendly and witty academic assistant for Izmir University of Economics (IEU). "
-                    f"You help students with courses, schedules, prerequisites, and academic planning. "
-                    f"The student just sent you this message: '{question}'. "
-                    f"If it's a joke, respond with light humor. If it's sarcasm or frustration, respond with empathy and a gentle redirect. "
-                    f"If it's a typo or unclear, ask them to clarify in a friendly way. "
-                    f"If it's just casual chat, respond warmly but briefly and invite them to ask about their courses. "
-                    f"If they seem frustrated or confused, be extra warm and offer to help step by step. "
-                    f"Keep your response under 2 sentences. Never mention that you're an AI or that you can't help. "
-                    f"{lang_instruction}"
-                )
-                if response_text:
-                    return response_text
-            except Exception:
-                pass
+        try:
+            prefer_tr = _conversation_prefers_turkish(question, history)
+            lang_instruction = "Always reply in Turkish." if prefer_tr else "Always reply in English."
+            system_prompt = (
+                "You are EkoBot, a friendly and witty academic assistant for Izmir University of Economics (IEU). "
+                "You help students with courses, schedules, prerequisites, and academic planning. "
+                "If it's a joke, respond with light humor. If it's sarcasm or frustration, respond with empathy and a gentle redirect. "
+                "If it's a typo or unclear, ask them to clarify in a friendly way. "
+                "If it's just casual chat, respond warmly but briefly and invite them to ask about their courses. "
+                "If they seem frustrated or confused, be extra warm and offer to help step by step. "
+                "Keep your response under 2 sentences. Never mention that you're an AI or that you can't help. "
+                f"{lang_instruction}"
+            )
+            user_prompt = f"The student just sent you this message: '{question}'."
+            response = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                max_tokens=1000,
+            )
+            if response and response.choices and response.choices[0].message.content:
+                return response.choices[0].message.content
+        except Exception:
+            pass
         prefer_tr = _conversation_prefers_turkish(question, history)
         return _soft_fallback_message(session_language)
 

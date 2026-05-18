@@ -8,5 +8,4 @@ requests
 beautifulsoup4
 numpy
 torch
-google-genai
 langdetect
