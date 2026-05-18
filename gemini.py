@@ -24,6 +24,7 @@ from parsing import (
     extract_year_and_term_from_history,
     extract_year_only,
     extract_term_only,
+    get_credit_limit_by_gpa,
     get_last_bot_question_type,
     get_latest_planning_tuple_from_history,
     get_latest_substantive_user_question,
@@ -1727,103 +1728,45 @@ def _extract_max_ects_from_rule(rule_text):
     return None
 
 
-_IEU_REGULATIONS_FILE_PATH = os.path.join(os.path.dirname(__file__), "ieu_regulations.json")
-_IEU_REGULATIONS_FILE_CACHE = None
-
-
-def _load_ieu_regulations_file():
-    global _IEU_REGULATIONS_FILE_CACHE
-    if _IEU_REGULATIONS_FILE_CACHE is not None:
-        return _IEU_REGULATIONS_FILE_CACHE
-    try:
-        with open(_IEU_REGULATIONS_FILE_PATH, "r", encoding="utf-8") as f:
-            _IEU_REGULATIONS_FILE_CACHE = json.load(f)
-    except Exception as e:
-        print(f"  regulations file load error: {e}")
-        _IEU_REGULATIONS_FILE_CACHE = {}
-    return _IEU_REGULATIONS_FILE_CACHE
-
-
-def _format_credit_limit_answer(question, history, gpa_value):
-    prefer_tr = _conversation_prefers_turkish(question, history)
-    _load_ieu_regulations_file()
-
-    if gpa_value is None:
-        return _t(
-            "IEU GPA credit load rules: CGPA below 2.00 -> maximum 32 ECTS per semester. CGPA 2.00 to 2.49 -> normal semester limit (usually about 30 ECTS) + 8 extra. CGPA 2.50 and above -> normal semester limit + 12 extra ECTS. If you share your CGPA, I can tell you your exact limit.",
-            "IEU GPA kredi yuk kurallari: CGPA 2.00 altinda -> donem basi en fazla 32 ECTS. CGPA 2.00 ile 2.49 arasinda -> normal donem yuku (genelde yaklasik 30 ECTS) + 8 ek. CGPA 2.50 ve uzeri -> normal donem yuku + 12 ek ECTS. CGPA'nizi paylasirsaniz tam limitinizi soyleyebilirim.",
-            prefer_tr,
-        )
-
-    if gpa_value < 2.0:
-        extra_en = "maximum 32 ECTS per semester"
-        extra_tr = "donem basi en fazla 32 ECTS"
-    elif gpa_value < 2.5:
-        extra_en = "normal semester limit (usually about 30 ECTS) + 8 extra, so up to 38 ECTS"
-        extra_tr = "normal donem yuku (genelde yaklasik 30 ECTS) + 8 ek, yani en fazla 38 ECTS"
-    else:
-        extra_en = "normal semester limit + 12 extra ECTS, so up to 42 ECTS"
-        extra_tr = "normal donem yuku + 12 ek ECTS, yani en fazla 42 ECTS"
-
-    return _t(
-        f"With CGPA {gpa_value:.2f}, your limit is {extra_en}.",
-        f"CGPA {gpa_value:.2f} ile limitiniz {extra_tr}.",
-        prefer_tr,
-    )
-
-
-def _is_internship_request(text):
-    q = (text or "").lower()
-    return any(k in q for k in ["internship", "staj"])
-
-
-def _format_internship_fallback_answer(session_language):
-    return _t(
-        "To apply for an internship at IEU, submit your application through the Internship Management System at staj.izmirekonomi.edu.tr. Contact staj@ieu.edu.tr for assistance.",
-        "IEU'da staj başvurusu için staj.izmirekonomi.edu.tr adresindeki Staj Yönetim Sistemi'ni kullanabilirsin. Sorular için staj@ieu.edu.tr adresine yazabilirsin.",
-        session_language == "tr",
-    )
-
-
-def _probe_internship_rag(collection_obj):
-    query_text = "internship application staj başvuru"
-    try:
-        results = collection_obj.query(
-            query_texts=[query_text],
-            n_results=3,
-            include=["documents", "metadatas"],
-        )
-        docs = (results.get("documents") or [[]])[0]
-        metadatas = (results.get("metadatas") or [[]])[0]
-        print("[RAG] Internship probe query: internship application staj başvuru")
-        if not docs:
-            print("[RAG]   no internship documents returned")
-            return [], []
-        for index, doc in enumerate(docs[:3]):
-            preview = re.sub(r"\s+", " ", (doc or "").strip())
-            if len(preview) > 300:
-                preview = preview[:300] + "..."
-            print(f"[RAG]   {index + 1}. {preview}")
-            meta = metadatas[index] if index < len(metadatas or []) else {}
-            if meta:
-                print(f"[RAG]      meta: {meta}")
-        return docs[:3], metadatas[:3]
-    except Exception as e:
-        print(f"[RAG] Internship probe error: {e}")
-        return [], []
-
-
 def _format_regulations_answer(question, history, gpa_value):
+    regs = _get_regulations_from_db(collection)
+    if not regs:
+        return None
+
     prefer_tr = _conversation_prefers_turkish(question, history)
     t = (question or "").lower()
 
     # Credit load / ECTS limits
     if _is_credit_load_question(question):
-        return _format_credit_limit_answer(question, history, gpa_value)
+        if gpa_value is None:
+            return _t(
+                "FOLLOWUP_NEEDED: Could you share your current GPA/CGPA (0.00-4.00)?",
+                "FOLLOWUP_NEEDED: Genel not ortalamanÃ„Â± (GANO/CGPA) paylaÃ…Å¸abilir misin? (0.00-4.00)",
+                prefer_tr,
+            )
 
-    regs = _get_regulations_from_db(collection)
-    if not regs:
-        return None
+        rules = (regs.get("credit_load") or {}).get("rules_by_gpa") or {}
+        if gpa_value >= 2.5:
+            rule = rules.get("2.50_and_above") or ""
+        elif gpa_value >= 2.0:
+            rule = rules.get("2.00_to_2.49") or ""
+        else:
+            rule = rules.get("below_threshold") or ""
+
+        max_ects = _extract_max_ects_from_rule(rule)
+        if max_ects is None:
+            max_ects = get_credit_limit_by_gpa(gpa_value)
+
+        lines = [
+            _t(
+                f"With GPA {gpa_value:.2f}, your maximum is {max_ects} ECTS.",
+                f"GPA {gpa_value:.2f} ile maksimum {max_ects} ECTS alabilirsiniz.",
+                prefer_tr,
+            )
+        ]
+        if rule:
+            lines.append(_t(f"Rule: {rule}", f"Kural: {rule}", prefer_tr))
+        return "\n".join(lines)
 
     # Graduation minima / academic standing
     if any(k in t for k in ["probation", "academic standing", "basari kosulu", "basari", "akademik"]):
@@ -2614,14 +2557,6 @@ def ask(question, history=[], client_type=None, session_language=None):
         regs_answer = _format_regulations_answer(full_question, history, gpa_value)
         if regs_answer:
             return regs_answer
-
-    if direct_rag_keyword_question and _is_internship_request(full_question):
-        internship_docs, internship_metas = _probe_internship_rag(collection)
-        if internship_docs:
-            context_parts.extend(internship_docs[:3])
-            context_metas.extend(internship_metas[:3])
-        else:
-            return _format_internship_fallback_answer(session_language)
 
     planning_intent = (not direct_rag_keyword_question) and (
         parsed["intent"] == "planning"
