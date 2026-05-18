@@ -5,7 +5,6 @@ import os
 import re
 
 from embeddings import SentenceTransformerEmbeddingFunction
-from intent_classifier import classify_intent
 from language_utils import detect_language, get_fallback_response
 from parsing import (
     VALID_DEPTS,
@@ -298,9 +297,9 @@ Conversation history (recent): {json.dumps(history[-12:], ensure_ascii=False)}
     return result
 
 
-# ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # LLM CALL
-# ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def call_llm(question, context_docs, history, client_type=None, session_language=None):
     session_language = session_language or detect_language(question)
@@ -320,7 +319,7 @@ def call_llm(question, context_docs, history, client_type=None, session_language
         mobile_rule = "\n10. For mobile clients, do not use markdown headers or bullet points. Reply in plain text."
     language_rule = f"\n11. You MUST respond in {session_language} language only. Never switch languages mid-response."
 
-    system_prompt = """You are EkoBot, an academic assistant for Ã˜Â¤Ã‚Â°zmir University of Economics (IEU).
+    system_prompt = """You are EkoBot, an academic assistant for ؤ°zmir University of Economics (IEU).
 
 You are EkoBot. You have been given relevant IEU data as context.
 Reason over ALL the context provided to give the best possible answer.
@@ -340,21 +339,21 @@ STRICT RULES:
     If they wrote in Turkish, respond entirely in Turkish. If English, respond entirely in English.
     Never mix languages in a single response.
     "tell me about electives" = English -> respond in English.
-    "seÃƒÂ§meli dersler" = Turkish -> respond in Turkish.
-7. Be concise, friendly, and direct ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â like a helpful academic advisor.
+    "seçmeli dersler" = Turkish -> respond in Turkish.
+7. Be concise, friendly, and direct â€” like a helpful academic advisor.
 8. For direct course code requests (e.g. 'tell me about CE 326'), treat it as a direct lookup.
     Do NOT argue with the code prefix or claim it "should" belong to another department.
     Report the department exactly as shown in the provided course record.
 9. When the user gives a short follow-up reply like 'yes', 'sure',
-   'tell me more', 'go ahead', or 'and?' ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â look at the conversation
+   'tell me more', 'go ahead', or 'and?' â€” look at the conversation
    history to find what course or topic was being discussed, and
    continue answering about THAT same topic. Never search for new
    courses when the user is clearly continuing the same conversation.
     Example: if the bot just explained SE 350 and asked 'would you
-    like to know more?' and user says 'yes' ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â answer more about
+    like to know more?' and user says 'yes' â€” answer more about
     SE 350, do not search for something new.
 
-Always be specific and helpful ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â do not just say you don't have the information.
+Always be specific and helpful â€” do not just say you don't have the information.
 10. EVALUATION/GRADING SYSTEM RULE: If the student asks about grading, assessment, evaluation method,
     exam weights, or how they will be graded in a course, extract and clearly present the
     Evaluation System section from the course data (e.g., Midterm 40%, Final 60%, etc.).
@@ -389,38 +388,35 @@ Always be specific and helpful ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â do not jus
             messages=messages,
             max_tokens=1000,
         )
-        answer = response.choices[0].message.content if response and response.choices else None
-        if not answer or answer.strip() == "":
-            return _soft_fallback_message(session_language)
-        return answer
+        return response.choices[0].message.content
     except Exception as e:
         print(f"LLM error: {e}")
         return _soft_fallback_message(session_language)
 
 
-# ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # CONVERSATION STATE & PROFILING HELPERS
-# ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _curriculum_entry_year_followup(clarify_invalid_reply=False, prefer_tr=False):
     lines = [
         _t(
             "FOLLOWUP_NEEDED: Could you share which year you started university? "
             "(entry year, e.g. 2023)",
-            "FOLLOWUP_NEEDED: ÃƒÅ“niversiteye hangi yÃ„Â±l baÃ…Å¸ladÃ„Â±Ã„Å¸Ã„Â±nÃ„Â± paylaÃ…Å¸abilir misin? "
-            "(giriÃ…Å¸ yÃ„Â±lÃ„Â±, ÃƒÂ¶rn. 2023)",
+            "FOLLOWUP_NEEDED: Üniversiteye hangi yıl başladığını paylaşabilir misin? "
+            "(giriş yılı, örn. 2023)",
             prefer_tr,
         ),
     ]
     if clarify_invalid_reply:
         lines.append(_t(
             "I still need your entry year, not your current class year/semester.",
-            "HÃƒÂ¢lÃƒÂ¢ giriÃ…Å¸ yÃ„Â±lÃ„Â±na ihtiyacÃ„Â±m var, Ã…Å¸u anki sÃ„Â±nÃ„Â±f/dÃƒÂ¶nem bilgine deÃ„Å¸il.",
+            "Hâlâ giriş yılına ihtiyacım var, şu anki sınıf/dönem bilgine değil.",
             prefer_tr,
         ))
     lines.append(_t(
         "Please choose one of the options below.",
-        "AÃ…Å¸aÃ„Å¸Ã„Â±daki seÃƒÂ§eneklerden birini seÃƒÂ§ebilirsin.",
+        "Aşağıdaki seçeneklerden birini seçebilirsin.",
         prefer_tr,
     ))
     return "\n".join(lines)
@@ -429,7 +425,7 @@ def _curriculum_entry_year_followup(clarify_invalid_reply=False, prefer_tr=False
 def _curriculum_year_followup(prefer_tr=False):
     return _t(
         "FOLLOWUP_NEEDED: Which year are you currently in? Please choose one of the options below.",
-        "FOLLOWUP_NEEDED: Ã…Å¾u anda kaÃƒÂ§Ã„Â±ncÃ„Â± sÃ„Â±nÃ„Â±ftasÃ„Â±n? AÃ…Å¸aÃ„Å¸Ã„Â±daki seÃƒÂ§eneklerden birini seÃƒÂ§ebilirsin.",
+        "FOLLOWUP_NEEDED: Şu anda kaçıncı sınıftasın? Aşağıdaki seçeneklerden birini seçebilirsin.",
         prefer_tr,
     )
 
@@ -437,7 +433,7 @@ def _curriculum_year_followup(prefer_tr=False):
 def _curriculum_semester_followup(prefer_tr=False):
     return _t(
         "FOLLOWUP_NEEDED: Which semester are you in right now? Please choose Fall or Spring.",
-        "FOLLOWUP_NEEDED: Ã…Å¾u an hangi dÃƒÂ¶nemdesin? LÃƒÂ¼tfen GÃƒÂ¼z veya Bahar seÃƒÂ§.",
+        "FOLLOWUP_NEEDED: Şu an hangi dönemdesin? Lütfen Güz veya Bahar seç.",
         prefer_tr,
     )
 
@@ -641,8 +637,8 @@ def get_next_profiling_question(profile, question_lower, require_curriculum_deta
             _t(
                 "Hi! I can help you plan courses accurately.\n\n"
                 "Could you tell me which faculty you're in? Please choose one of the options below.",
-                "Merhaba! Ders planÃ„Â±nÃ„Â± doÃ„Å¸ru hazÃ„Â±rlayabilmem iÃƒÂ§in kÃƒÂ¼ÃƒÂ§ÃƒÂ¼k bir bilgiye ihtiyacÃ„Â±m var.\n\n"
-                "Hangi fakÃƒÂ¼ltede okuyorsun? AÃ…Å¸aÃ„Å¸Ã„Â±daki seÃƒÂ§eneklerden birini seÃƒÂ§ebilirsin.",
+                "Merhaba! Ders planını doğru hazırlayabilmem için küçük bir bilgiye ihtiyacım var.\n\n"
+                "Hangi fakültede okuyorsun? Aşağıdaki seçeneklerden birini seçebilirsin.",
                 prefer_tr,
             ),
             "faculty",
@@ -653,7 +649,7 @@ def get_next_profiling_question(profile, question_lower, require_curriculum_deta
         return (
             _t(
                 "Great, thanks. Could you tell me which department you're in? Please choose one of the options below.",
-                "Harika, teÃ…Å¸ekkÃƒÂ¼rler. Hangi bÃƒÂ¶lÃƒÂ¼mde okuyorsun? AÃ…Å¸aÃ„Å¸Ã„Â±daki seÃƒÂ§eneklerden birini seÃƒÂ§ebilirsin.",
+                "Harika, teşekkürler. Hangi bölümde okuyorsun? Aşağıdaki seçeneklerden birini seçebilirsin.",
                 prefer_tr,
             ),
             "dept",
@@ -704,13 +700,13 @@ def _profiling_followup_message(question_type, profile=None, prefer_tr=False, co
     if question_type == "faculty":
         return _with_followup_prefix(_t(
             "FOLLOWUP_NEEDED: Which faculty are you in? Please choose one of the options below.",
-            "FOLLOWUP_NEEDED: Hangi fakÃƒÂ¼ltede okuyorsun? AÃ…Å¸aÃ„Å¸Ã„Â±daki seÃƒÂ§eneklerden birini seÃƒÂ§ebilirsin.",
+            "FOLLOWUP_NEEDED: Hangi fakültede okuyorsun? Aşağıdaki seçeneklerden birini seçebilirsin.",
             prefer_tr,
         ), prefer_tr=prefer_tr, correction=correction)
     if question_type == "dept":
         return _with_followup_prefix(_t(
             "FOLLOWUP_NEEDED: Which department are you in? Please choose one of the options below.",
-            "FOLLOWUP_NEEDED: Hangi bÃƒÂ¶lÃƒÂ¼mde okuyorsun? AÃ…Å¸aÃ„Å¸Ã„Â±daki seÃƒÂ§eneklerden birini seÃƒÂ§ebilirsin.",
+            "FOLLOWUP_NEEDED: Hangi bölümde okuyorsun? Aşağıdaki seçeneklerden birini seçebilirsin.",
             prefer_tr,
         ), prefer_tr=prefer_tr, correction=correction)
     if question_type == "year_term":
@@ -718,7 +714,7 @@ def _profiling_followup_message(question_type, profile=None, prefer_tr=False, co
             return _with_followup_prefix(_curriculum_semester_followup(prefer_tr=prefer_tr), prefer_tr=prefer_tr, correction=correction)
         return _with_followup_prefix(_t(
             "FOLLOWUP_NEEDED: Which year are you currently in? Please choose one of the options below.",
-            "FOLLOWUP_NEEDED: Ã…Å¾u anda kaÃƒÂ§Ã„Â±ncÃ„Â± sÃ„Â±nÃ„Â±ftasÃ„Â±n? AÃ…Å¸aÃ„Å¸Ã„Â±daki seÃƒÂ§eneklerden birini seÃƒÂ§ebilirsin.",
+            "FOLLOWUP_NEEDED: Şu anda kaçıncı sınıftasın? Aşağıdaki seçeneklerden birini seçebilirsin.",
             prefer_tr,
         ), prefer_tr=prefer_tr, correction=correction)
     if question_type == "start_year":
@@ -787,7 +783,7 @@ def ask_with_options(question, history=None, client_type=None, session_language=
         if any(phrase in lowered for phrase in [
             "which faculty",
             "hangi fakulte",
-            "hangi fakÃƒÂ¼lte",
+            "hangi fakülte",
             "hangi okul",
             "which school",
         ]):
@@ -795,9 +791,9 @@ def ask_with_options(question, history=None, client_type=None, session_language=
         elif any(phrase in lowered for phrase in [
             "which department",
             "hangi bolum",
-            "hangi bÃƒÂ¶lÃƒÂ¼m",
+            "hangi bölüm",
             "bolumunuz",
-            "bÃƒÂ¶lÃƒÂ¼mÃƒÂ¼nÃƒÂ¼z",
+            "bölümünüz",
         ]):
             options = _profiling_followup_options("dept", profile, prefer_tr=prefer_tr)
         elif any(
@@ -809,11 +805,11 @@ def ask_with_options(question, history=None, client_type=None, session_language=
                 "starting year",
                 "curriculum version",
                 "hangi yil",
-                "hangi yÃ„Â±l",
+                "hangi yıl",
                 "hangi yilda kayit",
-                "hangi yÃ„Â±lda kayÃ„Â±t",
+                "hangi yılda kayıt",
                 "universiteye hangi yil",
-                "universiteye hangi yÃ„Â±l",
+                "universiteye hangi yıl",
             ]
         ):
             options = _profiling_followup_options("start_year", profile, prefer_tr=prefer_tr)
@@ -826,9 +822,9 @@ def ask_with_options(question, history=None, client_type=None, session_language=
                 "what semester",
                 "fall or spring",
                 "hangi donem",
-                "hangi dÃƒÂ¶nem",
+                "hangi dönem",
                 "guz veya bahar",
-                "gÃƒÂ¼z veya bahar",
+                "güz veya bahar",
             ]
         ):
             options = _profiling_followup_options("semester", profile, prefer_tr=prefer_tr)
@@ -840,9 +836,9 @@ def ask_with_options(question, history=None, client_type=None, session_language=
                 "which year and semester",
                 "what year and semester",
                 "hangi sinif",
-                "hangi sÃ„Â±nÃ„Â±f",
+                "hangi sınıf",
                 "kacinci sinif",
-                "kaÃƒÂ§Ã„Â±ncÃ„Â± sÃ„Â±nÃ„Â±f",
+                "kaçıncı sınıf",
             ]
         ):
             options = _profiling_followup_options("year_term", profile, prefer_tr=prefer_tr)
@@ -881,9 +877,9 @@ def _is_elective_followup_request(question):
         "electives",
         "elective",
         "secmeli",
-        "seÃƒÂ§meli",
+        "seçmeli",
         "secmeli ders",
-        "seÃƒÂ§meli ders",
+        "seçmeli ders",
         "evet",
     ])
 
@@ -895,7 +891,7 @@ def _assistant_mentions_elective_context(text):
         "elective slots",
         "courses you can choose",
         "elective",
-        "seÃƒÂ§meli",
+        "seçmeli",
         "secmeli",
     ])
 
@@ -910,7 +906,7 @@ def _is_pure_credit_load_question(question):
         "how many credits",
         "credits can i take",
         "credit limit",
-        "kaÃƒÂ§ kredi",
+        "kaç kredi",
         "kac kredi",
         "credits",
         "kredi",
@@ -994,7 +990,7 @@ def _format_elective_option_lines(dept, start_year=None, program_name=None, curr
 
 def _is_medicine_department(dept=None, program_name=None, faculty=None):
     text = " ".join(part for part in [dept, program_name, faculty] if part).casefold()
-    return any(token in text for token in ["medicine", "tÃ„Â±p", "tip", "medical faculty", "faculty of medicine"])
+    return any(token in text for token in ["medicine", "tıp", "tip", "medical faculty", "faculty of medicine"])
 
 
 def _format_graduation_requirements(prefer_tr=False, is_medicine=False):
@@ -1007,7 +1003,7 @@ def _format_graduation_requirements(prefer_tr=False, is_medicine=False):
         "- to complete their compulsory internship in a specified duration and quality.",
     ]
     tr_lines = [
-        "Bu lisans programÃ„Â±ndan mezun olabilmek icin ogrencilerin:",
+        "Bu lisans programından mezun olabilmek icin ogrencilerin:",
         "- programin ders planinda yer alan tum dersleri en az DD/S notu ile basarmalari",
         f"- en az {ects} ECTS tamamlamalari",
         "- 4.00 uzerinden en az 2.00 Genel Not Ortalamasi (CGPA) sahibi olmalari",
@@ -1055,7 +1051,7 @@ def _format_profile_context_ack(profile, prefer_tr=False):
         + ". I'll keep that in mind for future course planning.",
         "Tamam - profilinizi not ettim: "
         + ", ".join(parts)
-        + ". Bunu sonraki ders planlamasÃ„Â±nda aklÃ„Â±mda tutacaÃ„Å¸Ã„Â±m.",
+        + ". Bunu sonraki ders planlamasında aklımda tutacağım.",
         prefer_tr,
     )
 
@@ -1125,9 +1121,9 @@ def _looks_turkish(text):
     return any(w in t for w in [
         "kredi", "ders", "not", "ortalama", "gano", "bahar", "guz", "mezun",
         "kural", "yonetmelik", "merhaba", "selam", "slm", "naber", "nasilsin",
-        "nasÃ„Â±lsÃ„Â±n", "tamam", "tmm", "boÃ…Å¸", "bos", "neyse", "iyiyim", "hocam",
-        "abi", "abla", "kanka", "hangi", "universite", "ÃƒÂ¼niversite", "fakulte",
-        "fakÃƒÂ¼lte", "bolum", "bÃƒÂ¶lÃƒÂ¼m", "sinif", "sÃ„Â±nÃ„Â±f", "donem", "dÃƒÂ¶nem",
+        "nasılsın", "tamam", "tmm", "boş", "bos", "neyse", "iyiyim", "hocam",
+        "abi", "abla", "kanka", "hangi", "universite", "üniversite", "fakulte",
+        "fakülte", "bolum", "bölüm", "sinif", "sınıf", "donem", "dönem",
     ])
 
 
@@ -1154,45 +1150,6 @@ def _t(en_text, tr_text, prefer_tr):
 
 def _soft_fallback_message(session_language="tr"):
     return get_fallback_response(session_language)
-
-
-def _extract_source_url_from_metadata(metadata_list):
-    for meta in metadata_list or []:
-        if not isinstance(meta, dict):
-            continue
-        doc_type = (meta.get("doc_type") or "").strip().lower()
-        if doc_type not in {"web_info", "support_page"}:
-            continue
-        url = (meta.get("source_url") or meta.get("url") or "").strip()
-        if url and "ieu.edu.tr" in url.lower():
-            return url
-    return None
-
-
-def _append_source_url(answer, metadata_list, session_language):
-    if not answer:
-        return answer
-    source_url = _extract_source_url_from_metadata(metadata_list)
-    if not source_url:
-        return answer
-    suffix = _t(f"\n\nÃ°Å¸â€œÅ½ Source: {source_url}", f"\n\nÃ°Å¸â€œÅ½ Kaynak: {source_url}", session_language == "tr")
-    return answer + suffix
-
-
-def _is_direct_rag_keyword_question(text):
-    q = (text or "").lower()
-    return any(k in q for k in [
-        "password", "Ã…Å¸ifre", "sifre", "forgot", "reset", "login", "portal",
-        "internship", "staj",
-        "apply for graduation", "graduation application", "how do i graduate",
-        "nasÃ„Â±l mezun", "nasÃ„Â±l mezun olur", "mezuniyet baÃ…Å¸vuru", "mezuniyet basvuru",
-        "mezuniyet iÃƒÂ§in ne yapmalÃ„Â±", "mezuniyet icin ne yapmali",
-    ])
-
-
-def _is_attendance_related_question(text):
-    q = (text or "").lower()
-    return any(k in q for k in ["attendance", "devam", "absence", "absent", "absence policy", "make-up", "make up", "makeup", "devamsÃ„Â±z", "devamsizlik"])
 
 
 def _normalize_chatty_text(text):
@@ -1413,31 +1370,27 @@ def _build_semantic_query_texts(question, full_question, parsed, history, codes,
     return _dedupe_texts(queries)[:6]
 
 
-def _query_relevant_context(collection_obj, query_texts, n_results=3, max_docs=6, return_metadata=False):
+def _query_relevant_context(collection_obj, query_texts, n_results=3, max_docs=6):
     if not query_texts:
-        return ([], []) if return_metadata else []
+        return []
 
     try:
-        results = collection_obj.query(query_texts=query_texts, n_results=n_results, include=["documents", "metadatas"])
+        results = collection_obj.query(query_texts=query_texts, n_results=n_results)
     except Exception as e:
         print(f"  semantic context query error: {e}")
-        return ([], []) if return_metadata else []
+        return []
 
     docs = []
-    metadatas = []
-    for batch_docs, batch_metas in zip(results.get("documents") or [], results.get("metadatas") or []):
-        for idx, doc in enumerate(batch_docs or []):
+    for batch in results.get("documents") or []:
+        for doc in batch or []:
             if not doc:
                 continue
             if doc in docs:
                 continue
             docs.append(doc)
-            if return_metadata:
-                meta = batch_metas[idx] if idx < len(batch_metas or []) else {}
-                metadatas.append(meta or {})
             if len(docs) >= max_docs:
-                return (docs, metadatas) if return_metadata else docs
-    return (docs, metadatas) if return_metadata else docs
+                return docs
+    return docs
 
 
 def _build_conversation_snapshot(question, parsed, history, codes, failed_courses, gpa_value, last_bot_q):
@@ -1485,7 +1438,7 @@ def _is_credit_load_question(text):
     t = (text or "").lower()
     return any(k in t for k in [
         "how many credits", "credits can i take", "credit limit", "credit load", "ects",
-        "kredi", "ne kadar kredi", "kac kredi", "kaÃ˜Â£Ã‚Â§ kredi",
+        "kredi", "ne kadar kredi", "kac kredi", "kaأ§ kredi",
     ])
 
 
@@ -1513,30 +1466,19 @@ def _get_regulations_from_db(collection_obj):
     return None
 
 
-def _query_web_info_context(collection_obj, question, max_docs=3, return_metadata=False):
+def _query_web_info_context(collection_obj, question, max_docs=3):
     try:
         results = collection_obj.query(
             query_texts=[question],
             n_results=max_docs,
             where={"doc_type": "web_info"},
-            include=["documents", "metadatas"],
+            include=["documents"],
         )
         docs = (results.get("documents") or [[]])[0]
-        if not return_metadata:
-            return [doc for doc in docs if doc]
-
-        metas = (results.get("metadatas") or [[]])[0]
-        clean_docs = []
-        clean_metas = []
-        for idx, doc in enumerate(docs):
-            if not doc:
-                continue
-            clean_docs.append(doc)
-            clean_metas.append(metas[idx] if idx < len(metas) else {})
-        return clean_docs, clean_metas
+        return [doc for doc in docs if doc]
     except Exception as e:
         print(f"  web info query error: {e}")
-        return ([], []) if return_metadata else []
+        return []
 
 
 def _parse_web_info_doc(doc):
@@ -1741,7 +1683,7 @@ def _format_regulations_answer(question, history, gpa_value):
         if gpa_value is None:
             return _t(
                 "FOLLOWUP_NEEDED: Could you share your current GPA/CGPA (0.00-4.00)?",
-                "FOLLOWUP_NEEDED: Genel not ortalamanÃ„Â± (GANO/CGPA) paylaÃ…Å¸abilir misin? (0.00-4.00)",
+                "FOLLOWUP_NEEDED: Genel not ortalamanı (GANO/CGPA) paylaşabilir misin? (0.00-4.00)",
                 prefer_tr,
             )
 
@@ -1907,7 +1849,7 @@ def is_greeting_or_small_talk(text):
         "hey there",
         "ne haber",
         "bos ver",
-        "boÃ…Å¸ ver",
+        "boş ver",
         "neyse",
         "iyiyim",
     }
@@ -1924,9 +1866,9 @@ def is_greeting_or_small_talk(text):
         "nvm",
         "forget it",
         "sacma",
-        "saÃƒÂ§ma",
+        "saçma",
         "ise yaramaz",
-        "iÃ…Å¸e yaramaz",
+        "işe yaramaz",
         "salak",
     }
     keyboard_mash_patterns = [r"asdf", r"asdfjkl", r"qwerty", r"zxcvbn"]
@@ -1957,9 +1899,9 @@ def is_greeting_or_small_talk(text):
     return False
 
 
-# ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # MAIN ASK FUNCTION
-# ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _looks_like_curriculum_lookup(text):
     """
@@ -2113,138 +2055,23 @@ def reset_flow_state(history, question):
     return False
 
 
-def is_topic_change(current_question: str, history: list, session_language: str) -> bool:
-    """Detect whether `current_question` is about a different topic than recent conversation.
-
-    Looks at the last 4 messages (2 exchanges). Calls the LLM with a tiny prompt
-    and expects ONLY 'YES' or 'NO' back. Returns True for YES, False otherwise.
-    If history has fewer than 4 messages, returns False.
-    """
-    try:
-        if not history or len(history) < 4:
-            return False
-
-        TOPIC_SHIFT_SIGNALS = {
-            "internship": ["internship", "staj"],
-            "password": ["password", "şifre", "forgot", "reset"],
-            "certificate": ["certificate", "belge", "öğrenci belgesi"],
-            "attendance": ["attendance", "devam", "missed class"],
-            "graduation": ["graduation", "mezuniyet", "graduate"],
-            "gpa": ["gpa", "gano", "credit limit", "kredi"],
-        }
-
-        def _keyword_topic_change_fast_path():
-            q = (current_question or "").lower()
-            detected_topic = None
-            detected_signals = None
-            for topic, signals in TOPIC_SHIFT_SIGNALS.items():
-                if any(sig.lower() in q for sig in signals):
-                    detected_topic = topic
-                    detected_signals = signals
-                    break
-
-            if not detected_topic:
-                return None
-
-            assistant_msgs = [
-                (m.get("content") or "")
-                for m in reversed(history or [])
-                if (m.get("role") == "assistant")
-            ][:2]
-            if not assistant_msgs:
-                return None
-
-            assistant_text = " ".join(assistant_msgs).lower()
-            if not any(sig.lower() in assistant_text for sig in (detected_signals or [])):
-                return True
-            return None
-
-        fast_path_result = _keyword_topic_change_fast_path()
-        if fast_path_result is True:
-            print("[INTENT] Topic change detected by keywords (fast path), resetting flow state")
-            return True
-
-        if client is None:
-            return False
-
-        last_msgs = history[-4:]
-        formatted = []
-        for m in last_msgs:
-            role = m.get("role") or "user"
-            content = (m.get("content") or "").replace("\n", " ")
-            formatted.append(f"{role.upper()}: {content}")
-
-        prompt = (
-            "Given this conversation history:\n"
-            f"{chr(10).join(formatted)}\n\n"
-            f"New message: \"{(current_question or '').replace(chr(10), ' ')}\"\n\n"
-            "Is the new message asking about a DIFFERENT topic than the conversation so far?\n"
-            "Reply with ONLY: YES or NO"
-        )
-
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "system", "content": "You are a concise classifier. Reply ONLY YES or NO."},
-                {"role": "user", "content": prompt},
-            ],
-            temperature=0,
-            max_tokens=5,
-        )
-        ans = None
-        if response and getattr(response, "choices", None):
-            try:
-                ans = response.choices[0].message.content or ""
-            except Exception:
-                ans = str(response.choices[0]) if response.choices else ""
-        if not ans:
-            return False
-        a = (ans or "").strip().lower()
-        return a.startswith("yes")
-    except Exception:
-        return False
-
-
 def ask(question, history=[], client_type=None, session_language=None):
     # Some eval harnesses redirect stdout to non-UTF8 files on Windows.
     # Keep debug logging ASCII-only to avoid encode errors.
     safe_question = (question or "").encode("ascii", "backslashreplace").decode("ascii")
     print(f"\n[EkoBot] Question: {safe_question}")
 
-    intent = classify_intent(question)
-    print(f"[INTENT] Detected: {intent}")
-
     session_language = session_language or detect_language(question)
     prefer_tr = session_language == "tr"
     question_lower = question.lower().strip()
+    last_bot_q = get_last_bot_question_type(history)
+    history_profile = extract_profile_from_history(history or [])
 
-    # Topic-change detection: ask LLM if this message is a new topic compared
-    # to the last two exchanges. If so, clear routing state but still pass
-    # the full history to the LLM later for context.
-    topic_changed = False
+    # Interrupt detection: if the user asks a clearly unrelated question while
+    # a profiling/planning flow is active, reset the pending flow state so the
+    # new request is handled independently.
     try:
-        topic_changed = is_topic_change(question, history or [], session_language)
-    except Exception:
-        topic_changed = False
-
-    if topic_changed:
-        print("[INTENT] Topic change detected, resetting flow state")
-        routing_history = []
-        last_bot_q = None
-        history_profile = {}
-    else:
-        routing_history = history or []
-        last_bot_q = get_last_bot_question_type(routing_history)
-        history_profile = extract_profile_from_history(routing_history or [])
-
-    direct_rag_keyword_question = _is_direct_rag_keyword_question(question)
-    attendance_related_question = _is_attendance_related_question(question)
-
-    # Interrupt detection uses routing_history so recent-topic interrupts
-    # are considered relative to the routing context (which may be cleared
-    # when a topic change was detected).
-    try:
-        if reset_flow_state(routing_history, question):
+        if reset_flow_state(history, question):
             last_bot_q = None
     except Exception:
         pass
@@ -2270,15 +2097,11 @@ def ask(question, history=[], client_type=None, session_language=None):
     if is_out_of_scope_question(question) and not is_web_info_question(question):
         return get_fallback_response(session_language)
 
-    if direct_rag_keyword_question:
-        # Skip multi-step flows and proceed to retrieval/RAG for support-style questions.
-        pass
-
-    if (not direct_rag_keyword_question) and _is_short_ack(question) and last_bot_q in {"faculty", "dept", "year_term", "start_year", "failed_courses"}:
+    if _is_short_ack(question) and last_bot_q in {"faculty", "dept", "year_term", "start_year", "failed_courses"}:
         if last_bot_q == "failed_courses":
             return _t(
                 "FOLLOWUP_NEEDED: Could you list the course codes you failed? (e.g. CE 201, MATH 153)",
-                "FOLLOWUP_NEEDED: KaldÃ„Â±Ã„Å¸Ã„Â±n derslerin kodlarÃ„Â±nÃ„Â± paylaÃ…Å¸abilir misin? (ÃƒÂ¶rn. CE 201, MATH 153)",
+                "FOLLOWUP_NEEDED: Kaldığın derslerin kodlarını paylaşabilir misin? (örn. CE 201, MATH 153)",
                 prefer_tr,
             )
         followup = _profiling_followup_message({
@@ -2290,22 +2113,22 @@ def ask(question, history=[], client_type=None, session_language=None):
         if followup:
             return followup
 
-    elective_followup = None if direct_rag_keyword_question else _maybe_elective_followup(question, routing_history, session_language=session_language)
+    elective_followup = _maybe_elective_followup(question, history, session_language=session_language)
     if elective_followup:
         return elective_followup
 
-    regs_followup = None if direct_rag_keyword_question else _maybe_regulations_followup(question, history)
+    regs_followup = _maybe_regulations_followup(question, history)
     if regs_followup:
         return regs_followup
 
-    if (not direct_rag_keyword_question) and _is_pure_credit_load_question(question):
+    if _is_pure_credit_load_question(question):
         gpa_value = extract_gpa_from_context(question, history)
         regs_answer = _format_regulations_answer(question, history, gpa_value)
         if regs_answer:
             return regs_answer
 
     latest_substantive_question = get_latest_substantive_user_question(history or [])
-    if (not direct_rag_keyword_question) and _looks_like_invalid_curriculum_term(question):
+    if _looks_like_invalid_curriculum_term(question):
         if (
             (history_profile.get("department") and history_profile.get("year") and history_profile.get("term"))
             or _looks_like_curriculum_lookup(latest_substantive_question or "")
@@ -2318,7 +2141,7 @@ def ask(question, history=[], client_type=None, session_language=None):
 
     history_with_current = list(history or []) + [{"role": "user", "content": question}]
     current_profile = extract_profile_from_history(history_with_current)
-    if (not direct_rag_keyword_question) and _profile_fields_changed(history_profile, current_profile) and _looks_like_profile_update_only(
+    if _profile_fields_changed(history_profile, current_profile) and _looks_like_profile_update_only(
         question,
         history,
         last_bot_q,
@@ -2339,7 +2162,7 @@ def ask(question, history=[], client_type=None, session_language=None):
                 correction=_looks_like_profile_correction(question),
             ) or next_question
         profile_ack = _format_profile_context_ack(current_profile, prefer_tr=prefer_tr)
-        if profile_ack and not _should_resume_planning_after_profile_completion(question, routing_history):
+        if profile_ack and not _should_resume_planning_after_profile_completion(question, history):
             return profile_ack
 
     regulations_question = is_regulations_question(question)
@@ -2443,7 +2266,7 @@ def ask(question, history=[], client_type=None, session_language=None):
                 )
                 return followup or next_question
 
-    # ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ ACADEMIC QUESTION HANDLING ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+    # â”€â”€ ACADEMIC QUESTION HANDLING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     # From here on, proceed with the existing logic
     if _looks_like_profile_update_only(question, history, last_bot_q):
         history_with_current = list(history or []) + [{"role": "user", "content": question}]
@@ -2465,13 +2288,13 @@ def ask(question, history=[], client_type=None, session_language=None):
         if profile_ack and not _should_resume_planning_after_profile_completion(question, history):
             return profile_ack
 
-    parsed = parse_request_slots(question, routing_history, last_bot_q)
+    parsed = parse_request_slots(question, history, last_bot_q)
     full_question = parsed["analysis_question"]
     prefer_tr = prefer_tr or _looks_turkish(full_question)
-    history_with_current = list(routing_history or []) + [{"role": "user", "content": question}]
+    history_with_current = list(history or []) + [{"role": "user", "content": question}]
     profile = extract_profile_from_history(history_with_current)
 
-    # ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ gather ALL potentially relevant context ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+    # â”€â”€ gather ALL potentially relevant context â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     context_parts = []
 
     # 1. specific course codes
@@ -2545,20 +2368,19 @@ def ask(question, history=[], client_type=None, session_language=None):
         "which course", "which courses", "what course", "what courses",
         "should i take", "i should take", "hangi ders",
     ])
-    graduation_intent = (parsed["intent"] == "graduation" or is_graduation_question(full_question)) and not direct_rag_keyword_question
+    graduation_intent = parsed["intent"] == "graduation" or is_graduation_question(full_question)
     credit_limit_intent = parsed["intent"] == "credit_limit" or is_gpa_credit_limit_question(full_question, history)
     regulations_intent = (
         parsed["intent"] == "regulations" or is_regulations_question(full_question)
     )
-    curriculum_followup_intent = (not direct_rag_keyword_question) and _looks_like_curriculum_followup(question)
-    context_metas = []
+    curriculum_followup_intent = _looks_like_curriculum_followup(question)
 
     if credit_limit_intent:
         regs_answer = _format_regulations_answer(full_question, history, gpa_value)
         if regs_answer:
             return regs_answer
 
-    planning_intent = (not direct_rag_keyword_question) and (
+    planning_intent = (
         parsed["intent"] == "planning"
         or is_semester_question(full_question)
         or curriculum_followup_intent
@@ -2569,15 +2391,13 @@ def ask(question, history=[], client_type=None, session_language=None):
     web_info_intent = (
         parsed["intent"] == "web_info" or is_web_info_question(full_question)
     ) and not (regulations_intent or planning_intent or graduation_intent or course_lookup_intent)
-    web_docs, web_doc_metas = _query_web_info_context(collection, full_question, return_metadata=True) if web_info_intent else ([], [])
+    web_docs = _query_web_info_context(collection, full_question) if web_info_intent else []
 
     if web_docs:
         if web_info_intent and client is None:
-            answer = _format_web_info_answer(full_question, web_docs) or web_docs[0]
-            return _append_source_url(answer, web_doc_metas, session_language)
+            return _format_web_info_answer(full_question, web_docs) or web_docs[0]
         if client is None and not (course_lookup_intent or planning_intent or graduation_intent):
-            answer = _format_web_info_answer(full_question, web_docs) or web_docs[0]
-            return _append_source_url(answer, web_doc_metas, session_language)
+            return _format_web_info_answer(full_question, web_docs) or web_docs[0]
         context_parts.extend(web_docs)
     elif web_info_intent:
         return get_fallback_response(session_language)
@@ -2740,7 +2560,8 @@ def ask(question, history=[], client_type=None, session_language=None):
         )
         if not courses:
             if last_bot_q in ["year_term", "start_year"]:
-                parsed_retry = parse_request_slots(full_question, routing_history, last_bot_q)
+                # Try an LLM-guided retry before giving up on curriculum matching.
+                parsed_retry = parse_request_slots(full_question, history, last_bot_q)
                 dept = parsed_retry["department"] or dept
                 year = parsed_retry["year"] or year
                 term = parsed_retry["term"] or term
@@ -2801,13 +2622,13 @@ def ask(question, history=[], client_type=None, session_language=None):
             ]
             curr_text = _t(
                 f"{dept} Year {year} {term} Semester courses:\n" + "\n".join(regular),
-                f"{dept} - {year}. sÃƒâ€žÃ‚Â±nÃƒâ€žÃ‚Â±f {term} dÃƒÆ’Ã‚Â¶nemi dersleri:\n" + "\n".join(regular),
+                f"{dept} - {year}. sÄ±nÄ±f {term} dÃ¶nemi dersleri:\n" + "\n".join(regular),
                 prefer_tr,
             )
             if elec_count:
                 curr_text += _t(
                     f"\n\nPlus {elec_count} elective slot(s).",
-                    f"\n\nAyrÃƒâ€žÃ‚Â±ca {elec_count} seÃƒÆ’Ã‚Â§meli ders hakkÃƒâ€žÃ‚Â±nÃƒâ€žÃ‚Â±z var.",
+                    f"\n\nAyrÄ±ca {elec_count} seÃ§meli ders hakkÄ±nÄ±z var.",
                     prefer_tr,
                 )
             context_parts.append(curr_text)
@@ -2845,19 +2666,7 @@ def ask(question, history=[], client_type=None, session_language=None):
             failed_courses,
             gpa_value,
         )
-        semantic_n_results = 5 if attendance_related_question else 3
-        if attendance_related_question:
-            query_texts = _dedupe_keep_order(query_texts + [
-                "attendance policy absence make-up classes",
-                "devam devamsizlik yoklama mazeretli devamsizlik",
-            ])
-        context_parts, context_metas = _query_relevant_context(
-            collection,
-            query_texts,
-            n_results=semantic_n_results,
-            max_docs=6,
-            return_metadata=True,
-        )
+        context_parts = _query_relevant_context(collection, query_texts, n_results=3, max_docs=6)
 
     if not context_parts:
         try:
@@ -2866,7 +2675,6 @@ def ask(question, history=[], client_type=None, session_language=None):
             system_prompt = (
                 "You are EkoBot, a friendly and witty academic assistant for Izmir University of Economics (IEU). "
                 "You help students with courses, schedules, prerequisites, and academic planning. "
-                "If the retrieved context mentions attendance, absence, or make-up classes, use that information to give a complete answer. "
                 "If it's a joke, respond with light humor. If it's sarcasm or frustration, respond with empathy and a gentle redirect. "
                 "If it's a typo or unclear, ask them to clarify in a friendly way. "
                 "If it's just casual chat, respond warmly but briefly and invite them to ask about their courses. "
@@ -2883,16 +2691,14 @@ def ask(question, history=[], client_type=None, session_language=None):
                 ],
                 max_tokens=1000,
             )
-            answer = response.choices[0].message.content if response and response.choices else None
-            if not answer or answer.strip() == "":
-                answer = get_fallback_response(session_language)
-            return answer
+            if response and response.choices and response.choices[0].message.content:
+                return response.choices[0].message.content
         except Exception:
             pass
         prefer_tr = _conversation_prefers_turkish(question, history)
         return _soft_fallback_message(session_language)
 
-    # ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ ask LLM to reason over ALL context ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+    # â”€â”€ ask LLM to reason over ALL context â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     # truncate to avoid token limit (increased to 15000 to preserve evaluation system)
     if conversation_snapshot:
         context_parts.insert(0, conversation_snapshot)
@@ -2901,15 +2707,12 @@ def ask(question, history=[], client_type=None, session_language=None):
     if len(combined) > 15000:
         combined = combined[:15000]
 
-    answer = call_llm(full_question, [combined], history, client_type=client_type, session_language=session_language)
-    if not answer or answer.strip() == "":
-        return get_fallback_response(session_language)
-    return _append_source_url(answer, web_doc_metas + context_metas, session_language)
+    return call_llm(full_question, [combined], history, client_type=client_type, session_language=session_language)
 
 
-# ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # HELPERS
-# ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _format_semester_courses(
     dept,
@@ -3148,12 +2951,12 @@ def _format_semester_courses(
                 gpa_note = f"GPA {gpa_value:.2f}" if gpa_value is not None else "GPA not provided"
                 lines.append(_t(
                     f"\nECTS-aware recovery schedule ({gpa_note}, max {max_ects} ECTS/semester):",
-                    f"\nECTS'ye duyarlÃ„Â± telafi plani ({gpa_note}, en fazla {max_ects} ECTS/donem):",
+                    f"\nECTS'ye duyarlı telafi plani ({gpa_note}, en fazla {max_ects} ECTS/donem):",
                     prefer_tr,
                 ))
                 lines.append(_t(
                     "Strict prerequisite sequencing is applied (dependent courses are scheduled after unmet failed prerequisites and only in their offered Fall/Spring term).",
-                    "SikÃ„Â± onkosul siralamasi uygulanir (bagimli dersler, giderilmemis basarisiz onkosullardan sonra ve sadece sunulduklari GÃƒÂ¼z/Bahar doneminde planlanir).",
+                    "Sikı onkosul siralamasi uygulanir (bagimli dersler, giderilmemis basarisiz onkosullardan sonra ve sadece sunulduklari Güz/Bahar doneminde planlanir).",
                     prefer_tr,
                 ))
                 for sem in schedule[:8]:
@@ -3198,12 +3001,12 @@ def _format_semester_courses(
     return "\n".join(lines)
 
 
-# ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # TERMINAL TEST
-# ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 if __name__ == "__main__":
-    print("EkoBot ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â type your question (or 'quit' to exit)")
+    print("EkoBot â€” type your question (or 'quit' to exit)")
     print("-" * 50)
     conversation_history = []
 

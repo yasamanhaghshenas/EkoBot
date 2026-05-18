@@ -2,8 +2,6 @@ import chromadb
 import json
 import os
 import sys
-import time
-import hashlib
 from embeddings import SentenceTransformerEmbeddingFunction
 from scraper import scrape_support_pages
 
@@ -23,17 +21,13 @@ def batched(seq, size):
         yield seq[i : i + size]
 
 
-DATA_DB_PATH = os.environ.get("EKOBOT_DB_PATH") or "/data/ekobot_db"
-INDEX_VERSION_FILE = os.path.join(DATA_DB_PATH, "index_version.txt")
-COLLECTION_NAME = "ieu_courses"
-
 try:
     print("Setting up ChromaDB...")
-    os.makedirs(DATA_DB_PATH, exist_ok=True)
-    client = chromadb.PersistentClient(path=DATA_DB_PATH)
+    client = chromadb.PersistentClient(path="./db")
+    COLLECTION_NAME = "ieu_courses"
     EMBEDDING_FUNCTION = SentenceTransformerEmbeddingFunction()
 except Exception as e:
-    print(f"⚠ Warning: Failed to initialize embedding function or ChromaDB client: {e}")
+    print(f"⚠ Warning: Failed to initialize embedding function: {e}")
     print("  ChromaDB operations may not work optimally")
     client = None
     EMBEDDING_FUNCTION = None
@@ -65,73 +59,17 @@ def main():
     if client is None:
         print("⚠ Cannot index: ChromaDB client not initialized")
         return
-    start_time = time.time()
-
-    def compute_data_hash():
-        files = [
-            "courses.json",
-            "dept_info.json",
-            "curriculum.json",
-            "ecobot_rules_pages.json",
-            "ieu_regulations.json",
-        ]
-        entries = []
-        for f in files:
-            try:
-                size = os.path.getsize(f) if os.path.exists(f) else 0
-            except Exception:
-                size = 0
-            entries.append(f"{f}:{size}")
-        s = "\n".join(entries)
-        return hashlib.sha256(s.encode("utf-8")).hexdigest()
-
-    # Ensure collection exists (create if missing)
+    
     try:
-        collection = get_collection()
-        if collection is None:
-            print("⚠ Failed to acquire ChromaDB collection")
-            return
+        client.delete_collection(COLLECTION_NAME)
+    except:
+        pass
+
+    try:
+        collection = client.create_collection(COLLECTION_NAME, embedding_function=EMBEDDING_FUNCTION)
     except Exception as e:
-        print(f"⚠ Failed to get collection: {e}")
+        print(f"⚠ Failed to create collection: {e}")
         return
-
-    try:
-        current_hash = compute_data_hash()
-        stored_hash = None
-        if os.path.exists(INDEX_VERSION_FILE):
-            try:
-                with open(INDEX_VERSION_FILE, "r", encoding="utf-8") as fh:
-                    stored_hash = fh.read().strip()
-            except Exception:
-                stored_hash = None
-
-        col_count = 0
-        try:
-            col_count = collection.count()
-        except Exception:
-            col_count = 0
-
-        # If index exists and version matches, skip indexing
-        if col_count > 0 and stored_hash and stored_hash == current_hash:
-            elapsed = time.time() - start_time
-            print("[EkoBot] ChromaDB loaded from cache, skipping indexing")
-            print(f"[EkoBot] Index loaded in {elapsed:.1f}s")
-            return
-
-        # If collection has docs but hash mismatches, rebuild by deleting collection
-        if col_count > 0 and (not stored_hash or stored_hash != current_hash):
-            try:
-                client.delete_collection(COLLECTION_NAME)
-            except Exception:
-                pass
-            try:
-                collection = client.create_collection(COLLECTION_NAME, embedding_function=EMBEDDING_FUNCTION)
-            except Exception as e:
-                print(f"⚠ Failed to create collection: {e}")
-                return
-    except Exception as e:
-        print(f"⚠ Index version check failed: {e}")
-        # proceed to (re)build index
 
     courses = []
     if os.path.exists("courses.json"):
@@ -374,38 +312,6 @@ def main():
     print(f"Reg docs failed    : {failed_reg_docs}")
     print(f"Collection total   : {collection.count()}")
 
-    # Write/update index version file to speed up future warm starts
-    try:
-        try:
-            current_hash = None
-            def compute_data_hash_local():
-                files = [
-                    "courses.json",
-                    "dept_info.json",
-                    "curriculum.json",
-                    "ecobot_rules_pages.json",
-                    "ieu_regulations.json",
-                ]
-                entries = []
-                for f in files:
-                    try:
-                        size = os.path.getsize(f) if os.path.exists(f) else 0
-                    except Exception:
-                        size = 0
-                    entries.append(f"{f}:{size}")
-                s = "\n".join(entries)
-                return hashlib.sha256(s.encode("utf-8")).hexdigest()
-
-            current_hash = compute_data_hash_local()
-            with open(INDEX_VERSION_FILE, "w", encoding="utf-8") as fh:
-                fh.write(current_hash)
-        except Exception:
-            pass
-    except Exception:
-        pass
-
-    elapsed = time.time() - start_time
-    print(f"[EkoBot] Index built in {elapsed:.1f}s")
 
 # Call main() for indexing (safe to call even if initialization failed)
 if __name__ == "__main__":

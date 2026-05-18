@@ -18,11 +18,10 @@ def _looks_like_course_code(value):
     return bool(re.match(r"^[A-Z]{2,6}\s\d{3,4}$", (value or "").strip()))
 
 
-def get_context_for_codes(collection, codes, return_metadata=False):
+def get_context_for_codes(collection, codes):
     contexts = []
     missing = []
     corrections = {}
-    matched_metadatas = []
     low_confidence_score = None
     for code in codes:
         normalized = _normalize_course_code(code) or code
@@ -41,7 +40,6 @@ def get_context_for_codes(collection, codes, return_metadata=False):
                 print(f"[RETRIEVAL] Top distance: {top_distance}")
             if docs and (top_distance is None or top_distance <= MAX_DISTANCE):
                 contexts.append(docs[0])
-                matched_metadatas.append((results.get("metadatas") or [[]])[0][0] if (results.get("metadatas") or [[]])[0] else {})
                 found = True
             elif docs and top_distance is not None and top_distance > MAX_DISTANCE:
                 print(f"[RETRIEVAL] Low confidence ({top_distance:.2f}), falling back")
@@ -67,7 +65,6 @@ def get_context_for_codes(collection, codes, return_metadata=False):
                     candidate_code = candidate_code.strip().upper()
                     if _looks_like_course_code(candidate_code) and candidate_code != normalized:
                         contexts.append(docs[0])
-                        matched_metadatas.append(metas[0] or {})
                         corrections[normalized] = candidate_code
                         found = True
                 elif docs and top_distance is not None and top_distance > MAX_DISTANCE:
@@ -78,8 +75,6 @@ def get_context_for_codes(collection, codes, return_metadata=False):
 
         if not found:
             missing.append(normalized)
-    if return_metadata:
-        return contexts, missing, corrections, low_confidence_score, matched_metadatas
     return contexts, missing, corrections, low_confidence_score
 
 
