@@ -2156,11 +2156,15 @@ CONVERSATIONAL_PHRASES = [
 ]
 
 IEU_ACRONYMS = {
-    "ybs": "Yönetim Bilişim Sistemleri (Management Information Systems) — a department at IEU Faculty of Business.",
-    "obs": "Öğrenci Bilgi Sistemi — IEU's Student Information System, accessible at obs.ieu.edu.tr",
+    "ybs": "Yönetim Bilgi Sistemleri Müdürlüğü (Management Information Systems Directorate) — manages IEU's digital infrastructure, web systems, and student information systems. Established in May 2006. Website: https://ybs.ieu.edu.tr/tr",
+    "obs": "Öğrenci Bilgi Sistemi — IEU's Student Information System for grades, registration, and course info. Access at: obs.izmirekonomi.edu.tr",
+    "pgdm": "Psikolojik Gelişim ve Danışma Merkezi — IEU's free psychological counseling center for students. Apply at: https://pgdm.ieu.edu.tr/tr/basvuru",
+    "ekosem": "Sürekli Eğitim Merkezi — IEU's Continuing Education Center offering professional development courses. Website: https://ekosem.ieu.edu.tr",
+    "puam": "Psikolojik Uygulama ve Araştırma Merkezi — Psychology Application and Research Center at IEU. Website: https://puam.ieu.edu.tr/tr",
+    "kyk": "Kredi ve Yurtlar Kurumu — Government dormitory and student loan institution. Website: https://www.kyk.gov.tr",
+    "ekoid": "EkoID — your IEU university account username used for email, OBS, wifi, and all campus systems.",
     "sys": "Staj Yönetim Sistemi — IEU's Internship Management System at staj.izmirekonomi.edu.tr",
     "tlc": "Teaching and Learning Center — IEU's academic support center. See: https://www.ieu.edu.tr/tlc/en/for-students",
-    "kyk": "Kredi ve Yurtlar Kurumu — Government student dormitory and loan institution",
     "ects": "European Credit Transfer System — the credit system used at IEU",
     "cgpa": "Cumulative Grade Point Average — your overall GPA across all semesters",
     "gano": "Genel Ağırlıklı Not Ortalaması — Turkish term for CGPA",
@@ -2179,7 +2183,7 @@ IT_FAQ = [
         "tr": "EkoID şifrenizi şu adresten değiştirebilirsiniz: https://ekoid.izmirekonomi.edu.tr/pwd/change/",
     },
     {
-        "keywords": ["internet activation", "activate internet", "wifi register", "netregister", "internet kayıt", "internet nasıl bağlanır", "connect internet", "internet access"],
+        "keywords": ["wifi", "wi-fi", "wireless", "internet", "connect to", "internet access", "netregister", "internet nasıl", "kablosuz", "ağa bağlan", "bağlanmak", "ieu internet", "ieu wifi", "kampüs internet", "campus internet", "internet activation", "activate internet", "wifi register", "internet kayıt", "internet nasıl bağlanır", "connect internet"],
         "en": "To activate internet access on campus, bring your device and student ID card to the IT Support office. Outside office hours, register your device online at: https://netregister.izmirekonomi.edu.tr/",
         "tr": "Kampüs internetine bağlanmak için cihazınız ve öğrenci kimliğinizle IT Destek ofisine gidin. Mesai saatleri dışında cihazınızı online kaydetmek için: https://netregister.izmirekonomi.edu.tr/",
     },
@@ -2294,11 +2298,224 @@ PGDM_FAQ = [
             "Hizmet tüm İEÜ öğrencilerine ücretsiz ve gizlilik içinde sunulmaktadır."
         ),
     },
+    {
+        "keywords": [
+            "semester off", "leave of absence", "izin", "kayıt dondurma", "take a break",
+            "dondurma", "ara vermek", "tatil", "休学", "semester leave", "academic leave",
+            "dönem izni", "öğrencilik izni"
+        ],
+        "en": "To take a semester off (freeze registration) at IEU, you need to apply to the Student Affairs Directorate (Öğrenci İşleri). Valid reasons include health, financial difficulties, or military service. Apply within the registration period. For details and forms visit: https://www.ieu.edu.tr/en/students or contact ogrenciisleri@ieu.edu.tr",
+        "tr": "İEÜ'de kayıt dondurma (dönem izni) için Öğrenci İşleri Müdürlüğü'ne başvurman gerekiyor. Geçerli nedenler: sağlık, maddi güçlük, askerlik. Kayıt döneminde başvurulması gerekir. Detaylar ve formlar için: https://www.ieu.edu.tr/tr/students veya ogrenciisleri@ieu.edu.tr",
+    },
+    {
+        "keywords": [
+            "graduation ceremony", "mezuniyet töreni", "tören", "ceremony", "when is graduation",
+            "mezuniyet ne zaman", "diploma ceremony", "graduation date"
+        ],
+        "en": "IEU holds graduation ceremonies typically in June and January. For the exact date and details of the upcoming ceremony, check the IEU academic calendar or announcements at: https://www.ieu.edu.tr/en/students — Graduation ceremony details are announced closer to the date.",
+        "tr": "İEÜ mezuniyet törenleri genellikle Haziran ve Ocak aylarında düzenlenir. Yaklaşan tören tarihi ve detayları için İEÜ akademik takvimini veya duyuruları kontrol et: https://www.ieu.edu.tr/tr/students",
+    },
+]
+
+DMP_FAQ = [
+    {
+        "keywords": [
+            "double major", "çift anadal", "dmp", "second major", "ikinci diploma",
+            "çift anadal nedir", "double major requirements", "çift anadal şartları",
+            "double major gpa", "double major apply", "çift anadal başvuru"
+        ],
+        "en": (
+            "**Double Major Program (DMP) at IEU**\n\n"
+            "The Double Major Program lets you earn a second undergraduate diploma alongside your main program.\n\n"
+            "**Eligibility requirements:**\n"
+            "• Minimum cumulative GPA of 3.00/4.00\n"
+            "• Must be in the top 20% of your class ranking\n"
+            "• Apply earliest at the beginning of your 3rd semester, latest at the beginning of your 5th semester\n"
+            "• Must have passed at least 50 ECTS by end of freshman year spring semester\n\n"
+            "**Program details:**\n"
+            "• Minimum 75 ECTS of DMP-specific courses (beyond what you've already taken)\n"
+            "• GPA calculated separately for major and DMP\n"
+            "• Maximum 7 years to complete (4-year programs)\n"
+            "• No extra tuition fee as long as you're within the normal study period\n"
+            "• To graduate from DMP: major GPA must be at least 2.72/4.00\n"
+            "• If GPA drops below 2.72 twice, you are dismissed from DMP\n\n"
+            "📎 Full regulation: https://www.ieu.edu.tr/en/bylaws/type/read/id/21"
+        ),
+        "tr": (
+            "**İEÜ Çift Anadal Programı (ÇAP)**\n\n"
+            "Çift Anadal Programı, ana programınla eş zamanlı olarak ikinci bir lisans diploması almanı sağlar.\n\n"
+            "**Başvuru koşulları:**\n"
+            "• Minimum 3.00/4.00 kümülatif GPA\n"
+            "• Sınıf sıralamasında ilk %20'de olmak\n"
+            "• En erken 3. dönem başında, en geç 5. dönem başında başvurulabilir\n"
+            "• 1. yıl bahar sonunda en az 50 ECTS tamamlanmış olmalı\n\n"
+            "**Program detayları:**\n"
+            "• En az 75 ECTS ÇAP dersi tamamlanmalı\n"
+            "• GPA, ana program ve ÇAP için ayrı ayrı hesaplanır\n"
+            "• Maksimum 7 yıl süre (4 yıllık programlar için)\n"
+            "• Normal öğrenim süresi içinde ekstra ücret alınmaz\n"
+            "• ÇAP'tan mezun olmak için ana program GPA'nın en az 2.72/4.00 olması gerekir\n"
+            "• GPA iki kez 2.72'nin altına düşerse ÇAP'tan çıkarılırsın\n\n"
+            "📎 Tam yönetmelik: https://www.ieu.edu.tr/en/bylaws/type/read/id/21"
+        ),
+    },
+]
+
+MINOR_FAQ = [
+    {
+        "keywords": [
+            "minor", "yan dal", "minor program", "yan dal programı",
+            "minor requirements", "yan dal şartları", "minor nedir"
+        ],
+        "en": (
+            "**Minor Program at IEU**\n\n"
+            "A Minor Program lets you specialize in a secondary field alongside your main degree. "
+            "It requires fewer courses than a Double Major.\n\n"
+            "If you withdraw from a Double Major, you can transfer to a Minor Program (if available) without quota requirement.\n\n"
+            "For full details and regulations visit: https://www.ieu.edu.tr/en/bylaws/type/all\n"
+            "Contact your department advisor or Student Affairs for application dates."
+        ),
+        "tr": (
+            "**İEÜ Yan Dal Programı**\n\n"
+            "Yan Dal Programı, ana bölümünün yanında ikinci bir alanda uzmanlaşmanı sağlar. "
+            "Çift Anadal'a göre daha az ders gerektirir.\n\n"
+            "Çift Anadal'dan ayrılırsan, kota şartı aranmaksızın Yan Dal Programı'na geçiş yapabilirsin.\n\n"
+            "Detaylı bilgi: https://www.ieu.edu.tr/tr/bylaws/type/all\n"
+            "Başvuru tarihleri için bölüm danışmanına veya Öğrenci İşleri'ne başvur."
+        ),
+    },
+]
+
+ERASMUS_FAQ = [
+    {
+        "keywords": [
+            "erasmus", "exchange program", "study abroad", "yurt dışı",
+            "erasmus requirements", "erasmus başvuru", "erasmus application",
+            "erasmus şartları", "erasmus gpa", "exchange student",
+            "hareketlilik", "değişim programı", "erasmus grant", "erasmus hibe"
+        ],
+        "en": (
+            "**Erasmus+ Student Exchange at IEU**\n\n"
+            "The Erasmus+ program lets you study at a partner university in Europe for 2–12 months.\n\n"
+            "**Key requirements:**\n"
+            "• Must NOT be a 1st-year student (freshmen are not eligible)\n"
+            "• Must be a full-time student\n"
+            "• Apply via TURNAPortal: https://turnaportal.ua.gov.tr\n"
+            "• Applications open twice a year (Fall and Spring) — apply the semester before you want to go\n\n"
+            "**Financial support:**\n"
+            "• Monthly grant from the European Commission (amount set annually by National Agency)\n"
+            "• 70% paid before departure, 30% upon return\n"
+            "• You still pay IEU tuition — no extra fee to the host university\n"
+            "• Living costs (housing, food, transport) are your responsibility\n"
+            "• If grant is insufficient, you can participate without a grant\n\n"
+            "**After selection:**\n"
+            "• IEU sends your info to the partner university\n"
+            "• You handle visa individually with the embassy\n"
+            "• Courses must be approved by your Exchange Program Coordinator and Department Head\n\n"
+            "**Partner universities list:** https://www.ieu.edu.tr/international/tr/erasmus-anlasmalari-ve-kontenjanlar\n"
+            "**Full info:** https://www.ieu.edu.tr/international/tr/erasmus-ogrenci-ogrenim-hareketliligi\n"
+            "**Contact:** oia@ieu.edu.tr"
+        ),
+        "tr": (
+            "**İEÜ Erasmus+ Öğrenci Öğrenim Hareketliliği**\n\n"
+            "Erasmus+ programıyla Avrupa'daki partner üniversitede 2–12 ay öğrenim görebilirsin.\n\n"
+            "**Temel koşullar:**\n"
+            "• 1. sınıf öğrencileri başvuramaz\n"
+            "• Tam zamanlı öğrenci olman gerekir\n"
+            "• Başvuru TURNAPortal üzerinden: https://turnaportal.ua.gov.tr\n"
+            "• Yılda iki kez başvuru açılır (Güz ve Bahar) — gitmek istediğin dönemden önceki dönem başvurman gerekir\n\n"
+            "**Mali destek:**\n"
+            "• Avrupa Komisyonu'ndan aylık hibe (miktar her yıl Ulusal Ajans tarafından belirlenir)\n"
+            "• %70'i gitmeden önce, %30'u döndükten sonra ödenir\n"
+            "• İEÜ öğretim ücretini ödemeye devam edersin — partner üniversiteye ekstra ücret ödenmez\n"
+            "• Barınma, ulaşım, yemek gibi kişisel giderler sana aittir\n"
+            "• Hibe yetersiz kalırsa hibesiz olarak da katılabilirsin\n\n"
+            "**Seçildikten sonra:**\n"
+            "• İEÜ bilgilerini partner üniversiteye bildirir\n"
+            "• Vize işlemlerini bireysel olarak büyükelçilikle yürütürsün\n"
+            "• Alacağın dersler Uluslararası Değişim Koordinatörü ve Bölüm Başkanı tarafından onaylanmalı\n\n"
+            "**Anlaşmalı üniversiteler:** https://www.ieu.edu.tr/international/tr/erasmus-anlasmalari-ve-kontenjanlar\n"
+            "**Detaylı bilgi:** https://www.ieu.edu.tr/international/tr/erasmus-ogrenci-ogrenim-hareketliligi\n"
+            "**İletişim:** oia@ieu.edu.tr"
+        ),
+    },
+]
+
+FENG_497_FAQ = [
+    {
+        "keywords": [
+            "graduation project", "feng 497", "feng 498", "bitirme projesi",
+            "bitirme", "graduation project requirements", "capstone",
+            "senior project", "proje dersi", "mezuniyet projesi"
+        ],
+        "en": (
+            "**FENG 497 – Graduation Project (Faculty of Engineering)**\n\n"
+            "**Group Structure:**\n"
+            "• Groups of 6–7 students, each group must include students from at least 3 different departments\n"
+            "• Groups are randomly assigned after the add/drop period\n"
+            "• Each advisor is assigned approximately one group\n\n"
+            "**2025–2026 Project Themes:**\n"
+            "• Artificial Intelligence and Education\n"
+            "• Artificial Intelligence and Healthcare\n\n"
+            "**Key Dates (2025–2026):**\n"
+            "• Group formation: September 25\n"
+            "• Project topic submission: October 3\n"
+            "• Proposal submission: November 14\n"
+            "• Final report submission: January 9\n"
+            "• Final presentations: January 15\n\n"
+            "**Evaluation Breakdown:**\n"
+            "• Individual performance (lab/work): 40%\n"
+            "• Final report (group): 20%\n"
+            "• Participation (weekly meetings): 10%\n"
+            "• Proposal (group): 10%\n"
+            "• Final presentation (individual): 10%\n"
+            "• Midterm exam: 10%\n\n"
+            "**Requirements:**\n"
+            "• Meet with advisor at least once per week (face-to-face preferred)\n"
+            "• Submit minimum 10 signed meeting reports\n"
+            "• Students who don't contribute may receive a grade of zero\n\n"
+            "**Contact:** Dr. Ebru Sayılgan (course coordinator)\n"
+            "📎 More info: https://fecs.ieu.edu.tr/en/feng-497-graduation-project"
+        ),
+        "tr": (
+            "**FENG 497 – Bitirme Projesi (Mühendislik Fakültesi)**\n\n"
+            "**Grup Yapısı:**\n"
+            "• 6–7 kişilik gruplar, her grupta en az 3 farklı bölümden öğrenci olmalı\n"
+            "• Gruplar ders ekleme-bırakma döneminden sonra rastgele atanır\n"
+            "• Her danışmana yaklaşık bir grup atanır\n\n"
+            "**2025–2026 Proje Temaları:**\n"
+            "• Yapay Zeka ve Eğitim\n"
+            "• Yapay Zeka ve Sağlık\n\n"
+            "**Önemli Tarihler (2025–2026):**\n"
+            "• Grup oluşturma: 25 Eylül\n"
+            "• Proje konusu bildirimi: 3 Ekim\n"
+            "• Önerme teslimi: 14 Kasım\n"
+            "• Final raporu teslimi: 9 Ocak\n"
+            "• Final sunumları: 15 Ocak\n\n"
+            "**Değerlendirme:**\n"
+            "• Bireysel performans (lab/çalışma): %40\n"
+            "• Final raporu (grup): %20\n"
+            "• Katılım (haftalık toplantılar): %10\n"
+            "• Önerme (grup): %10\n"
+            "• Final sunumu (bireysel): %10\n"
+            "• Vize sınavı: %10\n\n"
+            "**Gereksinimler:**\n"
+            "• Danışmanla haftada en az bir kez toplanmak (yüz yüze tercih edilir)\n"
+            "• En az 10 imzalı toplantı raporu hazırlamak\n"
+            "• Projeye katkı sağlamayan öğrenciler sıfır alabilir\n\n"
+            "**İletişim:** Dr. Ebru Sayılgan (ders koordinatörü)\n"
+            "📎 Detaylı bilgi: https://fecs.ieu.edu.tr/en/feng-497-graduation-project"
+        ),
+    },
 ]
 
 HARDCODED_ANSWERS = {
     "it_faq": IT_FAQ,
     "pgdm_faq": PGDM_FAQ,
+    "dmp_faq": DMP_FAQ,
+    "minor_faq": MINOR_FAQ,
+    "erasmus_faq": ERASMUS_FAQ,
+    "feng_497_faq": FENG_497_FAQ,
 }
 
 ACADEMIC_KEYWORDS = [
@@ -2308,8 +2525,9 @@ ACADEMIC_KEYWORDS = [
     "exam", "sınav", "grade", "not", "certificate", "belge", "attendance",
     "devam", "prerequisite", "ön koşul", "elective", "seçmeli", "advisor",
     "danışman", "transcript", "transkript", "password", "şifre", "apply",
-    "başvuru", "scholarship", "burs", "erasmus", "exchange", "double major",
-    "çift anadal", "minor", "yan dal",
+    "başvuru", "scholarship", "burs", "erasmus", "exchange", "study abroad", "hareketlilik", "değişim",
+    "double major", "feng 497", "feng 498", "graduation project", "bitirme projesi", "capstone",
+    "çift anadal", "minor", "yan dal", "dmp",
 ]
 
 CURRICULUM_FLOW_TRIGGERS = [
@@ -2320,6 +2538,7 @@ CURRICULUM_FLOW_TRIGGERS = [
     "show me my curriculum", "show my courses",
     "i failed", "dersten kaldım", "failed course", "kalan derslerim",
     "which courses do i need", "graduation plan", "kaç dersim kaldı",
+    "graduation ceremony", "mezuniyet töreni", "when is graduation",
 ]
 
 
@@ -2595,6 +2814,8 @@ def ask(question, history=[], client_type=None, session_language=None):
         "student certificate", "degree certificate", "diploma", "mezuniyet belgesi", "diplomam", "öğrenci belgesi",
         "transcript", "transkript",
         "apply for graduation", "mezuniyet başvuru",
+        "erasmus", "exchange program",
+        "graduation project", "feng 497", "feng 498", "bitirme",
     ]
     if any(kw in question_lower for kw in pythonDIRECT_RAG_KEYWORDS):
         # skip curriculum flow, go straight to RAG
