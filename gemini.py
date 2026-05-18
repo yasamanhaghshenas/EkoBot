@@ -1,5 +1,5 @@
 from groq import Groq
-import google.generativeai as genai
+from google import genai
 import chromadb
 import json
 import os
@@ -74,16 +74,17 @@ else:
     client_groq = None
     print("WARNING: GROQ_API_KEY is not set. LLM fallback disabled.")
 
+GEMINI_MODEL_NAME = "gemini-2.0-flash"
+
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-    gemini_model = genai.GenerativeModel("gemini-1.5-flash")
+    gemini_client = genai.Client(api_key=GEMINI_API_KEY)
 else:
-    gemini_model = None
+    gemini_client = None
     print("WARNING: GEMINI_API_KEY is not set.")
 
-client = chromadb.PersistentClient(path="./db")
-collection = client.get_or_create_collection("ieu_courses", embedding_function=SentenceTransformerEmbeddingFunction())
+db_client = chromadb.PersistentClient(path="./db")
+collection = db_client.get_or_create_collection("ieu_courses", embedding_function=SentenceTransformerEmbeddingFunction())
 
 _REGULATIONS_CACHE = None
 
@@ -98,6 +99,16 @@ def _extract_json_object(text):
         return json.loads(match.group(0))
     except Exception:
         return None
+
+
+def _generate_gemini_response(prompt):
+    if not gemini_client:
+        return None
+    response = gemini_client.models.generate_content(
+        model=GEMINI_MODEL_NAME,
+        contents=prompt,
+    )
+    return getattr(response, "text", None)
 
 
 def _get_curriculum_url_for_start_year(resolved_dept, start_year):
@@ -316,7 +327,7 @@ Conversation history (recent): {json.dumps(history[-12:], ensure_ascii=False)}
 def call_llm(question, context_docs, history, client_type=None, session_language=None):
     session_language = session_language or detect_language(question)
     prefer_tr = session_language == "tr"
-    if client_groq is None and gemini_model is None:
+    if client_groq is None and gemini_client is None:
         return _soft_fallback_message(session_language)
 
     context = "\n\n---\n\n".join(context_docs)
@@ -395,10 +406,11 @@ Always be specific and helpful â€” do not just say you don't have the infor
     })
 
     try:
-        if gemini_model:
+        if gemini_client:
             full_prompt = "\n\n".join([m["content"] for m in messages])
-            response = gemini_model.generate_content(full_prompt)
-            return response.text
+            response_text = _generate_gemini_response(full_prompt)
+            if response_text:
+                return response_text
         elif client_groq:
             response = client_groq.chat.completions.create(
                 model="llama-3.1-8b-instant",
@@ -2685,11 +2697,11 @@ def ask(question, history=[], client_type=None, session_language=None):
         context_parts = _query_relevant_context(collection, query_texts, n_results=3, max_docs=6)
 
     if not context_parts:
-        if gemini_model:
+        if gemini_client:
             try:
                 prefer_tr = _conversation_prefers_turkish(question, history)
                 lang_instruction = "Always reply in Turkish." if prefer_tr else "Always reply in English."
-                response = gemini_model.generate_content(
+                response_text = _generate_gemini_response(
                     f"You are EkoBot, a friendly and witty academic assistant for Izmir University of Economics (IEU). "
                     f"You help students with courses, schedules, prerequisites, and academic planning. "
                     f"The student just sent you this message: '{question}'. "
@@ -2700,8 +2712,8 @@ def ask(question, history=[], client_type=None, session_language=None):
                     f"Keep your response under 2 sentences. Never mention that you're an AI or that you can't help. "
                     f"{lang_instruction}"
                 )
-                if response and response.text:
-                    return response.text
+                if response_text:
+                    return response_text
             except Exception:
                 pass
         prefer_tr = _conversation_prefers_turkish(question, history)
