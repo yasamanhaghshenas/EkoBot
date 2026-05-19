@@ -11,7 +11,9 @@ from grading_helpers import (
 # Chroma returns a distance score where:
 # - lower distance = more similar (better match)
 # - higher distance = less similar (worse match)
-MAX_DISTANCE = 0.75
+# Only reject results with very poor distance (> MIN_CONFIDENCE).
+MIN_CONFIDENCE = 1.5
+MAX_DISTANCE = MIN_CONFIDENCE
 
 
 def _looks_like_course_code(value):
@@ -37,7 +39,7 @@ def get_context_for_codes(collection, codes):
             distances = (results.get("distances") or [[]])[0]
             top_distance = distances[0] if distances else None
             if top_distance is not None:
-                print(f"[RETRIEVAL] Top distance: {top_distance}")
+                print(f"[RETRIEVAL] Top distance: {top_distance:.2f} — {'ACCEPTED' if top_distance < MIN_CONFIDENCE else 'REJECTED'}")
             if docs and (top_distance is None or top_distance <= MAX_DISTANCE):
                 contexts.append(docs[0])
                 found = True
@@ -59,7 +61,7 @@ def get_context_for_codes(collection, codes):
                 distances = (results.get("distances") or [[]])[0]
                 top_distance = distances[0] if distances else None
                 if top_distance is not None:
-                    print(f"[RETRIEVAL] Top distance: {top_distance}")
+                    print(f"[RETRIEVAL] Top distance: {top_distance:.2f} — {'ACCEPTED' if top_distance < MIN_CONFIDENCE else 'REJECTED'}")
                 if docs and metas and (top_distance is None or top_distance <= MAX_DISTANCE):
                     candidate_code = (metas[0] or {}).get("code") or ""
                     candidate_code = candidate_code.strip().upper()
