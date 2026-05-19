@@ -79,12 +79,21 @@ def is_course_detail_question(question: str) -> bool:
     ]
     return any(kw in question.lower() for kw in course_keywords)
 
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-if not os.environ.get("GROQ_API_KEY"):
+_GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+client = Groq(api_key=_GROQ_API_KEY) if _GROQ_API_KEY else None
+if not _GROQ_API_KEY:
     print("WARNING: GROQ_API_KEY is not set. LLM fallback disabled.")
 
 db_client = chromadb.PersistentClient(path="./db")
-collection = db_client.get_or_create_collection("ieu_courses", embedding_function=SentenceTransformerEmbeddingFunction())
+try:
+    collection = db_client.get_or_create_collection("ieu_courses", embedding_function=SentenceTransformerEmbeddingFunction())
+except Exception as e:
+    print(f"WARNING: Could not open Chroma collection with configured embeddings: {e}")
+    try:
+        collection = db_client.get_or_create_collection("ieu_courses")
+    except Exception as fallback_error:
+        print(f"WARNING: Chroma collection unavailable: {fallback_error}")
+        collection = None
 
 _REGULATIONS_CACHE = None
 
@@ -2657,8 +2666,24 @@ def ask(question, history=[], client_type=None, session_language=None):
 
     if is_course_detail_question(question):
         print(f"[ROUTE] Course detail question detected, going straight to RAG")
+        codes = extract_course_codes(question)
+        if codes:
+            course_contexts, missing_codes, corrections, _ = get_context_for_codes(collection, codes)
+            if course_contexts:
+                specific_response = extract_course_specific_response(course_contexts, question)
+                if specific_response:
+                    return specific_response
+                formatted = [format_course_direct_response(doc) for doc in course_contexts]
+                correction_note = _format_course_correction_note(corrections, _looks_turkish(question))
+                if correction_note:
+                    formatted.insert(0, correction_note)
+                return "\n\n".join(formatted)
+            if missing_codes:
+                return get_fallback_response(session_language)
+
         context_docs = _query_relevant_context(collection, [question], n_results=3, max_docs=6)
-        return call_llm(question, context_docs, history, client_type=client_type, session_language=session_language)
+        if context_docs and client is not None:
+            return call_llm(question, context_docs, history, client_type=client_type, session_language=session_language)
 
     session_language = session_language or detect_language(question)
     prefer_tr = session_language == "tr"

@@ -1,3 +1,5 @@
+import json
+import os
 import re
 
 from catalog import _normalize_course_code
@@ -15,9 +17,46 @@ from grading_helpers import (
 MIN_CONFIDENCE = 1.5
 MAX_DISTANCE = MIN_CONFIDENCE
 
+_COURSE_DOCS_BY_CODE_CACHE = None
+
 
 def _looks_like_course_code(value):
     return bool(re.match(r"^[A-Z]{2,6}\s\d{3,4}$", (value or "").strip()))
+
+
+def _load_course_docs_by_code():
+    global _COURSE_DOCS_BY_CODE_CACHE
+    if _COURSE_DOCS_BY_CODE_CACHE is not None:
+        return _COURSE_DOCS_BY_CODE_CACHE
+
+    docs_by_code = {}
+    path = os.path.join(os.path.dirname(__file__), "courses.json")
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            courses = json.load(f)
+    except Exception:
+        _COURSE_DOCS_BY_CODE_CACHE = docs_by_code
+        return docs_by_code
+
+    if not isinstance(courses, list):
+        _COURSE_DOCS_BY_CODE_CACHE = docs_by_code
+        return docs_by_code
+
+    for item in courses:
+        if not isinstance(item, dict):
+            continue
+        code = _normalize_course_code(item.get("code"))
+        text = item.get("text") or ""
+        if code and text:
+            docs_by_code.setdefault(code, []).append(text)
+
+    _COURSE_DOCS_BY_CODE_CACHE = docs_by_code
+    return docs_by_code
+
+
+def _get_exact_course_docs(code):
+    normalized = _normalize_course_code(code) or code
+    return list(_load_course_docs_by_code().get(normalized, []))
 
 
 def get_context_for_codes(collection, codes):
@@ -28,6 +67,19 @@ def get_context_for_codes(collection, codes):
     for code in codes:
         normalized = _normalize_course_code(code) or code
         found = False
+
+        exact_docs = _get_exact_course_docs(normalized)
+        if exact_docs:
+            contexts.append(exact_docs[0])
+            found = True
+
+        if found:
+            continue
+
+        if collection is None:
+            missing.append(normalized)
+            continue
+
         try:
             results = collection.query(
                 query_texts=[normalized],
@@ -108,7 +160,7 @@ def _course_focus_from_question(question):
     if "coordinator" in q:
         return "coordinator"
 
-    if any(cue in q for cue in ["prereq", "prerequisite"]):
+    if any(cue in q for cue in ["prereq", "prerequisite", "prerequist", "prerequisit", "pre requisite"]):
         return "prerequisites"
 
     if any(cue in q for cue in ["credit", "credits", "ects"]):
