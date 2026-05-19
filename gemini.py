@@ -66,6 +66,19 @@ from retrieval import (
     get_certificate_context,
 )
 
+
+def is_course_detail_question(question: str) -> bool:
+    """Returns True if question is asking about a specific course"""
+    course_code_pattern = r'\b[A-Za-z]{2,5}\s?\d{3}\b'
+    if re.search(course_code_pattern, question, re.IGNORECASE):
+        return True
+    course_keywords = [
+        "who teaches", "who is the instructor", "prerequisites of",
+        "ön koşul", "syllabus of", "tell me about this course",
+        "bu dersi kim veriyor", "dersin ön koşulu"
+    ]
+    return any(kw in question.lower() for kw in course_keywords)
+
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 if not os.environ.get("GROQ_API_KEY"):
     print("WARNING: GROQ_API_KEY is not set. LLM fallback disabled.")
@@ -2641,6 +2654,11 @@ def ask(question, history=[], client_type=None, session_language=None):
     # Keep debug logging ASCII-only to avoid encode errors.
     safe_question = (question or "").encode("ascii", "backslashreplace").decode("ascii")
     print(f"\n[EkoBot] Question: {safe_question}")
+
+    if is_course_detail_question(question):
+        print(f"[ROUTE] Course detail question detected, going straight to RAG")
+        context_docs = _query_relevant_context(collection, [question], n_results=3, max_docs=6)
+        return call_llm(question, context_docs, history, client_type=client_type, session_language=session_language)
 
     session_language = session_language or detect_language(question)
     prefer_tr = session_language == "tr"
