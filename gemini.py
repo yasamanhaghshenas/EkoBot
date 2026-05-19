@@ -3,6 +3,7 @@ import chromadb
 import json
 import os
 import re
+from datetime import date
 
 from embeddings import SentenceTransformerEmbeddingFunction
 from language_utils import detect_language, get_fallback_response
@@ -96,6 +97,53 @@ except Exception as e:
         collection = None
 
 _REGULATIONS_CACHE = None
+
+
+def _infer_prospective_start_year(text, dept=None, program_name=None):
+    """
+    Interpret prospective-student replies like "I want to start next semester"
+    as an entry year for curriculum selection.
+    """
+    t = (text or "").strip().lower()
+    if not t:
+        return None
+
+    prospective_cues = [
+        "start next semester",
+        "starting next semester",
+        "begin next semester",
+        "next semester",
+        "new student",
+        "prospective student",
+        "want to start",
+        "will start",
+        "going to start",
+        "register",
+        "enroll",
+    ]
+    if not any(cue in t for cue in prospective_cues):
+        return None
+
+    today = date.today()
+    intended_year = today.year + 1 if today.month >= 9 else today.year
+
+    years = get_available_entry_years(dept, program_name=program_name) if dept else []
+    numeric_years = []
+    for year in years or []:
+        try:
+            numeric_years.append(int(year))
+        except Exception:
+            continue
+
+    if not numeric_years:
+        return intended_year
+    if intended_year in numeric_years:
+        return intended_year
+
+    earlier = [year for year in numeric_years if year <= intended_year]
+    if earlier:
+        return max(earlier)
+    return max(numeric_years)
 
 
 def _extract_json_object(text):
@@ -209,6 +257,12 @@ def parse_request_slots(question, history, last_bot_q):
         start_year = extract_starting_year_loose(analysis_question)
     if not start_year:
         start_year = extract_starting_year_from_history(history)
+    if not start_year:
+        start_year = _infer_prospective_start_year(
+            question,
+            dept=result.get("department"),
+            program_name=result.get("program_name"),
+        )
     result["start_year"] = start_year
 
     q_lower = analysis_question.lower()
@@ -613,6 +667,12 @@ def extract_profile_from_history(history):
 
         # Start year
         start_year = extract_starting_year_loose(content)
+        if start_year is None:
+            start_year = _infer_prospective_start_year(
+                content,
+                dept=profile.get("department"),
+                program_name=profile.get("program_name"),
+            )
         if start_year is not None:
             profile["start_year"] = start_year
             if profile["department"]:
@@ -1176,6 +1236,23 @@ def _soft_fallback_message(session_language="tr"):
     return get_fallback_response(session_language)
 
 
+def _is_frustrated_message(text):
+    t = (text or "").strip().lower()
+    return any(cue in t for cue in [
+        "are you stupid",
+        "you stupid",
+        "stupid",
+        "you are useless",
+        "you're useless",
+        "this is stupid",
+        "what is wrong with you",
+        "why don't you understand",
+        "salak",
+        "sacma",
+        "saçma",
+    ])
+
+
 def _normalize_chatty_text(text):
     t = (text or "").strip().lower()
     if not t:
@@ -1465,6 +1542,7 @@ def _is_credit_load_question(text):
     t = (text or "").lower()
     return any(k in t for k in [
         "how many credits", "credits can i take", "credit limit", "credit load", "ects",
+        "extra course", "extra courses", "additional course", "additional courses",
         "kredi", "ne kadar kredi", "kac kredi", "kaأ§ kredi",
     ])
 
@@ -1698,10 +1776,6 @@ def _extract_max_ects_from_rule(rule_text):
 
 
 def _format_regulations_answer(question, history, gpa_value):
-    regs = _get_regulations_from_db(collection)
-    if not regs:
-        return None
-
     prefer_tr = _conversation_prefers_turkish(question, history)
     t = (question or "").lower()
 
@@ -1714,6 +1788,7 @@ def _format_regulations_answer(question, history, gpa_value):
                 prefer_tr,
             )
 
+        regs = _get_regulations_from_db(collection) if collection is not None else None
         rules = (regs.get("credit_load") or {}).get("rules_by_gpa") or {}
         if gpa_value >= 2.5:
             rule = rules.get("2.50_and_above") or ""
@@ -1736,6 +1811,10 @@ def _format_regulations_answer(question, history, gpa_value):
         if rule:
             lines.append(_t(f"Rule: {rule}", f"Kural: {rule}", prefer_tr))
         return "\n".join(lines)
+
+    regs = _get_regulations_from_db(collection) if collection is not None else None
+    if not regs:
+        return None
 
     # Graduation minima / academic standing
     if any(k in t for k in ["probation", "academic standing", "basari kosulu", "basari", "akademik"]):
@@ -2711,6 +2790,13 @@ def ask(question, history=[], client_type=None, session_language=None):
     msg_type = classify_message_type(question, history or [])
     print(f"[ROUTE] Message type: {msg_type}")
 
+    if _is_frustrated_message(question):
+        return _t(
+            "You're right to be frustrated. I misunderstood the entry-year answer; for a new CE student starting next semester, I can use the latest CE curriculum and continue from there.",
+            "Haklısınız, sinir bozucu oldu. Giriş yılı cevabını yanlış yorumladım; gelecek dönem başlayacak yeni bir CE öğrencisi için en güncel CE müfredatıyla devam edebilirim.",
+            prefer_tr,
+        )
+
     acronym, acronym_definition = _extract_known_acronym_definition(question)
     if acronym_definition:
         print(f"[ROUTE] Acronym match: {acronym}")
@@ -2887,7 +2973,11 @@ def ask(question, history=[], client_type=None, session_language=None):
                 or any(extract_year_and_term(question))
             )
         elif last_bot_q == "start_year":
-            if extract_starting_year_loose(question):
+            if extract_starting_year_loose(question) or _infer_prospective_start_year(
+                question,
+                dept=history_profile.get("department"),
+                program_name=history_profile.get("program_name"),
+            ):
                 profile_flow_trigger = True
             elif (
                 extract_year_only(question)

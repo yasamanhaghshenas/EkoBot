@@ -927,6 +927,15 @@ def extract_year_and_term(text):
         elif re.search(r"\b(second|2nd|two)\s+(semester|term)\b", t):
             term = "Spring"
 
+    # In curriculum questions, "first semester" normally means the first
+    # curriculum semester: Year 1 Fall. Likewise, "second semester" means
+    # Year 1 Spring. Keep explicit years above if the user provided one.
+    if year is None:
+        if re.search(r"\b(first|1st|one)\s+(semester|term)\b", t):
+            year = 1
+        elif re.search(r"\b(second|2nd|two)\s+(semester|term)\b", t):
+            year = 1
+
     return year, term
 
 
@@ -1225,6 +1234,7 @@ def is_regulations_question(text):
         "gpa", "grade", "grading", "coefficient", "credit load",
         "how many credits", "credits can i take", "academic standing",
         "how many ects", "ects can i take", "maximum ects", "max ects",
+        "extra course", "extra courses", "additional course", "additional courses",
         "probation", "honor", "withdraw", "withdrawal", "letter grade",
         "aa", "bb", "cc", "dd", "ff", "gano", "not ortalaması",
         "akademik", "başarı koşulu", "credit limit",
@@ -1249,6 +1259,7 @@ def is_gpa_credit_limit_question(text, history=None):
     credit_cues = [
         "how many credits", "credits can i take", "credit limit", "credit load",
         "how many ects", "ects can i take", "maximum ects", "max ects",
+        "extra course", "extra courses", "additional course", "additional courses",
         "kaç ders alabilirim", "kac ders alabilirim", "kredi limiti", "kaç kredi", "kac kredi",
     ]
     gpa_cues = [
