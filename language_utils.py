@@ -20,6 +20,7 @@ _ENGLISH_FORCE_WORDS = (
     "hello", "hi", "yes", "no", "ok", "okay", "thanks", "wtf", "omg", "lol",
     "you", "your", "what", "who", "how", "why", "when", "where", "can", "are",
     "is", "the", "i", "me", "my",
+    "im", "good", "fine",
 )
 
 _ENGLISH_FORCE_PATTERN = re.compile(
@@ -60,9 +61,9 @@ def get_fallback_response(session_language: str) -> str:
     lang = (session_language or "tr").strip().lower()
     if lang == "en":
         return (
-            "Sorry, I can't help with that. I'm designed to assist with IEU-related topics such as courses, curriculum, graduation requirements, internships, student services, and university regulations. Feel free to ask me anything about those!"
+            "That's outside what I can help with — I'm focused on IEU topics like courses, graduation, internships, and student services. Anything IEU-related I can help you with?"
         )
 
     return (
-        "Üzgünüm, bu konuda sana yardımcı olamıyorum. Ben daha çok IEU ile ilgili konularda yardımcı olmak için tasarlandım: dersler, müfredat, mezuniyet, staj, öğrenci hizmetleri ve üniversite kuralları gibi. Bu konulardan biri hakkında soru sorabilirsin!"
+        "Bu konuda yardımcı olamıyorum ama IEU ile ilgili her şeyde buradayım — dersler, mezuniyet, staj, öğrenci hizmetleri gibi. Sana başka konularda yardımcı olabilir miyim?"
     )

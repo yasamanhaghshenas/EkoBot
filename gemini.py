@@ -80,6 +80,11 @@ def is_course_detail_question(question: str) -> bool:
     ]
     return any(kw in question.lower() for kw in course_keywords)
 
+
+def _has_failed_course_recovery_trigger(text):
+    t = (text or "").lower()
+    return any(trigger in t for trigger in FAILED_COURSE_TRIGGERS)
+
 _GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 client = Groq(api_key=_GROQ_API_KEY) if _GROQ_API_KEY else None
 if not _GROQ_API_KEY:
@@ -97,6 +102,12 @@ except Exception as e:
         collection = None
 
 _REGULATIONS_CACHE = None
+
+FAILED_COURSE_TRIGGERS = [
+    "i failed", "dersten kaldım", "failed course", "kalan dersim",
+    "failed the course", "didn't pass", "geçemedim", "ff aldım",
+    "fd aldım", "not düşük",
+]
 
 
 def _infer_prospective_start_year(text, dept=None, program_name=None):
@@ -985,6 +996,17 @@ def _is_pure_credit_load_question(question):
     if not q:
         return False
 
+    extra_course_phrases = [
+        "can i take extra",
+        "how many courses can i take",
+        "extra courses",
+        "can i take more",
+        "kaç ders alabilirim",
+        "fazladan ders",
+    ]
+    if any(phrase in q for phrase in extra_course_phrases):
+        return True
+
     has_credit_phrase = any(phrase in q for phrase in [
         "how many credits can i take",
         "how many credits",
@@ -1543,6 +1565,8 @@ def _is_credit_load_question(text):
     return any(k in t for k in [
         "how many credits", "credits can i take", "credit limit", "credit load", "ects",
         "extra course", "extra courses", "additional course", "additional courses",
+        "can i take extra", "how many courses can i take", "can i take more",
+        "kaç ders alabilirim", "fazladan ders",
         "kredi", "ne kadar kredi", "kac kredi", "kaأ§ kredi",
     ])
 
@@ -1789,7 +1813,7 @@ def _format_regulations_answer(question, history, gpa_value):
             )
 
         regs = _get_regulations_from_db(collection) if collection is not None else None
-        rules = (regs.get("credit_load") or {}).get("rules_by_gpa") or {}
+        rules = ((regs or {}).get("credit_load") or {}).get("rules_by_gpa") or {}
         if gpa_value >= 2.5:
             rule = rules.get("2.50_and_above") or ""
         elif gpa_value >= 2.0:
@@ -2462,6 +2486,24 @@ DMP_FAQ = [
     },
 ]
 
+INTERNSHIP_FAQ = [
+    {
+        "keywords": [
+            "apply for internship", "internship application", "how can i apply for internship",
+            "staj başvurusu", "nasıl yapılır staj", "staj için ne yapmalı",
+            "staj başvuru nasıl", "staj kayıt",
+        ],
+        "en": (
+            "For internship applications, use IEU's Internship Management System (SYS): "
+            "https://staj.izmirekonomi.edu.tr. Follow the application steps there and check your department's internship rules before submitting."
+        ),
+        "tr": (
+            "Staj başvurusu için IEU Staj Yönetim Sistemi'ni (SYS) kullanmalısın: "
+            "https://staj.izmirekonomi.edu.tr. Başvuru adımlarını sistem üzerinden takip et ve göndermeden önce bölümünün staj kurallarını kontrol et."
+        ),
+    },
+]
+
 MINOR_FAQ = [
     {
         "keywords": [
@@ -2613,6 +2655,7 @@ FENG_497_FAQ = [
 HARDCODED_ANSWERS = {
     "it_faq": IT_FAQ,
     "pgdm_faq": PGDM_FAQ,
+    "internship_faq": INTERNSHIP_FAQ,
     "dmp_faq": DMP_FAQ,
     "minor_faq": MINOR_FAQ,
     "erasmus_faq": ERASMUS_FAQ,
@@ -2743,7 +2786,7 @@ def ask(question, history=[], client_type=None, session_language=None):
     safe_question = (question or "").encode("ascii", "backslashreplace").decode("ascii")
     print(f"\n[EkoBot] Question: {safe_question}")
 
-    if is_course_detail_question(question):
+    if is_course_detail_question(question) and not _has_failed_course_recovery_trigger(question):
         print(f"[ROUTE] Course detail question detected, going straight to RAG")
         codes = extract_course_codes(question)
         if codes:
@@ -2946,15 +2989,24 @@ def ask(question, history=[], client_type=None, session_language=None):
 
     regulations_question = is_regulations_question(question)
 
-    should_start_curriculum_flow = any(trigger in question_lower for trigger in CURRICULUM_FLOW_TRIGGERS)
+    should_start_curriculum_flow = any(
+        trigger in question_lower
+        for trigger in CURRICULUM_FLOW_TRIGGERS + FAILED_COURSE_TRIGGERS
+    )
     profile_flow_trigger = should_start_curriculum_flow and not regulations_question
 
     pythonDIRECT_RAG_KEYWORDS = [
         "internship", "staj", "staj başvuru", "apply for internship",
         "password", "şifre", "sifre", "forgot password",
         "student certificate", "degree certificate", "diploma", "mezuniyet belgesi", "diplomam", "öğrenci belgesi",
+        "staj başvurusu", "nasıl yapılır staj", "staj için ne yapmalı",
+        "staj başvuru nasıl", "staj kayıt",
         "transcript", "transkript",
         "apply for graduation", "mezuniyet başvuru",
+        "what are graduation requirements", "graduation requirements",
+        "mezuniyet şartları neler", "mezuniyet gereksinimleri",
+        "can i take extra", "how many courses can i take", "extra courses",
+        "can i take more", "kaç ders alabilirim", "fazladan ders",
         "erasmus", "exchange program",
         "graduation project", "feng 497", "feng 498", "bitirme",
     ]
@@ -3176,6 +3228,14 @@ def ask(question, history=[], client_type=None, session_language=None):
         regs_answer = _format_regulations_answer(full_question, history, gpa_value)
         if regs_answer:
             return regs_answer
+
+    if graduation_intent and any(k in q_lower for k in [
+        "what are graduation requirements",
+        "graduation requirements",
+        "mezuniyet şartları neler",
+        "mezuniyet gereksinimleri",
+    ]):
+        return _format_graduation_requirements(prefer_tr=prefer_tr)
 
     planning_intent = (
         parsed["intent"] == "planning"

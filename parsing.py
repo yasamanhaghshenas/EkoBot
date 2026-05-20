@@ -1207,8 +1207,17 @@ def extract_gpa_from_context(question, history):
         r"(?:\bgpa\b|\bcgpa\b|\bgano\b|\bortalama\b)\D{0,12}([0-4](?:[\.,]\d{1,2})?)",
         re.IGNORECASE,
     )
+    reverse_cue_pattern = re.compile(
+        r"\b([0-4](?:[\.,]\d{1,2})?)\D{0,12}(?:\bgpa\b|\bcgpa\b|\bgano\b|\bortalama\b)",
+        re.IGNORECASE,
+    )
     for text in texts:
         m = cue_pattern.search(text)
+        if m:
+            v = _to_float(m.group(1))
+            if v is not None:
+                return v
+        m = reverse_cue_pattern.search(text)
         if m:
             v = _to_float(m.group(1))
             if v is not None:
@@ -1235,6 +1244,8 @@ def is_regulations_question(text):
         "how many credits", "credits can i take", "academic standing",
         "how many ects", "ects can i take", "maximum ects", "max ects",
         "extra course", "extra courses", "additional course", "additional courses",
+        "can i take extra", "how many courses can i take", "can i take more",
+        "kaç ders alabilirim", "fazladan ders",
         "probation", "honor", "withdraw", "withdrawal", "letter grade",
         "aa", "bb", "cc", "dd", "ff", "gano", "not ortalaması",
         "akademik", "başarı koşulu", "credit limit",
@@ -1260,6 +1271,8 @@ def is_gpa_credit_limit_question(text, history=None):
         "how many credits", "credits can i take", "credit limit", "credit load",
         "how many ects", "ects can i take", "maximum ects", "max ects",
         "extra course", "extra courses", "additional course", "additional courses",
+        "can i take extra", "how many courses can i take", "can i take more",
+        "kaç ders alabilirim", "fazladan ders",
         "kaç ders alabilirim", "kac ders alabilirim", "kredi limiti", "kaç kredi", "kac kredi",
     ]
     gpa_cues = [
@@ -1272,7 +1285,15 @@ def is_gpa_credit_limit_question(text, history=None):
 
     # Exclude general planning/course-schedule style questions that mention
     # courses rather than credit limits.
-    if any(cue in t for cue in ["course", "courses", "schedule", "which course", "which courses", "what course", "what courses", "take this semester"]):
+    extra_course_cues = [
+        "can i take extra", "how many courses can i take", "extra course",
+        "extra courses", "additional course", "additional courses",
+        "can i take more", "kaç ders alabilirim", "fazladan ders",
+    ]
+    if (
+        any(cue in t for cue in ["course", "courses", "schedule", "which course", "which courses", "what course", "what courses", "take this semester"])
+        and not any(cue in t for cue in extra_course_cues)
+    ):
         return False
 
     # If a numeric GPA is present in the current message or recent history,
