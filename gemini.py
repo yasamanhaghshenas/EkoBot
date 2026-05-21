@@ -70,7 +70,7 @@ from retrieval import (
 
 def is_course_detail_question(question: str) -> bool:
     """Returns True if question is asking about a specific course"""
-    course_code_pattern = r'\b[A-Za-z]{2,5}\s?\d{3}\b'
+    course_code_pattern = r'\b[A-Za-z]{2,5}[\s]?\d{3}\b'
     if re.search(course_code_pattern, question, re.IGNORECASE):
         return True
     course_keywords = [
@@ -98,6 +98,29 @@ def _is_vague_help_request(question: str) -> bool:
 def _has_failed_course_recovery_trigger(text):
     t = (text or "").lower()
     return any(trigger in t for trigger in FAILED_COURSE_TRIGGERS)
+
+
+EMERGENCY_TRIGGERS = [
+    "acil yardım", "acil", "emergency", "crisis", "kriz",
+    "harm myself", "kendime zarar", "suicide", "intihar",
+    "urgent help", "acil yardım lazım", "can't cope", "112"
+]
+
+
+GRADUATION_ECTS_TRIGGERS = [
+    "kaç ects lazım", "how many ects", "minimum ects",
+    "ects for graduation", "mezuniyet ects", "240 ects"
+]
+
+
+def _is_emergency_question(question: str) -> bool:
+    q_lower = (question or "").lower()
+    return any(trigger in q_lower for trigger in EMERGENCY_TRIGGERS)
+
+
+def _is_graduation_ects_question(question: str) -> bool:
+    q_lower = (question or "").lower()
+    return any(trigger in q_lower for trigger in GRADUATION_ECTS_TRIGGERS)
 
 _GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 client = Groq(api_key=_GROQ_API_KEY) if _GROQ_API_KEY else None
@@ -995,6 +1018,20 @@ def _is_elective_followup_request(question):
     ])
 
 
+FULL_LIST_TRIGGERS = [
+    "full list", "complete list", "all electives", "show all",
+    "tüm seçmeli", "tam liste", "hepsini göster", "tümünü göster",
+    "tüm liste", "hepsi",
+]
+
+
+def _wants_full_elective_list(question):
+    q = _normalize_chatty_text(question)
+    if not q:
+        return False
+    return any(phrase in q for phrase in FULL_LIST_TRIGGERS)
+
+
 def _assistant_mentions_elective_context(text):
     content_lower = (text or "").lower()
     return any(phrase in content_lower for phrase in [
@@ -1070,11 +1107,13 @@ def _maybe_elective_followup(question, history, session_language=None):
     if not dept:
         return None
 
+    full_list = _wants_full_elective_list(question)
     elective_lines = _format_elective_option_lines(
         dept,
         start_year=profile.get("start_year"),
         program_name=profile.get("program_name"),
         curriculum_url=profile.get("curriculum_url"),
+        full_list=full_list,
         prefer_tr=_looks_turkish(question),
     )
     if not elective_lines:
@@ -1083,7 +1122,7 @@ def _maybe_elective_followup(question, history, session_language=None):
     return "\n".join(elective_lines)
 
 
-def _format_elective_option_lines(dept, start_year=None, program_name=None, curriculum_url=None, limit=20, prefer_tr=False):
+def _format_elective_option_lines(dept, start_year=None, program_name=None, curriculum_url=None, limit=20, full_list=False, prefer_tr=False):
     electives = get_electives(
         dept,
         start_year=start_year,
@@ -1094,18 +1133,52 @@ def _format_elective_option_lines(dept, start_year=None, program_name=None, curr
         return []
 
     lines = [_t(f"Available electives for {dept}:", f"{dept} icin mevcut secmeli dersler:", prefer_tr)]
-    for item in electives[:limit]:
-        code = (item.get("code") or "").strip()
-        name = (item.get("name") or "").strip()
-        if code and name:
-            lines.append(f"- {code}: {name}")
-        elif code:
-            lines.append(f"- {code}")
-        elif name:
-            lines.append(f"- {name}")
+    if full_list:
+        if len(electives) > 30:
+            grouped = {}
+            for item in electives:
+                code = (item.get("code") or "").strip()
+                name = (item.get("name") or "").strip()
+                prefix_match = re.match(r"^[A-Za-z]+", code)
+                prefix = prefix_match.group(0).upper() if prefix_match else _t("Other", "Diger", prefer_tr)
+                grouped.setdefault(prefix, []).append((code, name))
 
-    if len(electives) > limit:
-        lines.append(_t(f"- ...and {len(electives) - limit} more elective option(s).", f"- ...ve {len(electives) - limit} adet daha secmeli ders var.", prefer_tr))
+            for prefix in sorted(grouped):
+                lines.append(f"{prefix}:")
+                for code, name in grouped[prefix]:
+                    if code and name:
+                        lines.append(f"- {code}: {name}")
+                    elif code:
+                        lines.append(f"- {code}")
+                    elif name:
+                        lines.append(f"- {name}")
+        else:
+            for item in electives:
+                code = (item.get("code") or "").strip()
+                name = (item.get("name") or "").strip()
+                if code and name:
+                    lines.append(f"- {code}: {name}")
+                elif code:
+                    lines.append(f"- {code}")
+                elif name:
+                    lines.append(f"- {name}")
+    else:
+        for item in electives[:limit]:
+            code = (item.get("code") or "").strip()
+            name = (item.get("name") or "").strip()
+            if code and name:
+                lines.append(f"- {code}: {name}")
+            elif code:
+                lines.append(f"- {code}")
+            elif name:
+                lines.append(f"- {name}")
+
+        if len(electives) > limit:
+            lines.append(_t(
+                "- Showing first 20 electives. Say 'show all' to see the complete list.",
+                "- Ilk 20 secmeli dersi gosteriyorum. Tam listeyi gormek icin 'show all' yaz.",
+                prefer_tr,
+            ))
 
     return lines
 
@@ -2802,6 +2875,12 @@ def ask(question, history=[], client_type=None, session_language=None):
     safe_question = (question or "").encode("ascii", "backslashreplace").decode("ascii")
     print(f"\n[EkoBot] Question: {safe_question}")
 
+    if _is_emergency_question(question):
+        matched_keywords, hardcoded_answer = _match_hardcoded_entries(question, session_language or detect_language(question), PGDM_FAQ)
+        if hardcoded_answer:
+            print(f"[ROUTE] PGDM match: psychological support")
+            return hardcoded_answer
+
     failed_course_recovery_intent = _has_failed_course_recovery_trigger(question) and bool(extract_course_codes(question))
 
     if is_course_detail_question(question) and not failed_course_recovery_intent:
@@ -2827,6 +2906,13 @@ def ask(question, history=[], client_type=None, session_language=None):
 
     session_language = session_language or detect_language(question)
     prefer_tr = session_language == "tr"
+
+    if _is_graduation_ects_question(question):
+        return _t(
+            "To graduate from IEU, you need a minimum of 240 ECTS credits, a CGPA of at least 2.00/4.00, and completion of your compulsory internship.",
+            "İEÜ'den mezun olmak için en az 240 ECTS, minimum 2.00/4.00 CGPA ve zorunlu stajını tamamlaman gerekiyor.",
+            prefer_tr,
+        )
 
     if _is_vague_help_request(question):
         return _t(
@@ -3033,10 +3119,13 @@ def ask(question, history=[], client_type=None, session_language=None):
         "apply for graduation", "mezuniyet başvuru",
         "what are graduation requirements", "graduation requirements",
         "mezuniyet şartları neler", "mezuniyet gereksinimleri",
+        "minimum gpa for graduation", "graduation gpa", "mezuniyet için gpa",
+        "mezuniyet not ortalaması", "minimum cgpa",
         "can i take extra", "how many courses can i take", "extra courses",
         "can i take more", "kaç ders alabilirim", "fazladan ders",
         "erasmus", "exchange program",
         "graduation project", "feng 497", "feng 498", "bitirme",
+        "i failed", "dersten kaldım",
     ]
     if any(kw in question_lower for kw in pythonDIRECT_RAG_KEYWORDS):
         # skip curriculum flow, go straight to RAG
@@ -3922,6 +4011,7 @@ def _format_semester_courses(
 if __name__ == "__main__":
     print("EkoBot â€” type your question (or 'quit' to exit)")
     print("-" * 50)
+    print(is_course_detail_question("CE 101 prerequisites"))
     conversation_history = []
 
     while True:
