@@ -23,7 +23,7 @@
   {"id": 22, "category": "student_services", "question": "How can I get my student certificate?", "expected": "Student Information System or Student Affairs"},
   {"id": 23, "category": "student_services", "question": "I want to take a semester off", "expected": "kayıt dondurma, Student Affairs"},
   {"id": 24, "category": "curriculum_flow", "question": "I am a software engineering student in 2nd year spring, what courses should I take?", "expected": "should start curriculum flow correctly"},
-  {"id": 25, "category": "curriculum_flow", "question": "I failed SE 213, what should I do?", "expected": "recovery", "note": "needs the failed course flow"},
+  {"id": 25, "category": "curriculum_flow", "question": "I failed SE 213, what should I do?", "expected": "retake", "note": "needs the failed course flow"},
   {"id": 26, "category": "acronyms", "question": "What is OBS?", "expected": "Öğrenci Bilgi Sistemi, obs.izmirekonomi.edu.tr"},
   {"id": 27, "category": "acronyms", "question": "What is YBS?", "expected": "Yönetim Bilgi Sistemleri, ybs.ieu.edu.tr"},
   {"id": 28, "category": "conversational", "question": "thanks", "expected": "welcome"},

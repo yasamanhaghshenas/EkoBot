@@ -70,11 +70,11 @@ from retrieval import (
 
 def is_course_detail_question(question: str) -> bool:
     """Returns True if question is asking about a specific course"""
-    course_code_pattern = r'\b[A-Za-z]{2,5}[\s]?\d{3}\b'
+    course_code_pattern = r'\b[A-Za-z]{2,5}[\s]{0,2}\d{3}\b'
     if re.search(course_code_pattern, question, re.IGNORECASE):
         return True
     course_keywords = [
-        "who teaches", "who is the instructor", "prerequisites of",
+        "who teaches", "who is the instructor", "prerequisites of", "prerequisites for",
         "ön koşul", "syllabus of", "tell me about this course",
         "bu dersi kim veriyor", "dersin ön koşulu"
     ]
@@ -87,12 +87,37 @@ VAGUE_HELP_TRIGGERS = [
     "ne yapabilirim", "nereye başvurayım",
 ]
 
+FLOW_CANCEL_TRIGGERS = [
+    "sana ne", "nevermind", "never mind", "cancel", "iptal",
+    "bırak", "neyse", "forget it", "boşver", "tamam gerek yok",
+]
+
 
 def _is_vague_help_request(question: str) -> bool:
     q_lower = (question or "").lower()
     if not any(trigger in q_lower for trigger in VAGUE_HELP_TRIGGERS):
         return False
     return not any(keyword in q_lower for keyword in ACADEMIC_KEYWORDS)
+
+
+def _is_flow_cancel_request(question: str) -> bool:
+    q_lower = (question or "").lower()
+    return any(trigger in q_lower for trigger in FLOW_CANCEL_TRIGGERS)
+
+
+def _extract_elective_department(question, history=None):
+    q = (question or "").strip()
+    q_lower = q.lower()
+
+    for pattern in [r"\bno\s+for\s+(.+)$", r"\bfor\s+(.+)$"]:
+        match = re.search(pattern, q_lower, re.IGNORECASE)
+        if match:
+            candidate = match.group(1).strip(" .,!?:;")
+            dept = detect_department_from_context(candidate, history or [], strict=False, allow_short_code_reply=True)
+            if dept:
+                return dept
+
+    return detect_department_from_context(q, history or [], strict=False, allow_short_code_reply=True)
 
 
 def _has_failed_course_recovery_trigger(text):
@@ -121,6 +146,18 @@ def _is_emergency_question(question: str) -> bool:
 def _is_graduation_ects_question(question: str) -> bool:
     q_lower = (question or "").lower()
     return any(trigger in q_lower for trigger in GRADUATION_ECTS_TRIGGERS)
+
+
+GRADUATION_GPA_TRIGGERS = [
+    "minimum gpa for graduation", "graduation gpa requirement",
+    "mezuniyet için minimum gpa", "mezuniyet gpa",
+    "what gpa do i need to graduate", "cgpa for graduation"
+]
+
+
+def _is_graduation_gpa_question(question: str) -> bool:
+    q_lower = (question or "").lower()
+    return any(trigger in q_lower for trigger in GRADUATION_GPA_TRIGGERS)
 
 _GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 client = Groq(api_key=_GROQ_API_KEY) if _GROQ_API_KEY else None
@@ -1114,6 +1151,39 @@ def _maybe_elective_followup(question, history, session_language=None):
         program_name=profile.get("program_name"),
         curriculum_url=profile.get("curriculum_url"),
         full_list=full_list,
+        prefer_tr=_looks_turkish(question),
+    )
+    if not elective_lines:
+        return get_fallback_response(session_language or detect_language(question))
+
+    return "\n".join(elective_lines)
+
+
+def _maybe_elective_department_correction(question, history, session_language=None):
+    last_assistant = None
+    for msg in reversed((history or [])[-12:]):
+        if msg.get("role") == "assistant":
+            last_assistant = msg.get("content", "")
+            break
+
+    has_elective_context = bool(last_assistant and _assistant_mentions_elective_context(last_assistant))
+    has_direct_elective_request = _is_elective_followup_request(question)
+    has_dept_correction_phrase = bool(re.search(r"\b(?:no\s+for|for)\b", (question or ""), re.IGNORECASE))
+
+    if not (has_elective_context or has_direct_elective_request or has_dept_correction_phrase):
+        return None
+
+    dept = _extract_elective_department(question, history)
+    if not dept:
+        return None
+
+    profile = extract_profile_from_history(history or [])
+    elective_lines = _format_elective_option_lines(
+        dept,
+        start_year=profile.get("start_year"),
+        program_name=profile.get("program_name"),
+        curriculum_url=profile.get("curriculum_url"),
+        full_list=_wants_full_elective_list(question),
         prefer_tr=_looks_turkish(question),
     )
     if not elective_lines:
@@ -2907,10 +2977,29 @@ def ask(question, history=[], client_type=None, session_language=None):
     session_language = session_language or detect_language(question)
     prefer_tr = session_language == "tr"
 
+    last_bot_q = get_last_bot_question_type(history)
+    if last_bot_q in {"year_term", "start_year", "semester"} and _is_flow_cancel_request(question):
+        return _t(
+            "No problem! Let me know if you need anything else.",
+            "Tamam, başka bir konuda yardımcı olabilir miyim?",
+            prefer_tr,
+        )
+
+    elective_correction = _maybe_elective_department_correction(question, history, session_language=session_language)
+    if elective_correction:
+        return elective_correction
+
     if _is_graduation_ects_question(question):
         return _t(
             "To graduate from IEU, you need a minimum of 240 ECTS credits, a CGPA of at least 2.00/4.00, and completion of your compulsory internship.",
             "İEÜ'den mezun olmak için en az 240 ECTS, minimum 2.00/4.00 CGPA ve zorunlu stajını tamamlaman gerekiyor.",
+            prefer_tr,
+        )
+
+    if _is_graduation_gpa_question(question):
+        return _t(
+            "To graduate from IEU, you need a minimum CGPA of 2.00 out of 4.00, plus completion of at least 240 ECTS and your compulsory internship.",
+            "İEÜ'den mezun olmak için minimum 2.00/4.00 CGPA, en az 240 ECTS ve zorunlu stajını tamamlaman gerekiyor.",
             prefer_tr,
         )
 
@@ -3126,6 +3215,9 @@ def ask(question, history=[], client_type=None, session_language=None):
         "erasmus", "exchange program",
         "graduation project", "feng 497", "feng 498", "bitirme",
         "i failed", "dersten kaldım",
+        "electives for", "what are electives", "seçmeli dersler",
+        "elective courses", "show electives", "list electives",
+        "electives in", "available electives",
     ]
     if any(kw in question_lower for kw in pythonDIRECT_RAG_KEYWORDS):
         # skip curriculum flow, go straight to RAG
