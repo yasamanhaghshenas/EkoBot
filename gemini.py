@@ -81,6 +81,20 @@ def is_course_detail_question(question: str) -> bool:
     return any(kw in question.lower() for kw in course_keywords)
 
 
+VAGUE_HELP_TRIGGERS = [
+    "i need help", "i need some help", "help me", "can you help",
+    "yardım", "yardım lazım", "yardıma ihtiyacım var", "yardım eder misin",
+    "ne yapabilirim", "nereye başvurayım",
+]
+
+
+def _is_vague_help_request(question: str) -> bool:
+    q_lower = (question or "").lower()
+    if not any(trigger in q_lower for trigger in VAGUE_HELP_TRIGGERS):
+        return False
+    return not any(keyword in q_lower for keyword in ACADEMIC_KEYWORDS)
+
+
 def _has_failed_course_recovery_trigger(text):
     t = (text or "").lower()
     return any(trigger in t for trigger in FAILED_COURSE_TRIGGERS)
@@ -855,7 +869,7 @@ def _profiling_followup_options(question_type, profile, prefer_tr=False):
                 dept,
                 program_name=profile.get("program_name"),
             )
-            if len(years) > 1:
+            if years:
                 return [{"label": str(year), "value": str(year)} for year in years]
     return None
 
@@ -894,6 +908,7 @@ def ask_with_options(question, history=None, client_type=None, session_language=
         elif any(
             phrase in lowered
             for phrase in [
+                "which year did you start university",
                 "which year did you enroll",
                 "what year did you enroll",
                 "entry year",
@@ -926,6 +941,7 @@ def ask_with_options(question, history=None, client_type=None, session_language=
         elif any(
             phrase in lowered
             for phrase in [
+                "which year of your program are you in",
                 "which year are you in",
                 "what year are you in",
                 "which year and semester",
@@ -2786,7 +2802,9 @@ def ask(question, history=[], client_type=None, session_language=None):
     safe_question = (question or "").encode("ascii", "backslashreplace").decode("ascii")
     print(f"\n[EkoBot] Question: {safe_question}")
 
-    if is_course_detail_question(question) and not _has_failed_course_recovery_trigger(question):
+    failed_course_recovery_intent = _has_failed_course_recovery_trigger(question) and bool(extract_course_codes(question))
+
+    if is_course_detail_question(question) and not failed_course_recovery_intent:
         print(f"[ROUTE] Course detail question detected, going straight to RAG")
         codes = extract_course_codes(question)
         if codes:
@@ -2809,6 +2827,13 @@ def ask(question, history=[], client_type=None, session_language=None):
 
     session_language = session_language or detect_language(question)
     prefer_tr = session_language == "tr"
+
+    if _is_vague_help_request(question):
+        return _t(
+            "Of course! Here's what I can help you with:\n\n📚 Course details and prerequisites\n📋 Curriculum planning\n🎓 Graduation requirements\n💼 Internship applications\n🌍 Erasmus exchange\n🔐 IT support (password, wifi)\n🧠 Psychological counseling\n📄 Student services (certificate, transcript)\n\nWhat do you need help with?",
+            "Tabii ki! Şu konularda yardımcı olabilirim:\n\n📚 Ders detayları ve ön koşullar\n📋 Müfredat planlaması\n🎓 Mezuniyet gereksinimleri\n💼 Staj başvuruları\n🌍 Erasmus değişim programı\n🔐 IT destek (şifre, wifi)\n🧠 Psikolojik danışmanlık\n📄 Öğrenci hizmetleri (belge, transkript)\n\nNe konusunda yardıma ihtiyacın var?",
+            prefer_tr,
+        )
 
     matched_keywords, hardcoded_answer = _match_hardcoded_entries(question, session_language, PGDM_FAQ)
     if hardcoded_answer:
@@ -2988,6 +3013,9 @@ def ask(question, history=[], client_type=None, session_language=None):
             return profile_ack
 
     regulations_question = is_regulations_question(question)
+
+    if failed_course_recovery_intent:
+        profile_flow_trigger = False
 
     should_start_curriculum_flow = any(
         trigger in question_lower
