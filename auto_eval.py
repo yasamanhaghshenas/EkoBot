@@ -5,10 +5,10 @@ import os
 import re
 import sys
 import types
-from functools import lru_cache
 from datetime import datetime
+from functools import lru_cache
 from pathlib import Path
-from urllib.error import URLError, HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 
@@ -21,7 +21,11 @@ def load_cases(path):
 
 
 def _safe_text(value):
-    return ("" if value is None else str(value)).encode("ascii", "backslashreplace").decode("ascii")
+    return (
+        ("" if value is None else str(value))
+        .encode("ascii", "backslashreplace")
+        .decode("ascii")
+    )
 
 
 def load_departments_from_curriculum(path="curriculum.json"):
@@ -208,12 +212,14 @@ def auto_generate_failed_course_cases(limit_per_department=1):
             year, term = _parse_semester_name(sem_name)
             if not year or not term or not isinstance(courses, list):
                 continue
-            sem_entries.append({
-                "year": year,
-                "term": term,
-                "index": _semester_sort_index(year, term),
-                "courses": courses,
-            })
+            sem_entries.append(
+                {
+                    "year": year,
+                    "term": term,
+                    "index": _semester_sort_index(year, term),
+                    "courses": courses,
+                }
+            )
 
         sem_entries.sort(key=lambda x: x["index"])
         if len(sem_entries) < 2:
@@ -243,23 +249,37 @@ def auto_generate_failed_course_cases(limit_per_department=1):
                 # Skip ambiguous variants when start year is required but unavailable.
                 continue
 
-            cases.append({
-                "id": f"AUTO_FAILED_{dept}_{target['year']}_{target['term'].upper()}_{generated + 1}",
-                "category": "planning",
-                "question": (
-                    f"I am in {dept} department{started_phrase}, {_year_ordinal(target['year'])} year "
-                    f"{target['term'].lower()}. I failed {failed_code}. Which courses should I take?"
-                ),
-                "history": [],
-                "checks": [
-                    {"type": "contains", "value": "Retake priority"},
-                    {"type": "contains", "value": "Suggested recovery order"},
-                    {"type": "contains", "value": "ECTS-aware recovery schedule"},
-                    {"type": "contains", "value": "Strict prerequisite sequencing is applied"},
-                    {"type": "contains_any", "value": ["Blocked dependency chain", "No downstream prerequisite blockers"]},
-                    {"type": "contains_any", "value": ["offered in Fall", "offered in Spring"]}
-                ]
-            })
+            cases.append(
+                {
+                    "id": f"AUTO_FAILED_{dept}_{target['year']}_{target['term'].upper()}_{generated + 1}",
+                    "category": "planning",
+                    "question": (
+                        f"I am in {dept} department{started_phrase}, {_year_ordinal(target['year'])} year "
+                        f"{target['term'].lower()}. I failed {failed_code}. Which courses should I take?"
+                    ),
+                    "history": [],
+                    "checks": [
+                        {"type": "contains", "value": "Retake priority"},
+                        {"type": "contains", "value": "Suggested recovery order"},
+                        {"type": "contains", "value": "ECTS-aware recovery schedule"},
+                        {
+                            "type": "contains",
+                            "value": "Strict prerequisite sequencing is applied",
+                        },
+                        {
+                            "type": "contains_any",
+                            "value": [
+                                "Blocked dependency chain",
+                                "No downstream prerequisite blockers",
+                            ],
+                        },
+                        {
+                            "type": "contains_any",
+                            "value": ["offered in Fall", "offered in Spring"],
+                        },
+                    ],
+                }
+            )
             generated += 1
             if generated >= limit_per_department:
                 break
@@ -279,95 +299,121 @@ def auto_generate_cases(target_count=60):
 
     for dept in depts:
         latest_year = entry_years.get(dept, [])[-1] if entry_years.get(dept) else None
-        fall_question = f"I am in {dept} department, 1st year fall. Which courses should I take?"
-        spring_question = f"I am in {dept} department, 2nd year spring. Which courses should I take?"
+        fall_question = (
+            f"I am in {dept} department, 1st year fall. Which courses should I take?"
+        )
+        spring_question = (
+            f"I am in {dept} department, 2nd year spring. Which courses should I take?"
+        )
         if latest_year:
             fall_question = f"I am in {dept} department, started in {latest_year}, 1st year fall. Which courses should I take?"
             spring_question = f"I am in {dept} department, started in {latest_year}, 2nd year spring. Which courses should I take?"
 
         if latest_year:
-            cases.append({
-                "id": f"AUTO_PLAN_{dept}_1_FALL",
-                "category": "planning",
-                "question": fall_question,
-                "history": [],
-                "checks": [
-                    {"type": "contains", "value": dept},
-                    {"type": "contains", "value": "Year 1 Fall Semester"}
-                ]
-            })
-            cases.append({
-                "id": f"AUTO_PLAN_{dept}_2_SPRING",
-                "category": "planning",
-                "question": spring_question,
-                "history": [],
-                "checks": [
-                    {"type": "contains", "value": dept},
-                    {"type": "contains", "value": "Year 2 Spring Semester"}
-                ]
-            })
-            cases.append({
-                "id": f"AUTO_PLAN_{dept}_PARAPHRASE_1",
-                "category": "planning",
-                "question": f"I am in {dept} department and started in {latest_year}, what courses should I take in 2nd year spring?",
-                "history": [],
-                "checks": [
-                    {"type": "contains", "value": dept},
-                    {"type": "contains", "value": "Year 2 Spring Semester"}
-                ]
-            })
-            cases.append({
-                "id": f"AUTO_PLAN_{dept}_PARAPHRASE_2",
-                "category": "planning",
-                "question": f"Could you show me the courses I need in 1st year fall for {dept}? I started in {latest_year}.",
-                "history": [],
-                "checks": [
-                    {"type": "contains", "value": dept},
-                    {"type": "contains", "value": "Year 1 Fall Semester"}
-                ]
-            })
+            cases.append(
+                {
+                    "id": f"AUTO_PLAN_{dept}_1_FALL",
+                    "category": "planning",
+                    "question": fall_question,
+                    "history": [],
+                    "checks": [
+                        {"type": "contains", "value": dept},
+                        {"type": "contains", "value": "Year 1 Fall Semester"},
+                    ],
+                }
+            )
+            cases.append(
+                {
+                    "id": f"AUTO_PLAN_{dept}_2_SPRING",
+                    "category": "planning",
+                    "question": spring_question,
+                    "history": [],
+                    "checks": [
+                        {"type": "contains", "value": dept},
+                        {"type": "contains", "value": "Year 2 Spring Semester"},
+                    ],
+                }
+            )
+            cases.append(
+                {
+                    "id": f"AUTO_PLAN_{dept}_PARAPHRASE_1",
+                    "category": "planning",
+                    "question": f"I am in {dept} department and started in {latest_year}, what courses should I take in 2nd year spring?",
+                    "history": [],
+                    "checks": [
+                        {"type": "contains", "value": dept},
+                        {"type": "contains", "value": "Year 2 Spring Semester"},
+                    ],
+                }
+            )
+            cases.append(
+                {
+                    "id": f"AUTO_PLAN_{dept}_PARAPHRASE_2",
+                    "category": "planning",
+                    "question": f"Could you show me the courses I need in 1st year fall for {dept}? I started in {latest_year}.",
+                    "history": [],
+                    "checks": [
+                        {"type": "contains", "value": dept},
+                        {"type": "contains", "value": "Year 1 Fall Semester"},
+                    ],
+                }
+            )
         elif row_counts.get(dept, 0) == 1:
-            cases.append({
-                "id": f"AUTO_PLAN_{dept}_1_FALL",
-                "category": "planning",
-                "question": fall_question,
-                "history": [],
-                "checks": [
-                    {"type": "contains", "value": dept},
-                    {"type": "contains", "value": "Year 1 Fall Semester"}
-                ]
-            })
-            cases.append({
-                "id": f"AUTO_PLAN_{dept}_2_SPRING",
-                "category": "planning",
-                "question": spring_question,
-                "history": [],
-                "checks": [
-                    {"type": "contains", "value": dept},
-                    {"type": "contains", "value": "Year 2 Spring Semester"}
-                ]
-            })
+            cases.append(
+                {
+                    "id": f"AUTO_PLAN_{dept}_1_FALL",
+                    "category": "planning",
+                    "question": fall_question,
+                    "history": [],
+                    "checks": [
+                        {"type": "contains", "value": dept},
+                        {"type": "contains", "value": "Year 1 Fall Semester"},
+                    ],
+                }
+            )
+            cases.append(
+                {
+                    "id": f"AUTO_PLAN_{dept}_2_SPRING",
+                    "category": "planning",
+                    "question": spring_question,
+                    "history": [],
+                    "checks": [
+                        {"type": "contains", "value": dept},
+                        {"type": "contains", "value": "Year 2 Spring Semester"},
+                    ],
+                }
+            )
         else:
-            cases.append({
-                "id": f"AUTO_PLAN_{dept}_1_FALL",
-                "category": "planning",
-                "question": fall_question,
-                "history": [],
-                "checks": [
-                    {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
-                    {"type": "contains", "value": "Which year did you enroll in university"}
-                ]
-            })
-            cases.append({
-                "id": f"AUTO_PLAN_{dept}_2_SPRING",
-                "category": "planning",
-                "question": spring_question,
-                "history": [],
-                "checks": [
-                    {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
-                    {"type": "contains", "value": "Which year did you enroll in university"}
-                ]
-            })
+            cases.append(
+                {
+                    "id": f"AUTO_PLAN_{dept}_1_FALL",
+                    "category": "planning",
+                    "question": fall_question,
+                    "history": [],
+                    "checks": [
+                        {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+                        {
+                            "type": "contains",
+                            "value": "Which year did you enroll in university",
+                        },
+                    ],
+                }
+            )
+            cases.append(
+                {
+                    "id": f"AUTO_PLAN_{dept}_2_SPRING",
+                    "category": "planning",
+                    "question": spring_question,
+                    "history": [],
+                    "checks": [
+                        {"type": "starts_with", "value": "FOLLOWUP_NEEDED:"},
+                        {
+                            "type": "contains",
+                            "value": "Which year did you enroll in university",
+                        },
+                    ],
+                }
+            )
 
     # Fill up to target with out-of-scope refusal checks.
     refusal_prompts = [
@@ -378,21 +424,23 @@ def auto_generate_cases(target_count=60):
         "Tell me bitcoin price prediction.",
         "How do I cook lasagna?",
         "Translate this random sentence to Japanese.",
-        "Who is the best football team this year?"
+        "Who is the best football team this year?",
     ]
 
     idx = 1
     while len(cases) < target_count:
         prompt = refusal_prompts[(idx - 1) % len(refusal_prompts)]
-        cases.append({
-            "id": f"AUTO_REFUSAL_{idx:03d}",
-            "category": "refusal",
-            "question": prompt,
-            "history": [],
-            "checks": [
-                {"type": "contains_any", "value": ["I don't have", "IEU database"]}
-            ]
-        })
+        cases.append(
+            {
+                "id": f"AUTO_REFUSAL_{idx:03d}",
+                "category": "refusal",
+                "question": prompt,
+                "history": [],
+                "checks": [
+                    {"type": "contains_any", "value": ["I don't have", "IEU database"]}
+                ],
+            }
+        )
         idx += 1
 
     return cases
@@ -400,7 +448,9 @@ def auto_generate_cases(target_count=60):
 
 def call_api(question, history, url):
     payload = json.dumps({"question": question, "history": history}).encode("utf-8")
-    req = Request(url, data=payload, headers={"Content-Type": "application/json"}, method="POST")
+    req = Request(
+        url, data=payload, headers={"Content-Type": "application/json"}, method="POST"
+    )
 
     try:
         with urlopen(req, timeout=45) as resp:
@@ -418,11 +468,13 @@ def call_api(question, history, url):
 
 
 def _install_mock_modules():
-    mock_groq = types.ModuleType("groq")
+    mock_openai = types.ModuleType("openai")
 
     class MockResponse:
         def __init__(self, content):
-            self.choices = [types.SimpleNamespace(message=types.SimpleNamespace(content=content))]
+            self.choices = [
+                types.SimpleNamespace(message=types.SimpleNamespace(content=content))
+            ]
 
     class MockCompletions:
         def create(self, model, messages, **kwargs):
@@ -440,13 +492,18 @@ def _install_mock_modules():
                     re.IGNORECASE | re.DOTALL,
                 )
             if not m:
-                m = re.search(r"student question:\s*(.+)$", user_prompt, re.IGNORECASE | re.DOTALL)
+                m = re.search(
+                    r"student question:\s*(.+)$", user_prompt, re.IGNORECASE | re.DOTALL
+                )
             q_text = (m.group(1) if m else user_prompt).strip().lower()
 
             def has_pattern(patterns):
                 return any(re.search(p, q_text) for p in patterns)
 
-            if "student-request parser" in system_prompt.lower() or "return only valid json" in system_prompt.lower():
+            if (
+                "student-request parser" in system_prompt.lower()
+                or "return only valid json" in system_prompt.lower()
+            ):
                 dept = None
                 dept_codes = load_departments_from_curriculum()
                 for code, aliases in {
@@ -463,7 +520,9 @@ def _install_mock_modules():
                     "FE": ["fe", "food engineering"],
                     "HEM": ["nursing", "hem"],
                 }.items():
-                    if code in {"ME", "AE", "IE", "FE"} and not re.search(r"\b(department|dept|major|student|bolum|bölüm)\b", q_text):
+                    if code in {"ME", "AE", "IE", "FE"} and not re.search(
+                        r"\b(department|dept|major|student|bolum|bölüm)\b", q_text
+                    ):
                         continue
                     patterns = []
                     for alias in aliases:
@@ -477,17 +536,29 @@ def _install_mock_modules():
 
                 if dept is None:
                     for code in dept_codes:
-                        if code in {"ME", "AE", "IE", "FE"} and not re.search(r"\b(department|dept|major|student|bolum|bölüm)\b", q_text):
+                        if code in {"ME", "AE", "IE", "FE"} and not re.search(
+                            r"\b(department|dept|major|student|bolum|bölüm)\b", q_text
+                        ):
                             continue
                         if re.search(rf"\b{re.escape(code.lower())}\b", q_text):
                             dept = code
                             break
 
                 year = None
-                m_year_for = re.search(r"for\s+(the\s+)?(first|second|third|fourth|fifth|sixth|[1-6](?:st|nd|rd|th)?)\s+year", q_text)
+                m_year_for = re.search(
+                    r"for\s+(the\s+)?(first|second|third|fourth|fifth|sixth|[1-6](?:st|nd|rd|th)?)\s+year",
+                    q_text,
+                )
                 if m_year_for:
                     word = m_year_for.group(2)
-                    year_map = {"first": 1, "second": 2, "third": 3, "fourth": 4, "fifth": 5, "sixth": 6}
+                    year_map = {
+                        "first": 1,
+                        "second": 2,
+                        "third": 3,
+                        "fourth": 4,
+                        "fifth": 5,
+                        "sixth": 6,
+                    }
                     year = year_map.get(word, None)
                     if year is None:
                         year = int(re.sub(r"\D", "", word))
@@ -497,37 +568,88 @@ def _install_mock_modules():
                         year = int(m_year.group(1))
 
                 term = None
-                if any(k in q_text for k in ["spring", "bahar", "second semester", "2nd semester", "second term"]):
+                if any(
+                    k in q_text
+                    for k in [
+                        "spring",
+                        "bahar",
+                        "second semester",
+                        "2nd semester",
+                        "second term",
+                    ]
+                ):
                     term = "Spring"
-                elif any(k in q_text for k in ["fall", "autumn", "güz", "guz", "first semester", "1st semester", "first term"]):
+                elif any(
+                    k in q_text
+                    for k in [
+                        "fall",
+                        "autumn",
+                        "güz",
+                        "guz",
+                        "first semester",
+                        "1st semester",
+                        "first term",
+                    ]
+                ):
                     term = "Fall"
 
                 start_year = None
-                m_start = re.search(r"(?:started|starting year|entry year|since)\D*(20\d{2})", q_text)
+                m_start = re.search(
+                    r"(?:started|starting year|entry year|since)\D*(20\d{2})", q_text
+                )
                 if m_start:
                     start_year = int(m_start.group(1))
 
                 intent = "planning"
                 if any(k in q_text for k in ["graduation", "graduate", "mezun"]):
                     intent = "graduation"
-                elif any(k in q_text for k in ["gpa", "credit", "grade", "not ortalaması", "credit load", "how many ects", "ects can i take", "maximum ects", "max ects"]):
+                elif any(
+                    k in q_text
+                    for k in [
+                        "gpa",
+                        "credit",
+                        "grade",
+                        "not ortalaması",
+                        "credit load",
+                        "how many ects",
+                        "ects can i take",
+                        "maximum ects",
+                        "max ects",
+                    ]
+                ):
                     intent = "regulations"
-                elif any(k in q_text for k in ["course", "courses", "what should i take", "which courses", "hangi ders"]):
+                elif any(
+                    k in q_text
+                    for k in [
+                        "course",
+                        "courses",
+                        "what should i take",
+                        "which courses",
+                        "hangi ders",
+                    ]
+                ):
                     intent = "planning"
 
-                return MockResponse(json.dumps({
-                    "intent": intent,
-                    "department": dept,
-                    "year": year,
-                    "term": term,
-                    "start_year": start_year,
-                    "confidence": 0.88,
-                }))
+                return MockResponse(
+                    json.dumps(
+                        {
+                            "intent": intent,
+                            "department": dept,
+                            "year": year,
+                            "term": term,
+                            "start_year": start_year,
+                            "confidence": 0.88,
+                        }
+                    )
+                )
 
             if "weather" in q_text:
-                return MockResponse("I don't have that information in the IEU database.")
+                return MockResponse(
+                    "I don't have that information in the IEU database."
+                )
             if "=== ieu database context" in user_prompt.lower() and any(
-                k in q_text for k in ["erasmus", "exchange", "coordinator", "international"]
+                k in q_text
+                for k in ["erasmus", "exchange", "coordinator", "international"]
             ):
                 if "coordinator" in q_text:
                     return MockResponse(
@@ -537,21 +659,29 @@ def _install_mock_modules():
                     "The IEU website context includes Erasmus+ student mobility rules, agreements, forms, and exchange program information."
                 )
             if "graduation" in q_text or "graduate" in q_text:
-                return MockResponse("To graduate, you need 240 ECTS and at least 2.00 CGPA.")
+                return MockResponse(
+                    "To graduate, you need 240 ECTS and at least 2.00 CGPA."
+                )
             if "below 2.00" in q_text or "below 2" in q_text:
-                return MockResponse("If GPA is below 2.00, normal load applies with maximum 32 ECTS.")
+                return MockResponse(
+                    "If GPA is below 2.00, normal load applies with maximum 32 ECTS."
+                )
             if "2.2" in q_text or "2.20" in q_text:
-                return MockResponse("With GPA between 2.00 and 2.49, you may take up to 38 ECTS (+6 extra).")
+                return MockResponse(
+                    "With GPA between 2.00 and 2.49, you may take up to 38 ECTS (+6 extra)."
+                )
             if "how many credits" in q_text or "gpa" in q_text:
-                return MockResponse("With GPA 2.50 and above, you may take up to 44 ECTS (+12 extra).")
+                return MockResponse(
+                    "With GPA 2.50 and above, you may take up to 44 ECTS (+12 extra)."
+                )
             return MockResponse("I don't have that information in the IEU database.")
 
-    class MockGroq:
-        def __init__(self, api_key=None):
+    class MockOpenAI:
+        def __init__(self, base_url=None, api_key=None):
             self.chat = types.SimpleNamespace(completions=MockCompletions())
 
-    mock_groq.Groq = MockGroq
-    sys.modules["groq"] = mock_groq
+    mock_openai.OpenAI = MockOpenAI
+    sys.modules["openai"] = mock_openai
 
     mock_chroma = types.ModuleType("chromadb")
 
@@ -599,8 +729,9 @@ def call_direct(question, history, mocked=False):
         if mocked:
             _install_mock_modules()
         gemini = importlib.import_module("gemini")
-        answer = gemini.ask(question, history)
-        is_followup = answer.startswith("FOLLOWUP_NEEDED:")
+        result = gemini.ask_with_options(question, history)
+        answer = result.get("answer", "")
+        is_followup = bool(result.get("is_followup", False))
         return answer, is_followup, None
     except Exception as e:
         return "", False, f"Direct mode failed: {e}"
@@ -648,7 +779,7 @@ def evaluate_case(case, mode, api_url):
             "checks": [],
             "answer": "",
             "is_followup": False,
-            "category": case.get("category", "uncategorized")
+            "category": case.get("category", "uncategorized"),
         }
 
     check_results = []
@@ -665,7 +796,7 @@ def evaluate_case(case, mode, api_url):
         "error": err,
         "checks": check_results,
         "answer": answer,
-        "is_followup": is_followup
+        "is_followup": is_followup,
     }
 
 
@@ -687,7 +818,7 @@ def summarize(results):
         "passed": passed,
         "failed": failed,
         "pass_rate": round((passed / total) * 100, 2) if total else 0.0,
-        "by_category": by_category
+        "by_category": by_category,
     }
 
 
@@ -698,13 +829,25 @@ def suggest_fix(result):
 
     if "http" in err or "urlerror" in err:
         return "API mode failed. Ensure FastAPI server is running at --api-url and endpoint /chat is reachable."
-    if "direct mode failed" in err and "groq" in err:
-        return "Install missing dependencies in your venv (for example groq/chromadb) or run in direct-mocked mode."
-    if "which department are you in" in str(result.get("checks", "")).lower() and "followup_needed" not in answer:
+    if "direct mode failed" in err and ("openai" in err or "chromadb" in err):
+        return "Install missing dependencies in your venv (for example openai/chromadb) or run in direct-mocked mode."
+    if (
+        "which department are you in" in str(result.get("checks", "")).lower()
+        and "followup_needed" not in answer
+    ):
         return "Review strict department inference in planning flow; bot should ask department instead of assuming one."
-    if "which year and semester" in str(result.get("checks", "")).lower() and "followup_needed" not in answer:
-        return "Review year/term extraction and follow-up branching for planning intent."
-    if result.get("category") == "refusal" and "ieu database" not in answer and "i don't have" not in answer:
+    if (
+        "which year and semester" in str(result.get("checks", "")).lower()
+        and "followup_needed" not in answer
+    ):
+        return (
+            "Review year/term extraction and follow-up branching for planning intent."
+        )
+    if (
+        result.get("category") == "refusal"
+        and "ieu database" not in answer
+        and "i don't have" not in answer
+    ):
         return "Strengthen out-of-scope refusal guardrail to keep answers grounded in IEU data only."
     if result.get("category") == "planning":
         return "Check curriculum lookup for this department/year/term in curriculum.json and extract_year_and_term parsing."
@@ -725,10 +868,14 @@ def print_failed_only(results):
         return
 
     for r in failed:
-        print(f"- {_safe_text(r.get('id'))} [{_safe_text(r.get('category','uncategorized'))}]")
+        print(
+            f"- {_safe_text(r.get('id'))} [{_safe_text(r.get('category', 'uncategorized'))}]"
+        )
         if r.get("error"):
             print(f"  Error: {_safe_text(r['error'])}")
-        print(f"  Answer: {_safe_text((r.get('answer') or '').replace(chr(10), ' | '))}")
+        print(
+            f"  Answer: {_safe_text((r.get('answer') or '').replace(chr(10), ' | '))}"
+        )
         for c in r.get("checks", []):
             if not c.get("ok"):
                 print(f"  Failed check: {_safe_text(c.get('description'))}")
@@ -746,7 +893,7 @@ def write_reports(results, summary, mode, out_dir):
         "generated_at": datetime.now().isoformat(),
         "mode": mode,
         "summary": summary,
-        "results": results
+        "results": results,
     }
 
     with open(json_path, "w", encoding="utf-8") as f:
@@ -761,11 +908,13 @@ def write_reports(results, summary, mode, out_dir):
         f"- Failed: {summary['failed']}",
         f"- Pass rate: {summary['pass_rate']}%",
         "",
-        "## Category Breakdown"
+        "## Category Breakdown",
     ]
 
     for cat, stat in sorted(summary["by_category"].items()):
-        rate = round((stat["passed"] / stat["total"]) * 100, 2) if stat["total"] else 0.0
+        rate = (
+            round((stat["passed"] / stat["total"]) * 100, 2) if stat["total"] else 0.0
+        )
         lines.append(f"- {cat}: {stat['passed']}/{stat['total']} ({rate}%)")
 
     lines.append("")
@@ -776,10 +925,10 @@ def write_reports(results, summary, mode, out_dir):
         lines.append("- None")
     else:
         for r in failed_rows:
-            lines.append(f"- {r['id']} ({r.get('category','uncategorized')})")
+            lines.append(f"- {r['id']} ({r.get('category', 'uncategorized')})")
             if r.get("error"):
                 lines.append(f"  - Error: {r['error']}")
-            lines.append(f"  - Answer: {r.get('answer','').replace(chr(10), ' | ')}")
+            lines.append(f"  - Answer: {r.get('answer', '').replace(chr(10), ' | ')}")
             for c in r.get("checks", []):
                 status = "PASS" if c.get("ok") else "FAIL"
                 lines.append(f"  - {status}: {c.get('description')}")
@@ -792,13 +941,35 @@ def write_reports(results, summary, mode, out_dir):
 
 def main():
     parser = argparse.ArgumentParser(description="Automated evaluator for EkoBot.")
-    parser.add_argument("--cases", default="eval_questions.json", help="Path to test cases JSON")
-    parser.add_argument("--mode", choices=["api", "direct", "direct-mocked"], default="direct-mocked")
-    parser.add_argument("--api-url", default="http://127.0.0.1:8000/chat", help="Chat endpoint (api mode)")
+    parser.add_argument(
+        "--cases", default="eval_questions.json", help="Path to test cases JSON"
+    )
+    parser.add_argument(
+        "--mode", choices=["api", "direct", "direct-mocked"], default="direct-mocked"
+    )
+    parser.add_argument(
+        "--api-url",
+        default="http://127.0.0.1:8000/chat",
+        help="Chat endpoint (api mode)",
+    )
     parser.add_argument("--out", default="reports", help="Report output directory")
-    parser.add_argument("--min-pass-rate", type=float, default=95.0, help="Quality gate threshold (percent)")
-    parser.add_argument("--target-cases", type=int, default=60, help="Auto-augment test set to at least this many cases")
-    parser.add_argument("--failed-only", action="store_true", help="Print only failed cases with suggestions")
+    parser.add_argument(
+        "--min-pass-rate",
+        type=float,
+        default=95.0,
+        help="Quality gate threshold (percent)",
+    )
+    parser.add_argument(
+        "--target-cases",
+        type=int,
+        default=60,
+        help="Auto-augment test set to at least this many cases",
+    )
+    parser.add_argument(
+        "--failed-only",
+        action="store_true",
+        help="Print only failed cases with suggestions",
+    )
     args = parser.parse_args()
 
     cases = load_cases(args.cases)
@@ -813,7 +984,9 @@ def main():
 
     if len(cases) < args.target_cases:
         needed = args.target_cases - len(cases)
-        for c in auto_generate_cases(target_count=max(args.target_cases * 2, needed + 10)):
+        for c in auto_generate_cases(
+            target_count=max(args.target_cases * 2, needed + 10)
+        ):
             if c.get("id") not in existing_ids:
                 cases.append(c)
                 existing_ids.add(c.get("id"))
@@ -832,7 +1005,9 @@ def main():
     print(f"Passed    : {summary['passed']}")
     print(f"Failed    : {summary['failed']}")
     print(f"Pass Rate : {summary['pass_rate']}%")
-    print(f"Gate      : {'PASS' if summary['pass_rate'] >= args.min_pass_rate else 'FAIL'} (threshold {args.min_pass_rate}%)")
+    print(
+        f"Gate      : {'PASS' if summary['pass_rate'] >= args.min_pass_rate else 'FAIL'} (threshold {args.min_pass_rate}%)"
+    )
     print(f"JSON      : {json_path}")
     print(f"Markdown  : {md_path}")
 

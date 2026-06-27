@@ -1,6 +1,6 @@
 import json
-import sys
 import os
+import sys
 
 # Ensure repository root is on sys.path for local imports
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
@@ -9,27 +9,40 @@ if ROOT not in sys.path:
 
 # Lightweight stubs for optional LLM libraries so tests run offline.
 import types
-if 'groq' not in sys.modules:
-    groq_mod = types.ModuleType('groq')
-    class Groq:
-        def __init__(self, api_key=None):
-            class Chat:
-                class Completions:
-                    @staticmethod
-                    def create(model=None, messages=None):
-                        return types.SimpleNamespace(choices=[types.SimpleNamespace(message=types.SimpleNamespace(content='(stubbed groq response)'))])
-            self.chat = Chat()
-    groq_mod.Groq = Groq
-    sys.modules['groq'] = groq_mod
+
+if "openai" not in sys.modules:
+    openai_mod = types.ModuleType("openai")
+
+    class _MockCompletions:
+        def create(self, model=None, messages=None, max_tokens=None, **kwargs):
+            return types.SimpleNamespace(
+                choices=[
+                    types.SimpleNamespace(
+                        message=types.SimpleNamespace(
+                            content="(stubbed openrouter response)"
+                        )
+                    )
+                ]
+            )
+
+    class OpenAI:
+        def __init__(self, base_url=None, api_key=None):
+            self.chat = types.SimpleNamespace(completions=_MockCompletions())
+
+    openai_mod.OpenAI = OpenAI
+    sys.modules["openai"] = openai_mod
 
 # Stub heavy optional embedding backend to avoid importing sentence-transformers
-if 'embeddings' not in sys.modules:
-    emb = types.ModuleType('embeddings')
+if "embeddings" not in sys.modules:
+    emb = types.ModuleType("embeddings")
+
     class SentenceTransformerEmbeddingFunction:
         def __init__(self):
             pass
+
         def name(self):
             return "default"
+
         def __call__(self, input):
             # Return a dummy embedding vector per input
             if isinstance(input, str):
@@ -37,24 +50,10 @@ if 'embeddings' not in sys.modules:
             else:
                 items = list(input)
             return [[0.0] for _ in items]
-    emb.SentenceTransformerEmbeddingFunction = SentenceTransformerEmbeddingFunction
-    sys.modules['embeddings'] = emb
 
-try:
-    import importlib
-    importlib.import_module('google.generativeai')
-except Exception:
-    generativeai = types.ModuleType('google.generativeai')
-    def configure(api_key=None):
-        return None
-    class GenerativeModel:
-        def __init__(self, name=None):
-            pass
-        def generate_content(self, prompt):
-            return types.SimpleNamespace(text='(stubbed gemini response)')
-    generativeai.configure = configure
-    generativeai.GenerativeModel = GenerativeModel
-    sys.modules['google.generativeai'] = generativeai
+    emb.SentenceTransformerEmbeddingFunction = SentenceTransformerEmbeddingFunction
+    sys.modules["embeddings"] = emb
+
 
 import gemini
 
@@ -65,9 +64,11 @@ def run_case(name, question, history):
     print("Question:", question)
     print("History:", json.dumps(history, ensure_ascii=False, indent=2))
     try:
-        out = gemini.ask(question, history=history, client_type=None, session_language="en")
+        result = gemini.ask_with_options(
+            question, history=history, client_type=None, session_language="en"
+        )
         print("Response:")
-        print(out)
+        print(result.get("answer", ""))
     except Exception as e:
         print("EXCEPTION:", e)
     print()
@@ -90,5 +91,5 @@ def main():
     run_case("valid_profile_reply", "CE", hist3)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

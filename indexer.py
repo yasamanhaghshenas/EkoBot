@@ -1,10 +1,11 @@
-import chromadb
 import json
 import os
 import sys
+
+import chromadb
+
 from embeddings import SentenceTransformerEmbeddingFunction
 from scraper import scrape_it_faq_pages, scrape_support_pages
-
 
 ERASMUS_URL_MARKERS = ("erasmus", "exchange", "international", "oia")
 
@@ -34,7 +35,7 @@ def batched(seq, size):
 try:
     print("Setting up ChromaDB...")
     client = chromadb.PersistentClient(path="./db")
-    COLLECTION_NAME = "ieu_courses"
+    COLLECTION_NAME = "ieu_knowledge_base"
     EMBEDDING_FUNCTION = SentenceTransformerEmbeddingFunction()
 except Exception as e:
     print(f"⚠ Warning: Failed to initialize embedding function: {e}")
@@ -47,7 +48,9 @@ def get_collection():
     if client is None:
         print("⚠ Error: ChromaDB client not initialized")
         return None
-    return client.get_or_create_collection(COLLECTION_NAME, embedding_function=EMBEDDING_FUNCTION)
+    return client.get_or_create_collection(
+        COLLECTION_NAME, embedding_function=EMBEDDING_FUNCTION
+    )
 
 
 def safe_add(collection, documents, ids, metadatas, retries=2):
@@ -58,25 +61,31 @@ def safe_add(collection, documents, ids, metadatas, retries=2):
             return collection
         except Exception as e:
             last_error = e
-            if "does not exist" in str(e).lower() or "notfound" in type(e).__name__.lower():
+            if (
+                "does not exist" in str(e).lower()
+                or "notfound" in type(e).__name__.lower()
+            ):
                 collection = get_collection()
                 continue
             raise
     raise last_error
+
 
 def main():
     """Main indexing function - can be called safely even if setup failed."""
     if client is None:
         print("⚠ Cannot index: ChromaDB client not initialized")
         return
-    
+
     try:
         client.delete_collection(COLLECTION_NAME)
     except:
         pass
 
     try:
-        collection = client.create_collection(COLLECTION_NAME, embedding_function=EMBEDDING_FUNCTION)
+        collection = client.create_collection(
+            COLLECTION_NAME, embedding_function=EMBEDDING_FUNCTION
+        )
     except Exception as e:
         print(f"⚠ Failed to create collection: {e}")
         return
@@ -87,7 +96,9 @@ def main():
         with open("courses.json", "r", encoding="utf-8") as f:
             courses = json.load(f)
     else:
-        print("courses.json not found. Skipping course indexing and continuing with available files...")
+        print(
+            "courses.json not found. Skipping course indexing and continuing with available files..."
+        )
 
     print(f"Indexing {len(courses)} courses...")
     batch_size = 100
@@ -119,7 +130,9 @@ def main():
             print(f"  Batch failed, falling back to per-item add: {e}")
             for idx, doc, meta in zip(ids, docs, metas):
                 try:
-                    collection = safe_add(collection, documents=[doc], ids=[idx], metadatas=[meta])
+                    collection = safe_add(
+                        collection, documents=[doc], ids=[idx], metadatas=[meta]
+                    )
                     indexed_courses += 1
                 except Exception:
                     failed_courses += 1
@@ -273,7 +286,9 @@ def main():
             continue
         try:
             source_url = str(metadata.get("source_url") or "")
-            category = _infer_category_from_url(source_url) or str(metadata.get("category") or "")
+            category = _infer_category_from_url(source_url) or str(
+                metadata.get("category") or ""
+            )
             collection = safe_add(
                 collection,
                 documents=[text],
@@ -364,4 +379,6 @@ if __name__ == "__main__":
         main()
     except Exception as e:
         print(f"⚠ Indexing failed: {e}")
-        print("⚠ But the application can still run without indexing (using fallback embeddings)")
+        print(
+            "⚠ But the application can still run without indexing (using fallback embeddings)"
+        )
