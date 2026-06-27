@@ -10,7 +10,7 @@ from openai import OpenAI
 
 from catalog import get_ieu_faculty_options
 from embeddings import SentenceTransformerEmbeddingFunction
-from language_utils import detect_language, get_fallback_response
+from language_utils import detect_language
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONFIGURATION
@@ -19,9 +19,9 @@ from language_utils import detect_language, get_fallback_response
 _OPENROUTER_BASE = "https://openrouter.ai/api/v1"
 _MODEL = "meta-llama/llama-3-8b-instruct:free"
 _COLLECTION_NAME = "ieu_knowledge_base"
-_CONTEXT_DOCS = 4  # top-k chunks retrieved from ChromaDB
+_CONTEXT_DOCS = 5  # top-k chunks retrieved from ChromaDB
 _MAX_CONTEXT_CHARS = 12_000
-_MAX_HISTORY_TURNS = 6  # message pairs kept in the LLM prompt
+_MAX_HISTORY_TURNS = 8  # recent turns kept in the LLM prompt
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CLIENT INITIALISATION
@@ -51,6 +51,30 @@ except Exception as _e:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# GRACEFUL DEGRADATION
+# These messages are used ONLY when the LLM service itself is unreachable
+# (network down, API key missing, etc.).  They are intentionally human-sounding
+# so even a hard service failure doesn't feel robotic.
+# ─────────────────────────────────────────────────────────────────────────────
+
+_UNAVAILABLE = {
+    "tr": (
+        "Üzgünüm, şu an küçük bir teknik sorunla karşılaştım. "
+        "Bir dakika bekleyip tekrar dener misin? 🙏"
+    ),
+    "en": (
+        "Sorry about that — I'm running into a brief technical hiccup. "
+        "Could you try again in a moment? 🙏"
+    ),
+}
+
+
+def _service_unavailable(session_language: str) -> str:
+    """Last-resort message used only when the LLM API is genuinely unreachable."""
+    return _UNAVAILABLE.get(session_language, _UNAVAILABLE["tr"])
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # RETRIEVAL
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -69,7 +93,7 @@ def _query_context(question: str, n_results: int = _CONTEXT_DOCS) -> list:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# LLM
+# SYSTEM PROMPT
 # ─────────────────────────────────────────────────────────────────────────────
 
 
@@ -78,38 +102,100 @@ def _build_system_prompt(
     session_language: str,
     client_type: str,
 ) -> str:
+    """
+    Build the system prompt that gives EkoBot its persona, guardrails, and
+    retrieved knowledge.  The design principle:
+
+    • Persona first  – the model must feel like a person, not a rule engine.
+    • Hard data rule – university facts (codes, ECTS, grades) must come ONLY
+      from the knowledge base; the model must never invent them.
+    • Soft everything else – greetings, small talk, typos, emotional messages,
+      off-topic questions are all handled naturally and gracefully.
+    """
+    # ── Prepare context block ─────────────────────────────────────────────────
     context = "\n\n---\n\n".join(context_docs)
     if len(context) > _MAX_CONTEXT_CHARS:
-        context = context[:_MAX_CONTEXT_CHARS] + "\n...[truncated]"
+        context = context[:_MAX_CONTEXT_CHARS] + "\n…[truncated]"
+
+    context_block = (
+        f"\n\n=== IEU KNOWLEDGE BASE ===\n{context}\n=== END KNOWLEDGE BASE ==="
+        if context_docs
+        else (
+            "\n\n=== IEU KNOWLEDGE BASE ===\n"
+            "(No specific documents were retrieved for this query — "
+            "rely on your general knowledge of IEU structure and persona rules.)\n"
+            "=== END KNOWLEDGE BASE ==="
+        )
+    )
 
     lang_name = "Turkish" if session_language == "tr" else "English"
+
     mobile_note = (
-        "\n- Mobile clients: use plain text only — no markdown headers or bullet points."
+        "\n\n**Mobile display:** Keep responses in plain prose. "
+        "Avoid markdown headers and dense bullet lists — use short paragraphs instead."
         if (client_type or "").strip().lower() == "mobile"
         else ""
     )
 
-    return f"""You are EkoBot, an AI academic assistant for İzmir University of Economics (IEU).
+    return f"""You are EkoBot — the friendly, intelligent academic advisor for İzmir University of Economics (IEU). You have deep knowledge of IEU's programs, courses, regulations, and campus life, and you combine that expertise with the warmth and natural conversational flow of a real person.
 
-Relevant IEU database documents are provided below as context. Your job is to answer the student's question STRICTLY from that context.
+You are NOT a rule-checking machine. You are a knowledgeable, empathetic advisor who genuinely wants to help every student who reaches out to you.
 
-STRICT RULES:
-1. Answer ONLY from the provided context. NEVER use outside knowledge or hallucinate facts.
-2. If the answer is not in the context respond exactly with:
-   - Turkish: "Bu konuda bilgim yok."
-   - English: "I don't have information on that."
-3. NEVER invent course names, codes, credits, instructors, descriptions, prerequisites, or academic rules.
-4. ALWAYS respond in {lang_name} — match the language of the student's latest message exactly. Never mix languages.
-5. Be concise, friendly, and direct — like a helpful academic advisor.
-6. Curriculum/semester planning questions require: faculty, department, year of study, semester (Fall/Spring), and enrollment year. If any of these are missing, ask for them and prefix your ENTIRE response with the literal token FOLLOWUP_NEEDED: (no space before the colon, nothing before the prefix).
-7. Short continuation replies ('yes', 'go on', 'evet', 'devam et', 'and?') — continue the last topic in conversation history; do NOT start a new topic.
-8. For course code lookups, report department info exactly as shown in the context. Do not correct or guess department prefixes.
-9. When asked about grading or evaluation, clearly list the evaluation breakdown (Midterm %, Final %, etc.) from the course data if available.{mobile_note}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PERSONA & CONVERSATIONAL STYLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Speak naturally and dynamically — vary your tone based on what the student needs.
+• Greetings & small talk → be warm and welcoming; invite them to ask anything IEU-related.
+• Casual or vague messages → engage gently; if clarification is truly needed, ask one friendly question.
+• Stress, anxiety, or frustration (e.g., "I'm failing everything", "I'm so confused") → briefly acknowledge their feelings with genuine empathy before diving into help. A little human warmth goes a long way.
+• Typos or unclear intent → interpret charitably; respond to what they most likely meant and confirm lightly if needed.
+• Thanks or compliments → respond warmly and naturally (not stiffly).
+• Humour → meet it with a light, friendly touch.
+• Short continuation replies ('yes', 'sure', 'go on', 'evet', 'devam et', 'peki', 'and?', '?') → look at the last assistant message in the conversation history and continue naturally from exactly where you left off — do NOT restart or ask clarifying questions.
 
-=== IEU DATABASE CONTEXT ===
-{context}
-=== END CONTEXT ===
-"""
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LANGUAGE RULE (strict)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Always respond in **{lang_name}** — the exact language of the student's latest message. Never mix Turkish and English in a single response. If the conversation switches language mid-thread, switch with it naturally.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HANDLING UNIVERSITY FACTS (strict data guardrail)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+The IEU Knowledge Base below contains real course syllabi, curriculum schedules, grading rules, and program information.
+
+• If the student asks about a specific university fact that IS in the knowledge base (course code, prerequisites, ECTS credits, grading percentages, graduation requirements, etc.) → answer precisely and confidently from that data.
+• If a specific fact is NOT in the knowledge base → do NOT invent or guess it. Instead:
+  – Acknowledge naturally that you don't have that detail right now.
+  – Suggest where they can find it (e.g., "You can check oim.ieu.edu.tr or ask your academic advisor directly").
+  – Offer to help with anything related that you do know.
+  – Keep this natural — never just say a cold dead-end phrase like "I don't have information on that."
+• NEVER fabricate course names, codes, credit values, instructor names, prerequisite chains, or academic rules.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CURRICULUM & SEMESTER PLANNING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+When a student asks what courses to take in a semester, you need five things: faculty, department, year of study, semester (Fall or Spring), and enrollment year.
+
+• If any of these are missing, ask for the missing piece naturally and warmly — one thing at a time when possible.
+• IMPORTANT: prefix your ENTIRE response with the literal token FOLLOWUP_NEEDED: (nothing before it, no space before the colon) whenever you are asking for a missing profile detail. This lets the interface surface quick-reply buttons for the student.
+• Once you have all five details, give a clear, helpful course list drawn from the knowledge base.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OFF-TOPIC & OUT-OF-SCOPE QUESTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+When someone asks about something completely unrelated to IEU (recipes, sports, entertainment, general trivia, coding help unrelated to university, etc.):
+
+• Do NOT give a robotic error or dismissive cold response.
+• Redirect with warmth and a light touch of personality — briefly acknowledge what they said, then invite them back to IEU topics.
+• English example: "Ha, that's a bit outside my lane — I'm an IEU specialist through and through! But I'd love to help with your courses, schedule, graduation plan, or anything campus-related. What's on your mind?"
+• Turkish example: "Orası benim uzmanlık alanımın biraz dışında kalıyor 😄 Ben tam bir İEÜ uzmanıyım — dersler, program, mezuniyet, staj... Kampüsle ilgili ne öğrenmek istersin?"
+• Keep the redirect brief, warm, and inviting — never dismissive.{mobile_note}
+{context_block}"""
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# LLM CALL
+# ─────────────────────────────────────────────────────────────────────────────
 
 
 def _call_llm(
@@ -119,13 +205,21 @@ def _call_llm(
     client_type: str = None,
     session_language: str = "tr",
 ) -> str:
+    """
+    Send the question + retrieved context to the LLM and return its response.
+
+    The LLM is fully trusted to handle all conversational cases — greetings,
+    small talk, emotional messages, off-topic redirects, and factual answers.
+    Python-level interception is kept to an absolute minimum: only genuine
+    service failures (no client, network error) trigger the degradation message.
+    """
     if _llm is None:
-        return get_fallback_response(session_language)
+        return _service_unavailable(session_language)
 
     system_prompt = _build_system_prompt(context_docs, session_language, client_type)
 
-    messages = [{"role": "system", "content": system_prompt}]
-    # Include recent conversation turns for continuity
+    # Build message list: system + recent history + current question
+    messages: list[dict] = [{"role": "system", "content": system_prompt}]
     for msg in (history or [])[-_MAX_HISTORY_TURNS:]:
         role = msg.get("role", "user")
         content = msg.get("content", "")
@@ -139,12 +233,15 @@ def _call_llm(
             model=_MODEL,
             messages=messages,
             max_tokens=1000,
+            temperature=0.7,  # a touch of warmth without going off-piste
         )
         answer = (resp.choices[0].message.content or "").strip()
-        return answer if answer else get_fallback_response(session_language)
+        # The LLM should always produce a response given this prompt.
+        # Only fall back if the API literally returned empty content.
+        return answer or _service_unavailable(session_language)
     except Exception as e:
         print(f"[LLM] Error: {e}")
-        return get_fallback_response(session_language)
+        return _service_unavailable(session_language)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -274,9 +371,9 @@ def ask_with_options(
     Returns
     -------
     dict with keys:
-        answer       – bot's text response (str)
-        is_followup  – True when the bot needs more info from the student (bool)
-        options      – list of {label, value} quick-reply dicts, or None
+        answer        – bot's text response (str)
+        is_followup   – True when the bot needs more info from the student (bool)
+        options       – list of {label, value} quick-reply dicts, or None
         followup_mode – 'replace' | None
     """
     history = history or []
@@ -290,7 +387,7 @@ def ask_with_options(
     context_docs = _query_context(question)
     print(f"  Retrieved {len(context_docs)} context doc(s) from ChromaDB")
 
-    # ── Step 2: call the LLM with injected context ───────────────────────────
+    # ── Step 2: call the LLM — it owns the full response, no Python intercepts ─
     raw_answer = _call_llm(
         question,
         context_docs,
@@ -299,12 +396,12 @@ def ask_with_options(
         session_language=session_language,
     )
 
-    # ── Step 3: parse the LLM response ───────────────────────────────────────
+    # ── Step 3: detect FOLLOWUP_NEEDED signal from the LLM ───────────────────
     _PREFIX = "FOLLOWUP_NEEDED:"
     is_followup = raw_answer.startswith(_PREFIX)
     clean_answer = raw_answer[len(_PREFIX) :].strip() if is_followup else raw_answer
 
-    # ── Step 4: generate quick-reply buttons when a follow-up is needed ──────
+    # ── Step 4: map follow-up type → quick-reply option buttons ──────────────
     options = None
     if is_followup:
         ft = _detect_followup_type(clean_answer.lower())
