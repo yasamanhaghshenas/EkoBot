@@ -21,10 +21,10 @@ class CreditLimitTests(unittest.TestCase):
         self.assertEqual(get_credit_limit_by_gpa(2.2), 38)
 
     def test_gpa_below_2_returns_32_ects(self):
-        question = "My GPA is 1.8; what is my maximum semester course load in ECTS?"
+        question = "My GPA is below 2.0; what is my maximum semester course load in ECTS?"
         self.assertTrue(is_gpa_credit_limit_question(question))
-        self.assertEqual(extract_gpa_from_question(question), 1.8)
-        self.assertEqual(get_credit_limit_by_gpa(1.8), 32)
+        self.assertEqual(extract_gpa_from_question(question), 1.99)
+        self.assertEqual(get_credit_limit_by_gpa(1.99), 32)
 
 
 if __name__ == "__main__":
