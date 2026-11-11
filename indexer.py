@@ -51,7 +51,6 @@ def get_collection():
     return client.get_or_create_collection(
         COLLECTION_NAME,
         embedding_function=EMBEDDING_FUNCTION,
-        metadata={"hnsw:space": "cosine"},
     )
 
 
@@ -88,7 +87,6 @@ def main():
         collection = client.create_collection(
             COLLECTION_NAME,
             embedding_function=EMBEDDING_FUNCTION,
-            metadata={"hnsw:space": "cosine"},
         )
     except Exception as e:
         print(f"⚠ Failed to create collection: {e}")
