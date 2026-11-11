@@ -117,6 +117,7 @@ def _build_system_prompt(
     • Soft everything else – greetings, small talk, typos, emotional messages,
       off-topic questions are all handled naturally and gracefully.
     """
+    # ── Prepare context block ─────────────────────────────────────────────────
     context = "\n\n---\n\n".join(context_docs)
     if len(context) > _MAX_CONTEXT_CHARS:
         context = context[:_MAX_CONTEXT_CHARS] + "\n…[truncated]"
@@ -191,6 +192,8 @@ When someone asks about something completely unrelated to IEU (recipes, sports, 
 
 • Do NOT give a robotic error or dismissive cold response.
 • Redirect with warmth and a light touch of personality — briefly acknowledge what they said, then invite them back to IEU topics.
+• English example: "Ha, that's a bit outside my lane — I'm an IEU specialist through and through! But I'd love to help with your courses, schedule, graduation plan, or anything campus-related. What's on your mind?"
+• Turkish example: "Orası benim uzmanlık alanımın biraz dışında kalıyor 😄 Ben tam bir İEÜ uzmanıyım — dersler, program, mezuniyet, staj... Kampüsle ilgili ne öğrenmek istersin?"
 • Keep the redirect brief, warm, and inviting — never dismissive.{mobile_note}
 {context_block}"""
 
@@ -207,12 +210,20 @@ def _call_llm(
     client_type: str = None,
     session_language: str = "tr",
 ) -> str:
-    """Send the question + retrieved context to the LLM and return its response."""
+    """
+    Send the question + retrieved context to the LLM and return its response.
+
+    The LLM is fully trusted to handle all conversational cases — greetings,
+    small talk, emotional messages, off-topic redirects, and factual answers.
+    Python-level interception is kept to an absolute minimum: only genuine
+    service failures (no client, network error) trigger the degradation message.
+    """
     if _llm is None:
         return _service_unavailable(session_language)
 
     system_prompt = _build_system_prompt(context_docs, session_language, client_type)
 
+    # Build message list: system + recent history + current question
     messages: list[dict] = [{"role": "system", "content": system_prompt}]
     for msg in (history or [])[-_MAX_HISTORY_TURNS:]:
         role = msg.get("role", "user")
@@ -227,9 +238,11 @@ def _call_llm(
             model=_MODEL,
             messages=messages,
             max_tokens=1000,
-            temperature=0.7,
+            temperature=0.7,  # a touch of warmth without going off-piste
         )
         answer = (resp.choices[0].message.content or "").strip()
+        # The LLM should always produce a response given this prompt.
+        # Only fall back if the API literally returned empty content.
         return answer or _service_unavailable(session_language)
     except Exception as e:
         print(f"[LLM] Error: {e}")
@@ -246,29 +259,93 @@ def _t(en: str, tr: str, prefer_tr: bool) -> str:
 
 
 def _detect_followup_type(answer_lower: str) -> str | None:
-    """Infer which student profile field the LLM is asking about."""
-    if any(p in answer_lower for p in ["which faculty", "hangi fakülte", "hangi fakülteye", "hangi okul", "which school", "fakülteniz"]):
+    """
+    Infer which student profile field the LLM is asking about from its
+    response text so the UI can render the right quick-reply buttons.
+    """
+    if any(
+        p in answer_lower
+        for p in [
+            "which faculty",
+            "hangi fakülte",
+            "hangi fakülteye",
+            "hangi okul",
+            "which school",
+            "fakülteniz",
+        ]
+    ):
         return "faculty"
-    if any(p in answer_lower for p in ["which department", "hangi bölüm", "hangi bolüm", "bölümünüz", "bolumunuz", "which dept"]):
+
+    if any(
+        p in answer_lower
+        for p in [
+            "which department",
+            "hangi bölüm",
+            "hangi bolüm",
+            "bölümünüz",
+            "bolumunuz",
+            "which dept",
+        ]
+    ):
         return "dept"
-    if any(p in answer_lower for p in ["entry year", "starting year", "enrollment year", "hangi yıl", "hangi yil", "hangi yılda kayıt", "hangi yilda kayit", "universiteye hangi yıl", "curriculum version"]):
+
+    if any(
+        p in answer_lower
+        for p in [
+            "entry year",
+            "starting year",
+            "enrollment year",
+            "hangi yıl",
+            "hangi yil",
+            "hangi yılda kayıt",
+            "hangi yilda kayit",
+            "universiteye hangi yıl",
+            "curriculum version",
+        ]
+    ):
         return "start_year"
-    if any(p in answer_lower for p in ["which semester are you in", "fall or spring", "hangi dönem", "hangi donem", "güz veya bahar", "guz veya bahar"]):
+
+    if any(
+        p in answer_lower
+        for p in [
+            "which semester are you in",
+            "fall or spring",
+            "hangi dönem",
+            "hangi donem",
+            "güz veya bahar",
+            "guz veya bahar",
+        ]
+    ):
         return "semester"
-    if any(p in answer_lower for p in ["which year of your program", "which year are you in", "what year are you in", "hangi sınıf", "hangi sinif", "kacinci sinif", "kaçıncı sınıf"]):
+
+    if any(
+        p in answer_lower
+        for p in [
+            "which year of your program",
+            "which year are you in",
+            "what year are you in",
+            "hangi sınıf",
+            "hangi sinif",
+            "kacinci sinif",
+            "kaçıncı sınıf",
+        ]
+    ):
         return "year_term"
+
     return None
 
 
 def _get_followup_options(followup_type: str, prefer_tr: bool) -> list | None:
-    """Return quick-reply option dicts for a follow-up type."""
+    """Return quick-reply option dicts ``{label, value}`` for *followup_type*."""
     if followup_type == "faculty":
         return get_ieu_faculty_options(prefer_tr=prefer_tr)
+
     if followup_type == "semester":
         return [
             {"label": _t("Fall", "Güz", prefer_tr), "value": "Fall"},
             {"label": _t("Spring", "Bahar", prefer_tr), "value": "Spring"},
         ]
+
     if followup_type == "year_term":
         return [
             {"label": _t("Year 1", "1. Sınıf", prefer_tr), "value": "1"},
@@ -276,6 +353,9 @@ def _get_followup_options(followup_type: str, prefer_tr: bool) -> list | None:
             {"label": _t("Year 3", "3. Sınıf", prefer_tr), "value": "3"},
             {"label": _t("Year 4", "4. Sınıf", prefer_tr), "value": "4"},
         ]
+
+    # dept and start_year cannot be enumerated without knowing faculty/dept;
+    # return None so the UI falls back to free-text input.
     return None
 
 
@@ -293,8 +373,13 @@ def ask_with_options(
     """
     Main entry point consumed by main.py.
 
-    Deterministic GPA credit-load questions are answered before retrieval or
-    any language-model call.
+    Returns
+    -------
+    dict with keys:
+        answer        – bot's text response (str)
+        is_followup   – True when the bot needs more info from the student (bool)
+        options       – list of {label, value} quick-reply dicts, or None
+        followup_mode – 'replace' | None
     """
     history = history or []
     session_language = session_language or detect_language(question)
@@ -303,7 +388,8 @@ def ask_with_options(
     safe_q = (question or "").encode("ascii", "backslashreplace").decode("ascii")
     print(f"\n[EkoBot] Question: {safe_q}")
 
-    # Exact regulatory rules should not be delegated to a probabilistic model.
+    # Exact GPA-based credit limits are deterministic rules, not LLM decisions.
+    # Handle them before retrieval and before any language-model call.
     if is_gpa_credit_limit_question(question):
         gpa = extract_gpa_from_question(question)
         if gpa is not None:
@@ -332,7 +418,7 @@ def ask_with_options(
     context_docs = _query_context(question)
     print(f"  Retrieved {len(context_docs)} context doc(s) from ChromaDB")
 
-    # ── Step 2: call the LLM ─────────────────────────────────────────────────
+    # ── Step 2: call the LLM — it owns the full response, no Python intercepts ─
     raw_answer = _call_llm(
         question,
         context_docs,
@@ -341,10 +427,12 @@ def ask_with_options(
         session_language=session_language,
     )
 
+    # ── Step 3: detect FOLLOWUP_NEEDED signal from the LLM ───────────────────
     _PREFIX = "FOLLOWUP_NEEDED:"
     is_followup = raw_answer.startswith(_PREFIX)
     clean_answer = raw_answer[len(_PREFIX) :].strip() if is_followup else raw_answer
 
+    # ── Step 4: map follow-up type → quick-reply option buttons ──────────────
     options = None
     if is_followup:
         ft = _detect_followup_type(clean_answer.lower())
