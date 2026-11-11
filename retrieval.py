@@ -59,7 +59,7 @@ def _get_exact_course_docs(code):
     return list(_load_course_docs_by_code().get(normalized, []))
 
 
-def get_context_for_codes(collection, codes):
+def get_context_for_codes(collection, codes, allow_corrections=True):
     contexts = []
     missing = []
     corrections = {}
@@ -101,7 +101,7 @@ def get_context_for_codes(collection, codes):
         except Exception:
             pass
 
-        if not found:
+        if not found and allow_corrections:
             try:
                 results = collection.query(
                     query_texts=[normalized],
