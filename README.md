@@ -222,7 +222,7 @@ python run_eval_gate.py --mode api --api-url http://127.0.0.1:8000/chat
 The evaluator prints the number of cases, passed and failed checks, pass rate, and gate result, and writes timestamped JSON and Markdown reports under `reports/`. **No pass-rate result is claimed in this README until the command has been run against this repository state.** The three deterministic GPA-band unit tests can be run separately:
 
 ```bash
-python -m unittest tests.test_credit_limits -v
+python -m unittest discover -s tests -p "test_credit_limits.py" -v
 ```
 
 ## API
