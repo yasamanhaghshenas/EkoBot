@@ -396,14 +396,16 @@ def ask_with_options(
             limit = get_credit_limit_by_gpa(gpa)
             if limit is not None:
                 if prefer_tr:
+                    gpa_label = "2.00'ın altında" if gpa < 2.0 else f"{gpa:g}"
                     answer = (
-                        f"Not ortalamanız {gpa:g} olduğunda dönemlik alabileceğiniz "
+                        f"Not ortalamanız {gpa_label} olduğunda dönemlik alabileceğiniz "
                         f"azami ders yükü {limit} ECTS'dir. Önemli kararlar için "
                         "güncel üniversite yönetmeliğini kontrol edin."
                     )
                 else:
+                    gpa_label = "below 2.00" if gpa < 2.0 else f"{gpa:g}"
                     answer = (
-                        f"With a GPA of {gpa:g}, the maximum course load is "
+                        f"With a GPA of {gpa_label}, the maximum course load is "
                         f"{limit} ECTS per semester. Please verify important "
                         "decisions against the current university regulations."
                     )
