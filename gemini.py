@@ -37,7 +37,9 @@ _embedding_fn = SentenceTransformerEmbeddingFunction()
 try:
     _chroma = chromadb.PersistentClient(path="./db")
     collection = _chroma.get_or_create_collection(
-        _COLLECTION_NAME, embedding_function=_embedding_fn
+        _COLLECTION_NAME,
+        embedding_function=_embedding_fn,
+        metadata={"hnsw:space": "cosine"},
     )
     print(f"[ChromaDB] Connected to '{_COLLECTION_NAME}' ({collection.count()} docs)")
 except Exception as _e:
