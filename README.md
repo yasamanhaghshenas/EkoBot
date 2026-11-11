@@ -110,7 +110,7 @@ This keeps a rule with one exact answer out of the probabilistic generation step
 
 ### Calibrating retrieval distance
 
-An initial rejection threshold of `0.75` was too strict for the observed ChromaDB cosine-distance values. Correct course matches in the tested queries appeared at distances of approximately `0.6–1.1`; the threshold was recalibrated to `1.5` after inspecting real query distances. For ChromaDB's cosine distance, lower values indicate closer matches; the distance is not a probability or a confidence percentage. The threshold is an empirical project setting, not a universal guarantee of relevance.
+An initial rejection threshold of `0.75` was too strict for the observed ChromaDB cosine-distance values. Correct course matches in the tested queries appeared at distances of approximately `0.6–1.1`; the threshold was recalibrated to `1.5` after inspecting real query distances. For ChromaDB's cosine distance, lower values indicate closer matches; the distance is not a probability or a confidence percentage. The ChromaDB collection is explicitly configured with `hnsw:space=cosine` in the runtime, indexer, and database seeder. Rebuild an existing local index with `python indexer.py` after pulling this change so the cosine metric is applied to the stored collection. The threshold is an empirical project setting, not a universal guarantee of relevance.
 
 ## Project structure
 
@@ -131,7 +131,7 @@ An initial rejection threshold of `0.75` was too strict for the observed ChromaD
 | `eval_questions.json` | 66 manually maintained evaluation questions and expected checks |
 | `seed_ekobot_db.py` | Seeds or initializes the local ChromaDB database from project data |
 | `tests/test_credit_limits.py` | Unit tests for the deterministic GPA credit-limit rules |
-| `tests/`, `eval_questions.json` | Additional test and evaluation inputs |
+| `tests/run_flow_tests.py` | Lightweight conversation-flow checks |
 | `website/` | Browser-based chat interface |
 
 ## Run locally
