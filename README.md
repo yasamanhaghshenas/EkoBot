@@ -110,7 +110,8 @@ This keeps a rule with one exact answer out of the probabilistic generation step
 
 ### Calibrating retrieval distance
 
-An initial rejection threshold of `0.75` was too strict for the observed ChromaDB cosine-distance values. Correct course matches in the tested queries appeared at distances of approximately `0.6–1.1`; the threshold was recalibrated to `1.5` after inspecting real query distances. For ChromaDB's cosine distance, lower values indicate closer matches; the distance is not a probability or a confidence percentage. The ChromaDB collection is explicitly configured with `hnsw:space=cosine` in the runtime, indexer, and database seeder. Rebuild an existing local index with `python indexer.py` after pulling this change so the cosine metric is applied to the stored collection. The threshold is an empirical project setting, not a universal guarantee of relevance.
+ChromaDB's default distance metric is squared Euclidean distance (L2). With normalized embeddings, the distance ranges from `0` to `4`. In the tested queries, correct course matches appeared at distances of approximately `0.6–1.1`. The initial threshold of `0.75` rejected some of these correct matches, so it was recalibrated to `1.5` after inspecting the observed distances. Lower values indicate closer matches; this distance is not a probability or a confidence percentage. The threshold is an empirical project setting, not a universal guarantee of relevance.
+
 
 ## Project structure
 
