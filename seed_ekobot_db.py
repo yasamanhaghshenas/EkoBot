@@ -486,7 +486,6 @@ def get_collection(db_path: str, reset: bool):
     col = client.get_or_create_collection(
         COLLECTION_NAME,
         embedding_function=emb_fn,
-        metadata={"hnsw:space": "cosine"},
     )
     print(f"[DB] Collection '{COLLECTION_NAME}' ready  ({col.count()} existing docs)")
     return col
