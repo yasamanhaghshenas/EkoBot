@@ -11,9 +11,9 @@ app_port: 7860
 
 **An AI-powered academic assistant for İzmir University of Economics (IEU).**
 
-EkoBot helps students find information about courses, curricula, academic regulations, and university services. It combines a retrieval pipeline built around IEU-specific source material with a conversational language model.
+EkoBot helps students find information about courses, curricula, academic regulations, and university services. It combines a retrieval pipeline built around publicly available IEU web content with a conversational language model.
 
-> EkoBot is an independent academic project. It is not an official university service, and its responses should be checked against the university's current regulations and official announcements.
+> EkoBot is an independent student project, not an official university service. Its answers are informational and should be checked against the university's current official pages.
 
 ## What it does
 
@@ -23,13 +23,38 @@ EkoBot helps students find information about courses, curricula, academic regula
 - Supports English and Turkish conversations.
 - Maintains recent conversation history and can ask follow-up questions when more student context is needed.
 
+## Data collection and preparation
+
+The project team built its own dataset by collecting information page by page from publicly accessible pages on IEU's official website. No private university database or university-provided internal dataset was used.
+
+The Python collection and processing scripts:
+
+- collect course syllabus information from public course pages;
+- extract course descriptions, prerequisites, credits, ECTS, weekly topics, and assessment information;
+- collect publicly available curriculum and department information;
+- scrape selected student-affairs, academic-calendar, IT-support, career, and internship pages;
+- clean the extracted HTML, organize the content, and store the resulting records in JSON files for indexing.
+
+Each scraped course record retains its source URL, and web-page chunks include source URL metadata. This makes the origin of retrieved information traceable to the public page from which it was collected.
+
+Examples of source areas used by the scraper include:
+
+- IEU official website: https://www.ieu.edu.tr/
+- IEU Student Affairs: https://oim.ieu.edu.tr/
+- IEU IT Support: https://itsupport.ieu.edu.tr/
+- IEU Career: https://kariyer.ieu.edu.tr/
+- IEU Computer Engineering pages: https://comp.izmirekonomi.edu.tr/
+
+The collected JSON files are generated project data, not files supplied by the university. Since official pages may change, the dataset and vector index should be refreshed periodically.
+
 ## How it works
 
-1. **Knowledge preparation** — course and university information is collected from structured JSON files and selected IEU web sources.
-2. **Embeddings** — text is encoded with Sentence Transformers (all-MiniLM-L6-v2).
-3. **Vector retrieval** — ChromaDB stores the indexed knowledge and retrieves relevant context for a question.
-4. **Answer generation** — the retrieved context and recent conversation are passed to an OpenAI-compatible chat API hosted by OpenRouter.
-5. **Response handling** — the API returns the answer together with follow-up metadata when additional information is required.
+1. **Collection** — Python scripts retrieve information from selected public IEU pages.
+2. **Preparation** — extracted text is cleaned, structured, and stored in JSON files.
+3. **Embeddings** — text is encoded with Sentence Transformers (all-MiniLM-L6-v2).
+4. **Vector retrieval** — ChromaDB stores the indexed knowledge and retrieves relevant context for a question.
+5. **Answer generation** — retrieved context and recent conversation are passed to an OpenAI-compatible chat API hosted by OpenRouter.
+6. **Response handling** — the API returns the answer together with follow-up metadata when additional student context is required.
 
 For course-code questions, the backend first attempts an exact lookup in the course data and then uses ChromaDB retrieval as a fallback. General questions use semantic retrieval to assemble context for the language model.
 
@@ -104,8 +129,6 @@ Do not commit API keys or other credentials to the repository. Keep them in envi
 
 ### 4. Build the vector index and start the API
 
-The startup script attempts to build the ChromaDB index before launching the server:
-
 ~~~bash
 python indexer.py
 uvicorn main:app --host 0.0.0.0 --port 7860
@@ -118,7 +141,7 @@ docker build -t ekobot .
 docker run --rm -p 7860:7860 -e OPENROUTER_API_KEY="$OPENROUTER_API_KEY" ekobot
 ~~~
 
-The indexer expects the relevant course, curriculum, and university-source data files to be present in the project directory.
+The indexer reads the available course, curriculum, department, and university-source JSON files and builds the ChromaDB collection.
 
 ## Configuration
 
@@ -141,13 +164,12 @@ The model and retrieval settings are currently defined in gemini.py.
 - scraper.py — collects course and selected university web-page content.
 - catalog.py — course, department, curriculum, and source-catalog helpers.
 - website/ — web client.
+- JSON data files — collected and structured project data used by the application.
 - tests/ and evaluation JSON files — test and evaluation inputs.
 
-## Data and responsible use
+## Responsible use and data freshness
 
-The application uses course and university information represented in local data files and source catalogs. Before redistributing those files, verify that their contents may be shared publicly and that they do not contain non-public university material or personal information. Where possible, prefer a small, clearly attributed sample dataset and document how the full index can be generated.
-
-EkoBot is a student project and an informational aid. University policies and course details can change; users should confirm consequential academic decisions with IEU's official sources.
+EkoBot is a student-built informational tool. Course details, academic regulations, and university services can change. Users should verify consequential academic decisions against IEU's current official sources.
 
 ## License
 
