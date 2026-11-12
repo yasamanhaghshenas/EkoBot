@@ -3,7 +3,7 @@
 
 EkoBot is a student-built academic information assistant designed to help İzmir University of Economics (IEU) students navigate course information and selected university resources. It combines a Python-based data collection pipeline, a ChromaDB vector store, and a conversational language model accessed through OpenRouter.
 
-> **Project status:** Academic prototype. EkoBot is an independent student project and is not affiliated with, endorsed by, or operated by İzmir University of Economics. Its responses may be incomplete or outdated; students should verify important academic decisions against current official university sources.
+> **Project status:** Graduation project at İzmir University of Economics (IEU), not an official university service. EkoBot is an academic prototype and is not operated, endorsed, or maintained by the university. Its responses may be incomplete or outdated; students should verify important academic decisions against current official university sources.
 
 ---
 
@@ -17,6 +17,7 @@ The project focuses on:
 - **Academic information:** selected curriculum, department, academic-regulation, and university-service content collected from public IEU webpages.
 - **Conversational interaction:** English- and Turkish-language questions, recent conversation context, and follow-up questions when more details are needed.
 - **Source-aware retrieval:** semantic search over indexed documents to provide relevant context to the language model.
+- **Deterministic regulation handling:** GPA-based semester credit limits are calculated in Python before retrieval and before any language-model call.
 
 The system is intended as an information-navigation aid, not as an official academic advising or decision-making service.
 
@@ -43,7 +44,7 @@ flowchart TD
 2. **Parse and structure** — HTML is cleaned and relevant information is extracted into structured JSON records and text chunks.
 3. **Embed** — Sentence Transformers converts text into vector representations using `all-MiniLM-L6-v2`.
 4. **Index and retrieve** — ChromaDB stores the vectors and returns semantically relevant documents for a question.
-5. **Generate** — the retrieved context and recent conversation history are sent to a chat model through the OpenRouter API.
+5. **Generate** — the retrieved context and recent conversation history are sent to a chat model through the OpenRouter API. GPA-based credit-limit questions are intercepted earlier and answered by deterministic Python rules.
 6. **Respond** — the FastAPI backend returns the answer and, where applicable, follow-up information for the client.
 
 ## Data collection and provenance
@@ -83,6 +84,8 @@ Public accessibility does not necessarily grant permission to republish or comme
 | Validation | Pydantic |
 | Containerization | Docker |
 
+The model name above is taken from the current `_MODEL` setting in `gemini.py`; it describes the repository's present configuration, not every model used during the project's development.
+
 ## My contribution
 
 I took primary responsibility for the Python web-scraping and data-extraction pipeline: designing and implementing the core scripts that collect public course information, parse webpage content, and transform the extracted material into structured JSON data.
@@ -91,27 +94,53 @@ I also contributed to the project's data preparation and indexing workflow, Chro
 
 This project gave me practical experience with web data acquisition, information extraction, data structuring, vector search, API development, and integrating retrieval with a conversational language model.
 
+## Design lessons
+
+### Deterministic rules for exact regulatory answers
+
+An early version let the language model answer GPA-based semester credit-limit questions. It produced a plausible but unsupported number. The current flow detects these questions and applies the published GPA bands in Python before retrieval or any LLM call:
+
+| GPA band | Maximum semester load |
+|---|---:|
+| Below 2.00 | 32 ECTS |
+| 2.00–2.49 | 38 ECTS |
+| 2.50 and above | 44 ECTS |
+
+This keeps a rule with one exact answer out of the probabilistic generation step. The source regulation should still be checked for current applicability: [IEU regulations](https://www.ieu.edu.tr/en/bylaws/type/read/id/72).
+
+### Calibrating retrieval distance
+
+ChromaDB's default distance metric is squared Euclidean distance (L2). With normalized embeddings, the distance ranges from `0` to `4`. In the tested queries, correct course matches appeared at distances of approximately `0.6–1.1`. The initial threshold of `0.75` rejected some of these correct matches, so it was recalibrated to `1.5` after inspecting the observed distances. Lower values indicate closer matches; this distance is not a probability or a confidence percentage. The threshold is an empirical project setting, not a universal guarantee of relevance.
+
+
 ## Project structure
 
 | File or directory | Purpose |
 |---|---|
 | `main.py` | FastAPI application and chat endpoint |
-| `gemini.py` | OpenRouter client, prompt construction, context retrieval, and conversation flow |
+| `gemini.py` | OpenRouter client, prompt construction, retrieval orchestration, and conversation flow |
+| `credit_limits.py` | GPA credit-load question detection, GPA extraction, and deterministic ECTS rules |
 | `scraper.py` | Course and selected university-page collection |
 | `scraper_curriculum.py`, `scraper_info.py` | Additional curriculum and university-information collection |
+| `parsing.py` | Department, course, curriculum, and regulation-related parsing and lookup helpers |
 | `catalog.py`, `planning.py` | Course, department, curriculum, and planning-related data helpers |
 | `embeddings.py` | Text embedding wrapper |
 | `indexer.py` | Builds the ChromaDB knowledge index |
-| `retrieval.py` | Course-focused retrieval helper functions |
+| `retrieval.py` | Course-focused retrieval helpers and distance threshold |
+| `auto_eval.py` | Runs the question-based automated evaluation and writes reports |
+| `run_eval_gate.py` | One-command wrapper that runs the evaluation and enforces the minimum pass-rate gate |
+| `eval_questions.json` | 66 manually maintained evaluation questions and expected checks |
+| `seed_ekobot_db.py` | Seeds or initializes the local ChromaDB database from project data |
+| `tests/test_credit_limits.py` | Unit tests for the deterministic GPA credit-limit rules |
+| `tests/run_flow_tests.py` | Lightweight conversation-flow checks |
 | `website/` | Browser-based chat interface |
-| `tests/`, `eval_questions.json` | Test and evaluation inputs |
 
 ## Run locally
 
 ### Requirements
 
 - Python 3.11
-- An OpenRouter API key
+- An OpenRouter API key for live model responses
 - Internet access for model and embedding downloads and for any source collection that requires live webpages
 
 ### 1. Clone the repository
@@ -174,6 +203,33 @@ docker build -t ekobot .
 docker run --rm -p 7860:7860 -e OPENROUTER_API_KEY="$OPENROUTER_API_KEY" ekobot
 ```
 
+## Recorded test run
+
+A previously recorded run of `python run_tests.py` against the deployed chat endpoint reported **102 passed, 0 failed, and 62 requiring manual review** (164 test questions in total). The script uses keyword matching against expected phrases: cases with a matching keyword are marked PASS, cases with no match are marked MANUAL, and empty responses or request errors are marked FAIL. Accordingly, the 102/102 PASS figure applies only to the automatically classified PASS cases; the 62 MANUAL cases were not verified as correct and must not be counted as passes. This is a historical result from the terminal run documented in the project report, not a fresh run of `run_eval_gate.py` on the current branch.
+
+## Evaluation
+
+The repository contains **66 manually maintained evaluation questions** in `eval_questions.json`. The evaluator also adds curriculum-derived failed-course cases and can generate additional cases to reach its configured target; therefore, the total number executed by the gate may be greater than 66.
+
+Run the default offline/mock evaluation and quality gate from the repository root:
+
+```bash
+python run_eval_gate.py
+```
+
+The default mode is `direct-mocked`, and the default minimum pass-rate gate is 95%. To run against a live local API instead:
+
+```bash
+uvicorn main:app --host 127.0.0.1 --port 8000
+python run_eval_gate.py --mode api --api-url http://127.0.0.1:8000/chat
+```
+
+The evaluator prints the number of cases, passed and failed checks, pass rate, and gate result, and writes timestamped JSON and Markdown reports under `reports/`. **No pass-rate result is claimed in this README until the command has been run against this repository state.** The three deterministic GPA-band unit tests can be run separately:
+
+```bash
+python -m unittest discover -s tests -p "test_credit_limits.py" -v
+```
+
 ## API
 
 ### `GET /`
@@ -193,7 +249,7 @@ Example request:
 
 The response includes:
 
-- `answer` — generated response text.
+- `answer` — generated or deterministic response text.
 - `is_followup` — whether the response is part of a follow-up flow.
 - `options` — optional suggested replies.
 - `followup_mode` — optional follow-up handling mode.
@@ -204,7 +260,7 @@ The response includes:
 - EkoBot is a prototype and has not been presented as an authoritative source of academic policy.
 - Retrieval quality depends on the coverage, freshness, and structure of the collected webpages.
 - Language-model responses can be incorrect or incomplete, even when relevant context is retrieved.
-- The current repository does not publish a measured end-to-end answer-accuracy score.
+- The automated evaluation checks expected response properties; it is not a measured end-to-end factual-accuracy benchmark.
 - Always confirm prerequisites, graduation requirements, course availability, and other consequential decisions with IEU's current official sources.
 
 ## License

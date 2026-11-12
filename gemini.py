@@ -9,6 +9,11 @@ import chromadb
 from openai import OpenAI
 
 from catalog import get_ieu_faculty_options
+from credit_limits import (
+    extract_gpa_from_question,
+    get_credit_limit_by_gpa,
+    is_gpa_credit_limit_question,
+)
 from embeddings import SentenceTransformerEmbeddingFunction
 from language_utils import detect_language
 
@@ -32,7 +37,8 @@ _embedding_fn = SentenceTransformerEmbeddingFunction()
 try:
     _chroma = chromadb.PersistentClient(path="./db")
     collection = _chroma.get_or_create_collection(
-        _COLLECTION_NAME, embedding_function=_embedding_fn
+        _COLLECTION_NAME,
+        embedding_function=_embedding_fn,
     )
     print(f"[ChromaDB] Connected to '{_COLLECTION_NAME}' ({collection.count()} docs)")
 except Exception as _e:
@@ -382,6 +388,34 @@ def ask_with_options(
 
     safe_q = (question or "").encode("ascii", "backslashreplace").decode("ascii")
     print(f"\n[EkoBot] Question: {safe_q}")
+
+    # Exact GPA-based credit limits are deterministic rules, not LLM decisions.
+    # Handle them before retrieval and before any language-model call.
+    if is_gpa_credit_limit_question(question):
+        gpa = extract_gpa_from_question(question)
+        if gpa is not None:
+            limit = get_credit_limit_by_gpa(gpa)
+            if limit is not None:
+                if prefer_tr:
+                    gpa_label = "2.00'ın altında" if gpa < 2.0 else f"{gpa:g}"
+                    answer = (
+                        f"Not ortalamanız {gpa_label} olduğunda dönemlik alabileceğiniz "
+                        f"azami ders yükü {limit} ECTS'dir. Önemli kararlar için "
+                        "güncel üniversite yönetmeliğini kontrol edin."
+                    )
+                else:
+                    gpa_label = "below 2.00" if gpa < 2.0 else f"{gpa:g}"
+                    answer = (
+                        f"With a GPA of {gpa_label}, the maximum course load is "
+                        f"{limit} ECTS per semester. Please verify important "
+                        "decisions against the current university regulations."
+                    )
+                return {
+                    "answer": answer,
+                    "is_followup": False,
+                    "options": None,
+                    "followup_mode": None,
+                }
 
     # ── Step 1: retrieve relevant context from ChromaDB ──────────────────────
     context_docs = _query_context(question)
