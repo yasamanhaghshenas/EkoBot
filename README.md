@@ -203,6 +203,10 @@ docker build -t ekobot .
 docker run --rm -p 7860:7860 -e OPENROUTER_API_KEY="$OPENROUTER_API_KEY" ekobot
 ```
 
+## Recorded test run
+
+A previously recorded run of `python run_tests.py` against the deployed chat endpoint reported **102 passed, 0 failed, and 62 requiring manual review** (164 test questions in total). The script uses keyword matching against expected phrases: cases with a matching keyword are marked PASS, cases with no match are marked MANUAL, and empty responses or request errors are marked FAIL. Accordingly, the 102/102 PASS figure applies only to the automatically classified PASS cases; the 62 MANUAL cases were not verified as correct and must not be counted as passes. This is a historical result from the terminal run documented in the project report, not a fresh run of `run_eval_gate.py` on the current branch.
+
 ## Evaluation
 
 The repository contains **66 manually maintained evaluation questions** in `eval_questions.json`. The evaluator also adds curriculum-derived failed-course cases and can generate additional cases to reach its configured target; therefore, the total number executed by the gate may be greater than 66.
